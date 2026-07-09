@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AgentVisit {
+  id              String   @id @default(cuid())
+  agentCardId     String   // BusinessCard.id of the agent
+  leadId          String?  // If visit is linked to a specific lead
+  latitude        Float
+  longitude       Float
+  locationAddress String?
+  locationLabel   String?  // e.g., "Shell Petrol Station, Westlands"
+  visitNote       String?
+  durationMins    Int?
+  outcome         String   @default("VISITED") // "VISITED", "NO_ANSWER", "FOLLOW_UP", "CONVERTED"
+  photos          String[] @default([]) // Supabase storage URLs
+  createdAt       DateTime @default(now())
+}
+
+model FieldPhoto {
+  id          String   @id @default(cuid())
+  agentCardId String
+  leadId      String?
+  visitId     String?
+  photoUrl    String
+  caption     String?
+  type        String   @default("STOREFRONT") // "STOREFRONT", "DOCUMENT", "RECEIPT", "OTHER"
+  latitude    Float?
+  longitude   Float?
+  createdAt   DateTime @default(now())
+}
+
+model FieldAccount {
+  id              String   @id @default(cuid())
+  name            String
+  address         String?
+  latitude        Float
+  longitude       Float
+  
+  // Sales specific fields
+  status          String   @default("PROSPECT") // PROSPECT, CUSTOMER, CHURNED
+  salesStage      String   @default("NEW") // NEW, QUALIFIED, NEGOTIATING, CLOSED_WON
+  salesYTD        Float    @default(0)
+  nextStep        String?  // e.g. "phone call", "drop off a sample"
+  nextStepDate    DateTime?
+  daysSinceVisit  Int      @default(0)
+  priority        String   @default("Medium") // High, Medium, Low
+  
+  // Organization / Agent mapping
+  agentCardId     String?  // ID of the assigned field rep
+  orgId           String?  // ID of the organization
+  
+  customFields    Json?    // For flexibility (Specialty, Customer Type, etc.)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

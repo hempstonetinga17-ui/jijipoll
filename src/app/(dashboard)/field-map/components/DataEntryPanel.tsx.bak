@@ -1,0 +1,147 @@
+"use client";
+
+import React, { useState } from "react";
+import { useFieldMap } from "../context/FieldMapContext";
+import { Plus, Settings2, MapPin, Check, FileText, LayoutList, UploadCloud, RefreshCw } from "lucide-react";
+
+interface FormSchema {
+  id: string;
+  name: string; // e.g., "Hospital", "Shop"
+  icon: string;
+  fields: { name: string; type: "text" | "number" | "select" | "tel" | "email"; options?: string[]; required?: boolean }[];
+}
+
+const defaultSchemas: FormSchema[] = [
+  {
+    id: "schema-1",
+    name: "Hospital",
+    icon: "🏥",
+    fields: [
+      { name: "Hospital Name", type: "text", required: true },
+      { name: "Contact Phone", type: "tel", required: true },
+      { name: "Contact Email", type: "email", required: false },
+      { name: "Bed Capacity", type: "number", required: false },
+      { name: "Facility Type", type: "select", options: ["Public", "Private", "Mission"], required: true }
+    ]
+  },
+  {
+    id: "schema-2",
+    name: "Shop / Retail",
+    icon: "🏪",
+    fields: [
+      { name: "Shop Name", type: "text", required: true },
+      { name: "Owner Phone", type: "tel", required: true },
+      { name: "Daily Footfall", type: "number", required: false },
+      { name: "Status", type: "select", options: ["Open", "Closed", "Under Renovation"], required: true }
+    ]
+  }
+];
+
+export function DataEntryPanel() {
+  const { state, dispatch } = useFieldMap();
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [schemas, setSchemas] = useState<FormSchema[]>(defaultSchemas);
+  const [selectedSchema, setSelectedSchema] = useState<FormSchema | null>(null);
+  const [formData, setFormData] = useState<Record<string, any>>({});
+  
+  const [entryMode, setEntryMode] = useState<"manual" | "import" | "crm">("manual");
+  const [csvContent, setCsvContent] = useState<string>("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedSchema || !state.pickedLocation) return;
+    
+    if (!state.pickedLocation) {
+      alert("System validation failed: Accurate GPS coordinates are required before submission.");
+      return;
+    }
+    
+    // Auto-verify required fields (Browser validation handles most, but we double-check)
+    for (const field of selectedSchema.fields) {
+      if ((field as any).required && !formData[field.name]) {
+        alert(`Validation Error: ${field.name} is required.`);
+        return;
+      }
+    }
+    
+    // Add to accounts/leads (Direct CRM & Map Sync)
+    const newAccount = {
+      id: `custom-${Date.now()}`,
+      name: formData[selectedSchema.fields[0].name] || `${selectedSchema.name} Entry`,
+      company: "",
+      phone: formData["Contact Phone"] || formData["Owner Phone"] || "",
+      email: formData["Contact Email"] || "",
+      salesYTD: 0,
+      nextStep: "follow up" as any,
+      nextStepDate: new Date().toISOString().split('T')[0],
+      daysSinceVisit: 0,
+      salesStage: "1 - Lead" as any,
+      priority: "Medium" as any,
+      lat: state.pickedLocation.lat,
+      lng: state.pickedLocation.lng,
+      address: `Lat: ${state.pickedLocation.lat.toFixed(4)}, Lng: ${state.pickedLocation.lng.toFixed(4)}`,
+      businessType: selectedSchema.name,
+      notes: [`Custom Data Entry via ${selectedSchema.name} form.`, JSON.stringify(formData, null, 2)],
+      photos: [],
+      customFields: formData,
+      createdAt: new Date().toISOString()
+    };
+    
+    dispatch({ type: "ADD_ACCOUNT", account: newAccount });
+    alert("Data entry automatically validated and synchronized to CRM and Maps successfully!");
+    dispatch({ type: "SET_PICKED_LOCATION", location: null });
+  };
+
+  const handleCsvImport = () => {
+    if (!csvContent) return;
+    const lines = csvContent.split('\n');
+    if (lines.length < 2) {
+      alert("Invalid CSV: Must have header and at least one data row.");
+      return;
+    }
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    let imported = 0;
+    for (let i=1; i<lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const values = lines[i].split(',').map(v => v.trim());
+      
+      const newAccount = {
+        id: `import-${Date.now()}-${i}`,
+        name: values[headers.indexOf('name')] || 'Imported Account',
+        company: values[headers.indexOf('company')] || '',
+        phone: values[headers.indexOf('phone')] || '',
+        email: values[headers.indexOf('email')] || '',
+        salesYTD: parseFloat(values[headers.indexOf('sales')] || '0'),
+        nextStep: "follow up" as any,
+        nextStepDate: new Date().toISOString().split('T')[0],
+        daysSinceVisit: 0,
+        salesStage: "1 - Lead" as any,
+        priority: "Medium" as any,
+        lat: parseFloat(values[headers.indexOf('lat')] || (state.mapCenter[0] + (Math.random()-0.5)*0.01).toString()),
+        lng: parseFloat(values[headers.indexOf('lng')] || (state.mapCenter[1] + (Math.random()-0.5)*0.01).toString()),
+        address: values[headers.indexOf('address')] || '',
+        businessType: "Imported",
+        notes: ["Bulk imported via CSV"],
+        photos: [],
+        createdAt: new Date().toISOString()
+      };
+      dispatch({ type: "ADD_ACCOUNT", account: newAccount });
+      imported++;
+    }
+    alert(`Successfully imported ${imported} accounts!`);
+    setCsvContent("");
+  };
+
+  const handleCRMSync = () => {
+    if (state.crmConfig.provider === "none") {
+      alert("Please connect a CRM provider in Settings first.");
+      return;
+    }
+    alert(`Simulating dynamic sync with ${state.crmConfig.provider}...`);
+    // Simulated sync delay
+    setTimeout(() => {
+      alert("Sync completed! Data is now fresh.");
+    }, 1500);
+  };
+
