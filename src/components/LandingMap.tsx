@@ -25,11 +25,11 @@ const DUMMY_BUSINESSES = [
 
 export default function LandingMap() {
   return (
-    <div style={{ width: "100%", height: "100%", position: "relative", backgroundColor: "#f06135" }}>
-      <MapContainer 
-        center={[20, 0]} 
-        zoom={3} 
-        scrollWheelZoom={false} 
+    <div className="w-full h-full relative bg-[#f06135]">
+      <MapContainer
+        center={[20, 0]}
+        zoom={3}
+        scrollWheelZoom={false}
         zoomControl={false}
         style={{ height: "100%", width: "100%", background: "transparent", zIndex: 0 }}
       >
@@ -40,7 +40,7 @@ export default function LandingMap() {
         {DUMMY_BUSINESSES.map(biz => (
           <Marker key={biz.id} position={[biz.lat, biz.lng]} icon={customIcon}>
             <Tooltip direction="top" offset={[0, -40]} opacity={1} permanent={false}>
-              <div style={{ fontWeight: "bold", color: "#1f2937", padding: "4px" }}>{biz.name}</div>
+              <div className="font-bold text-gray-800 p-1">{biz.name}</div>
             </Tooltip>
           </Marker>
         ))}

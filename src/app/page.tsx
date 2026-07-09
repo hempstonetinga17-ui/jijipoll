@@ -7,37 +7,37 @@ const LandingMap = dynamic(() => import("@/components/LandingMap"), { ssr: false
 
 export default function HomePage() {
   return (
-    <main style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', backgroundColor: '#f06135' }}>
+    <main className="relative w-full h-screen overflow-hidden bg-[#f06135]">
       {/* Dynamic Map Background */}
-      <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 0, mixBlendMode: 'luminosity' }}>
+      <div className="absolute inset-0 z-0 mix-blend-luminosity">
         <LandingMap />
       </div>
 
       {/* Header / Navigation */}
-      <header style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 20, padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ color: 'white', fontWeight: 900, fontSize: '1.875rem', letterSpacing: '-0.05em', textShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>JIJIPOLL</div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <Link href="/login" style={{ color: 'white', fontWeight: 600, textDecoration: 'none', textShadow: '0 4px 6px rgba(0,0,0,0.1)', transition: 'color 0.2s', padding: '0.75rem 1rem' }}>
+      <header className="absolute top-0 left-0 w-full z-20 p-6 flex justify-between items-center">
+        <div className="text-white font-black text-3xl tracking-tighter drop-shadow-md">JIJIPOLL</div>
+        <div className="flex gap-4 items-center">
+          <Link href="/login" className="text-white font-semibold hover:text-white/80 transition drop-shadow-md">
             Log In
           </Link>
-          <Link href="/register" style={{ backgroundColor: 'white', color: '#f06135', padding: '0.75rem 1.5rem', borderRadius: '9999px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', transition: 'background-color 0.2s' }}>
+          <Link href="/register" className="bg-white text-[#f06135] px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition shadow-xl">
             Register Business
           </Link>
         </div>
       </header>
 
       {/* Hero Content */}
-      <div style={{ position: 'absolute', top: '33%', left: '2.5rem', zIndex: 20, maxWidth: '32rem', pointerEvents: 'none', filter: 'drop-shadow(0 10px 8px rgba(0,0,0,0.2))' }}>
-        <h1 style={{ fontSize: '4rem', fontWeight: 900, color: 'white', lineHeight: 1.1, margin: '0 0 1rem' }}>
+      <div className="absolute top-1/3 left-10 z-20 max-w-lg pointer-events-none drop-shadow-lg">
+        <h1 className="text-5xl font-black text-white leading-tight mb-4">
           Locate Every Business, <br/> Everywhere.
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.125rem', fontWeight: 500, margin: 0 }}>
+        <p className="text-white/90 text-lg font-medium">
           Whether you're an investor looking for fish sellers or a researcher plotting out territories, Jijipoll gives you the geographic insights you need.
         </p>
       </div>
 
       {/* Stat Widgets overlay */}
-      <div style={{ position: 'absolute', bottom: '2.5rem', right: '2.5rem', zIndex: 20, display: 'flex', gap: '1rem', transformOrigin: 'bottom right' }}>
+      <div className="absolute bottom-10 right-10 z-20 flex gap-4 sm:gap-6 origin-bottom-right">
         <StatWidget value="120+" label="Countries" bgColor="#d35400" />
         <StatWidget value="73" label="Languages" bgColor="#a8e6cf" />
         <StatWidget value="10K+" label="Interviewers" bgColor="#bdc3c7" />
