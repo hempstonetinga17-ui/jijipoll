@@ -1,7 +1,6 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
@@ -11,12 +10,18 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "fallback_secret_for_build_only",
-  adapter: PrismaAdapter(prisma),
+  // NOTE: No PrismaAdapter here — it conflicts with JWT session strategy.
+  // The adapter requires database sessions; JWT sessions are stateless.
   session: { strategy: "jwt" },
+  pages: {
+    signIn: "/login",
+    error: "/login", // redirect auth errors to login page (shows ?error= param)
+  },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -26,21 +31,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
-        
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string }
-        })
 
-        if (!user || !user.passwordHash) return null
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string }
+          })
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        )
+          if (!user || !user.passwordHash) return null
 
-        if (!isPasswordValid) return null
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password as string,
+            user.passwordHash
+          )
 
-        return user
+          if (!isPasswordValid) return null
+
+          return user
+        } catch {
+          return null
+        }
       }
     })
   ],
@@ -63,3 +72,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   }
 })
+

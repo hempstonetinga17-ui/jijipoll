@@ -1,15 +1,25 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 
-export default function LoginPage() {
+const AUTH_ERRORS: Record<string, string> = {
+  OAuthSignin: "Could not start Google sign-in. Please try again.",
+  OAuthCallback: "Google sign-in failed. Please try again.",
+  OAuthCreateAccount: "Could not create account with Google.",
+  OAuthAccountNotLinked: "This email is already used with a different sign-in method.",
+  CredentialsSignin: "Invalid email or password.",
+  Default: "Something went wrong. Please try again.",
+}
+
+function LoginForm() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  })
+  const searchParams = useSearchParams()
+  const errorCode = searchParams.get("error")
+  const errorMessage = errorCode ? (AUTH_ERRORS[errorCode] ?? AUTH_ERRORS.Default) : null
+
+  const [formData, setFormData] = useState({ email: "", password: "" })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -17,7 +27,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Normally we would sign in with NextAuth here
     alert("Login submitted! In a real app, this would authenticate the user.")
     router.push("/")
   }
@@ -26,10 +35,17 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#f06135]">
       <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-md border border-white/20">
         <h2 className="text-3xl font-bold text-white mb-6 text-center">Business Login</h2>
+
+        {errorMessage && (
+          <div className="bg-red-500/20 border border-red-400/50 text-white text-sm rounded-lg px-4 py-3 mb-4 text-center">
+            ⚠️ {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-white/80 mb-1 text-sm">Email</label>
-            <input 
+            <input
               type="email"
               name="email"
               value={formData.email}
@@ -41,7 +57,7 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block text-white/80 mb-1 text-sm">Password</label>
-            <input 
+            <input
               type="password"
               name="password"
               value={formData.password}
@@ -51,7 +67,7 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
-          <button 
+          <button
             type="submit"
             className="w-full bg-white text-[#f06135] font-bold py-3 rounded-lg hover:bg-white/90 transition duration-300 mt-6 shadow-lg"
           >
@@ -83,5 +99,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#f06135]">
+        <div className="text-white text-xl font-semibold">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
