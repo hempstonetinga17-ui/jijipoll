@@ -9,6 +9,7 @@ export const prisma = globalForPrisma.prisma || new PrismaClient()
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "fallback_secret_for_build_only",
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
