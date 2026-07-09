@@ -42,12 +42,12 @@ export function DrawAreaStatsPanel() {
     // Calculate total mileage along the optimized route
     let mileage = 0;
     // from location to first
-    if (startLocation && optimized.length > 0) {
-      mileage += haversineKm(startLocation.lat, startLocation.lng, optimized[0].account.lat, optimized[0].account.lng);
+    if (startLocation && optimized.stops.length > 0) {
+      mileage += haversineKm(startLocation.lat, startLocation.lng, optimized.stops[0].account.lat, optimized.stops[0].account.lng);
     }
-    for (let i = 0; i < optimized.length - 1; i++) {
-      const c1 = optimized[i].account;
-      const c2 = optimized[i+1].account;
+    for (let i = 0; i < optimized.stops.length - 1; i++) {
+      const c1 = optimized.stops[i].account;
+      const c2 = optimized.stops[i+1].account;
       mileage += haversineKm(c1.lat, c1.lng, c2.lat, c2.lng);
     }
     return { optimizedMileage: mileage, optimizedTime: estimatedTravelMin(mileage) };

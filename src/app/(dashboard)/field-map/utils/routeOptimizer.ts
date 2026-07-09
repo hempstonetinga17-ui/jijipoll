@@ -16,8 +16,12 @@ export function estimatedTravelMin(distanceKm: number): number {
 }
 
 // Simple nearest neighbor TSP
-export function optimizeRoute(stops: RouteStop[], startLocation: { lat: number, lng: number } | null): RouteStop[] {
-  if (stops.length <= 1) return stops;
+export function optimizeRoute(
+  stops: RouteStop[], 
+  startLocation: { lat: number, lng: number } | null,
+  endLocation?: { lat: number, lng: number } | null
+): { stops: RouteStop[] } {
+  if (stops.length <= 1) return { stops };
   
   const unvisited = [...stops];
   const optimized: RouteStop[] = [];
@@ -43,5 +47,38 @@ export function optimizeRoute(stops: RouteStop[], startLocation: { lat: number, 
     currentLng = nextStop.account.lng;
   }
   
-  return optimized.map((stop, i) => ({ ...stop, order: i }));
+  return { stops: optimized.map((stop, i) => ({ ...stop, order: i })) };
+}
+
+export function exportRouteToGPX(stops: RouteStop[], routeName: string = "Optimized Route"): string {
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="StampKE">\n  <trk>\n    <name>${routeName}</name>\n    <trkseg>\n`;
+  for (const stop of stops) {
+    xml += `      <trkpt lat="${stop.account.lat}" lon="${stop.account.lng}">\n        <name>${stop.account.name}</name>\n      </trkpt>\n`;
+  }
+  xml += `    </trkseg>\n  </trk>\n</gpx>`;
+  return xml;
+}
+
+export function suggestNearbyAccounts(routeStops: RouteStop[], allAccounts: FieldAccount[]): { id: string, name: string, reason: string }[] {
+  if (routeStops.length === 0) return [];
+  const lastStop = routeStops[routeStops.length - 1];
+  
+  const unvisited = allAccounts.filter(a => !routeStops.find(s => s.account.id === a.id));
+  
+  const distances = unvisited.map(a => ({
+    account: a,
+    distance: haversineKm(lastStop.account.lat, lastStop.account.lng, a.lat, a.lng)
+  }));
+  
+  distances.sort((a, b) => a.distance - b.distance);
+  
+  return distances.slice(0, 3).map(d => ({
+    id: d.account.id,
+    name: d.account.name,
+    reason: `${d.distance.toFixed(1)} km away from last stop`
+  }));
+}
+
+export function generateRoutePrintHTML(stops: RouteStop[]): string {
+  return "<html><body><h1>Route</h1></body></html>";
 }

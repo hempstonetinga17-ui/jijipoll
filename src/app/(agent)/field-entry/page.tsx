@@ -305,13 +305,13 @@ export default function FieldEntryPage() {
                     const startLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     const stops = accounts.map((acc, i) => ({ account: acc, id: `stop-${i}`, order: i, visited: false, estimatedDurationMin: 30 }));
                     const optimized = optimizeRoute(stops, startLocation);
-                    setAccounts(optimized.map((s: any) => s.account));
+                    setAccounts(optimized.stops.map((s: any) => s.account));
                     alert("Route optimized based on your current location!");
                   },
                   () => {
                     const stops = accounts.map((acc, i) => ({ account: acc, id: `stop-${i}`, order: i, visited: false, estimatedDurationMin: 30 }));
                     const optimized = optimizeRoute(stops, null);
-                    setAccounts(optimized.map((s: any) => s.account));
+                    setAccounts(optimized.stops.map((s: any) => s.account));
                     alert("Route optimized!");
                   }
                 );
