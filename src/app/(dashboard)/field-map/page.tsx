@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { FieldMapProvider, useFieldMap } from "./context/FieldMapContext";
+import { UnifiedSidebar } from "@/components/UnifiedSidebar";
 
 // Import all panel components
-import { FieldMapSidebar } from "./components/FieldMapSidebar";
 import { AccountsPanel } from "./components/AccountsPanel";
 import { VisualizePanel } from "./components/VisualizePanel";
 import { RoutesPanel } from "./components/RoutesPanel";
@@ -50,14 +50,14 @@ const FieldMapComponent = dynamic(
 
 function FieldMapLayout() {
   const { state, dispatch } = useFieldMap();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [panelCollapsed, setPanelCollapsed] = useState(true);
 
   const handleTabChange = (tab: string) => {
     if (state.activeTab === tab) {
-      setSidebarCollapsed(!sidebarCollapsed);
+      setPanelCollapsed(!panelCollapsed);
     } else {
       dispatch({ type: "SET_ACTIVE_TAB", tab });
-      setSidebarCollapsed(false);
+      setPanelCollapsed(false);
     }
   };
 
@@ -81,26 +81,21 @@ function FieldMapLayout() {
   };
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 56px)", width: "100%", overflow: "hidden" }}>
-      {/* Left icon sidebar */}
-      <FieldMapSidebar
-        activeTab={state.activeTab}
-        onTabChange={handleTabChange}
-        isCollapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+    <div style={{ display: "flex", height: "100vh", width: "100%", overflow: "hidden" }}>
+      {/* Unified sidebar — handles both global nav and map tools */}
+      <UnifiedSidebar activeTab={state.activeTab} onTabChange={handleTabChange} />
 
       {/* Feature panel drawer */}
       <div
         style={{
-          width: sidebarCollapsed ? "0px" : "320px",
+          width: panelCollapsed ? "0px" : "320px",
           background: "#111827",
-          boxShadow: sidebarCollapsed ? "none" : "4px 0 20px rgba(0,0,0,0.3)",
+          boxShadow: panelCollapsed ? "none" : "4px 0 20px rgba(0,0,0,0.3)",
           zIndex: 10,
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
-          borderRight: sidebarCollapsed ? "none" : "1px solid #1e2d45",
+          borderRight: panelCollapsed ? "none" : "1px solid #1e2d45",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           overflow: "hidden",
         }}
@@ -131,3 +126,4 @@ export default function FieldSalesMappingPage() {
     </FieldMapProvider>
   );
 }
+
