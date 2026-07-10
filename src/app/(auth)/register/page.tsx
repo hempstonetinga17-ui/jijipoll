@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const [accountType, setAccountType] = useState<"Company" | "Individual">("Company")
   const [formData, setFormData] = useState({
     companyName: "",
     email: "",
@@ -13,6 +14,8 @@ export default function RegisterPage() {
     latitude: "",
     longitude: "",
   })
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -20,27 +23,82 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Normally we would POST to an API route to register the user and business
-    alert("Registration submitted! In a real app, this would save to the database.")
-    router.push("/login")
+    setError(null)
+    setLoading(true)
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          accountType,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.message || "Something went wrong")
+      }
+
+      // Registration successful
+      router.push("/login?registered=true")
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f06135]">
+    <div className="min-h-screen flex items-center justify-center bg-[#f06135] py-12 px-4 sm:px-6 lg:px-8">
       <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-md border border-white/20">
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">Register Business</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-white/80 mb-1 text-sm">Company Name</label>
-            <input 
-              name="companyName"
-              value={formData.companyName}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-              placeholder="E.g., Oceanic Fish Sellers"
-            />
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">Create an Account</h2>
+        
+        {/* Account Type Toggle */}
+        <div className="flex bg-white/20 rounded-lg p-1 mb-6">
+          <button
+            type="button"
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+              accountType === "Company" ? "bg-white text-[#f06135] shadow" : "text-white hover:bg-white/10"
+            }`}
+            onClick={() => setAccountType("Company")}
+          >
+            Company
+          </button>
+          <button
+            type="button"
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+              accountType === "Individual" ? "bg-white text-[#f06135] shadow" : "text-white hover:bg-white/10"
+            }`}
+            onClick={() => setAccountType("Individual")}
+          >
+            Individual
+          </button>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/20 border border-red-500 text-white px-4 py-3 rounded mb-4">
+            {error}
           </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {accountType === "Company" && (
+            <div>
+              <label className="block text-white/80 mb-1 text-sm">Company Name</label>
+              <input 
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleChange}
+                required={accountType === "Company"}
+                className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                placeholder="E.g., Oceanic Fish Sellers"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-white/80 mb-1 text-sm">Email</label>
             <input 
@@ -50,7 +108,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-              placeholder="company@example.com"
+              placeholder="name@example.com"
             />
           </div>
           <div>
@@ -95,9 +153,10 @@ export default function RegisterPage() {
           </div>
           <button 
             type="submit"
-            className="w-full bg-white text-[#f06135] font-bold py-3 rounded-lg hover:bg-white/90 transition duration-300 mt-6 shadow-lg"
+            disabled={loading}
+            className="w-full bg-white text-[#f06135] font-bold py-3 rounded-lg hover:bg-white/90 transition duration-300 mt-6 shadow-lg disabled:opacity-50"
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
@@ -127,3 +186,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+
