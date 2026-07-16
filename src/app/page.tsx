@@ -115,11 +115,11 @@ export default function HomePage() {
         )}
 
         {/* Hero Content */}
-        <div className="absolute top-1/3 left-0 right-0 z-20 px-6 sm:px-10 max-w-lg drop-shadow-lg">
-          <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight mb-3 sm:mb-4 pointer-events-none">
+        <div className="absolute top-[25%] sm:top-[30%] left-0 right-0 z-20 px-6 sm:px-10 max-w-xl sm:max-w-2xl drop-shadow-lg">
+          <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight mb-3 pointer-events-none">
             Map Any Market.<br />Find Any Business.
           </h1>
-          <p className="text-white/90 text-sm sm:text-lg font-medium mb-6 sm:mb-8 pointer-events-none">
+          <p className="text-white/90 text-sm sm:text-base font-medium mb-5 sm:mb-6 pointer-events-none max-w-lg">
             From investors tracking niche industries to researchers mapping territories, Jijipoll transforms raw geographic data into the strategic location intelligence you need to execute.
           </p>
           <div className="flex gap-3 flex-wrap">
