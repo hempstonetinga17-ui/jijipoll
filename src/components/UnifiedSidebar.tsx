@@ -467,20 +467,7 @@ export function UnifiedSidebar({ activeTab, onTabChange }: Props) {
               flexShrink: 0,
             }}
           >
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "9px",
-                background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 0 16px rgba(59,130,246,0.4)",
-              }}
-            >
-              <Map size={15} color="white" />
-            </div>
+            <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "32px", height: "32px", borderRadius: "9px", objectFit: "cover" }} />
           </div>
 
           {/* Search button (slim mode) */}
@@ -613,21 +600,7 @@ export function UnifiedSidebar({ activeTab, onTabChange }: Props) {
             flexShrink: 0,
           }}
         >
-          <div
-            style={{
-              width: "34px",
-              height: "34px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 0 20px rgba(59,130,246,0.4)",
-            }}
-          >
-            <Map size={16} color="white" />
-          </div>
+          <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "34px", height: "34px", borderRadius: "10px", objectFit: "cover", flexShrink: 0 }} />
           {!collapsed && (
             <div style={{ overflow: "hidden" }}>
               <div style={{ color: "#f1f5f9", fontWeight: 800, fontSize: "0.95rem", letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>

@@ -44,21 +44,7 @@ export function JijiSidebar() {
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #3b82f6, #1e40af)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            boxShadow: "0 0 16px rgba(59,130,246,0.35)",
-          }}
-        >
-          <Map size={18} color="white" />
-        </div>
+        <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", flexShrink: 0 }} />
         {!collapsed && (
           <div>
             <div style={{ color: "#e2e8f0", fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.01em" }}>

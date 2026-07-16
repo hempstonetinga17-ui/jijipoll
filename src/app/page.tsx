@@ -15,7 +15,10 @@ export default function HomePage() {
 
       {/* Header / Navigation */}
       <header className="absolute top-0 left-0 w-full z-20 p-6 flex justify-between items-center">
-        <div className="text-white font-black text-3xl tracking-tighter drop-shadow-md">JIJIPOLL</div>
+        <div className="flex items-center gap-3 text-white font-black text-3xl tracking-tighter drop-shadow-md">
+          <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-10 w-auto" />
+          JIJIPOLL
+        </div>
         <div className="flex gap-4 items-center">
           <Link href="/login" className="text-white font-semibold hover:text-white/80 transition drop-shadow-md">
             Log In
