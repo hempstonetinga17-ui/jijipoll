@@ -17,7 +17,7 @@ export default function HomePage() {
         {/* Header / Navigation */}
         <header className="absolute top-0 left-0 w-full z-20 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3 text-white font-black text-3xl tracking-tighter drop-shadow-md">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-10 w-auto mix-blend-screen" />
+            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-10 w-auto" />
             JIJIPOLL
           </div>
           
@@ -92,7 +92,7 @@ export default function HomePage() {
             {/* Brand column */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
-                <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ height: "36px", width: "auto", mixBlendMode: "screen" }} />
+                <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ height: "36px", width: "auto" }} />
                 <span style={{ color: "#fff", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "-0.02em" }}>JIJIPOLL</span>
               </div>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", lineHeight: "1.6", maxWidth: "280px" }}>

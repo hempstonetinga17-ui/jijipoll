@@ -44,7 +44,7 @@ export function JijiSidebar() {
           overflow: "hidden",
         }}
       >
-        <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, mixBlendMode: "screen" }} />
+        <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", flexShrink: 0 }} />
         {!collapsed && (
           <div>
             <div style={{ color: "#e2e8f0", fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.01em" }}>
