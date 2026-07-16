@@ -46,8 +46,8 @@ export async function POST(req: Request) {
               business: {
                 create: {
                   companyName,
-                  latitude: lat,
-                  longitude: lng,
+                  ...(lat !== undefined ? { latitude: lat } : {}),
+                  ...(lng !== undefined ? { longitude: lng } : {}),
                 },
               },
             }

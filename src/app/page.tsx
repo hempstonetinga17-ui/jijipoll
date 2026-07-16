@@ -20,6 +20,30 @@ export default function HomePage() {
             <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-10 w-auto mix-blend-screen" />
             JIJIPOLL
           </div>
+          
+          {/* Main Navigation */}
+          <nav className="hidden md:flex items-center gap-8 text-white font-semibold">
+            <div className="relative group">
+              <button className="flex items-center gap-1 hover:text-white/80 transition py-2">
+                Solutions
+                <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left flex flex-col overflow-hidden border border-gray-100">
+                <Link href="/solutions/targeted-advertising" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Targeted Advertising</Link>
+                <Link href="/solutions/market-segmentation" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Market Segmentation</Link>
+                <Link href="/solutions/location-intelligence" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Location Intelligence</Link>
+              </div>
+            </div>
+            <Link href="/about" className="hover:text-white/80 transition py-2">
+              About Us
+            </Link>
+            <Link href="/contact" className="hover:text-white/80 transition py-2">
+              Contact Us
+            </Link>
+          </nav>
+
           <div className="flex gap-4 items-center">
             <Link href="/login" className="text-white font-semibold hover:text-white/80 transition drop-shadow-md">
               Log In
@@ -31,13 +55,21 @@ export default function HomePage() {
         </header>
 
         {/* Hero Content */}
-        <div className="absolute top-1/3 left-10 z-20 max-w-lg pointer-events-none drop-shadow-lg">
-          <h1 className="text-5xl font-black text-white leading-tight mb-4">
+        <div className="absolute top-1/3 left-10 z-20 max-w-lg drop-shadow-lg">
+          <h1 className="text-5xl font-black text-white leading-tight mb-4 pointer-events-none">
             Locate Every Business, <br/> Everywhere.
           </h1>
-          <p className="text-white/90 text-lg font-medium">
+          <p className="text-white/90 text-lg font-medium mb-8 pointer-events-none">
             Whether you're an investor looking for fish sellers or a researcher plotting out territories, Jijipoll gives you the geographic insights you need.
           </p>
+          <div className="flex gap-4">
+            <Link href="#solutions" className="bg-[#1a0a00] text-white px-8 py-3 rounded-full font-bold hover:bg-black transition shadow-xl border border-transparent hover:border-white/20">
+              Solutions
+            </Link>
+            <Link href="/about" className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-8 py-3 rounded-full font-bold hover:bg-white/20 transition shadow-xl">
+              About Us
+            </Link>
+          </div>
         </div>
 
         {/* Stat Widgets overlay */}
