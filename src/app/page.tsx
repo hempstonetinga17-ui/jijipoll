@@ -34,6 +34,7 @@ export default function HomePage() {
                 <Link href="/solutions/targeted-advertising" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Targeted Advertising</Link>
                 <Link href="/solutions/market-segmentation" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Market Segmentation</Link>
                 <Link href="/solutions/location-intelligence" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Location Intelligence</Link>
+                <Link href="/solutions/route-planning-and-optimization" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Route Planning and Optimization</Link>
               </div>
             </div>
             <Link href="/about" className="hover:text-white/80 transition py-2">
