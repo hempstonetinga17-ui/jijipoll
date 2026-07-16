@@ -11,9 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Email and password are required." }, { status: 400 })
     }
 
-    if (!latitude || !longitude) {
-      return NextResponse.json({ message: "Location coordinates are required." }, { status: 400 })
-    }
+
 
     if (accountType === "Company" && !companyName) {
       return NextResponse.json({ message: "Company name is required for company accounts." }, { status: 400 })
@@ -31,8 +29,8 @@ export async function POST(req: Request) {
     // Hash the password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    const lat = parseFloat(latitude)
-    const lng = parseFloat(longitude)
+    const lat = latitude ? parseFloat(latitude) : undefined
+    const lng = longitude ? parseFloat(longitude) : undefined
 
     // Determine role based on account type
     const role = accountType === "Company" ? "BUSINESS_OWNER" : "USER"

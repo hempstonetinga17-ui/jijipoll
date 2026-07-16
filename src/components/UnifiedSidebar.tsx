@@ -467,7 +467,7 @@ export function UnifiedSidebar({ activeTab, onTabChange }: Props) {
               flexShrink: 0,
             }}
           >
-            <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "32px", height: "32px", borderRadius: "9px", objectFit: "cover" }} />
+            <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "32px", height: "32px", borderRadius: "9px", objectFit: "cover", mixBlendMode: "screen" }} />
           </div>
 
           {/* Search button (slim mode) */}
@@ -600,7 +600,7 @@ export function UnifiedSidebar({ activeTab, onTabChange }: Props) {
             flexShrink: 0,
           }}
         >
-          <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "34px", height: "34px", borderRadius: "10px", objectFit: "cover", flexShrink: 0 }} />
+          <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "34px", height: "34px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, mixBlendMode: "screen" }} />
           {!collapsed && (
             <div style={{ overflow: "hidden" }}>
               <div style={{ color: "#f1f5f9", fontWeight: 800, fontSize: "0.95rem", letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>
