@@ -54,12 +54,12 @@ export default function RegisterPage() {
 
           {/* Logo + heading */}
           <div className="flex flex-col items-center mb-6">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-14 w-auto mb-3" />
+            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-14 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight text-center">
               Start mapping for free
             </h1>
             <p className="text-white/60 text-sm mt-1 text-center">
-              Join 1,000+ surveyors across 45+ countries
+              Join 120+ field agents across 45+ counties
             </p>
           </div>
 
@@ -104,7 +104,7 @@ export default function RegisterPage() {
 
         {/* Trust badges */}
         <div className="flex items-center justify-center gap-4 mt-5 flex-wrap">
-          {["🔒 Secure", "✅ Free to start", "🌍 45+ Countries"].map(badge => (
+          {["🔒 Secure", "✅ Free to start", "🌍 45+ Counties"].map(badge => (
             <span key={badge} className="text-white/70 text-xs font-medium bg-white/10 px-3 py-1 rounded-full border border-white/15">
               {badge}
             </span>

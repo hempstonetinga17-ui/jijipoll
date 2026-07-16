@@ -22,7 +22,7 @@ export default function HomePage() {
         <header className="absolute top-0 left-0 w-full z-20 px-4 sm:px-6 py-4 flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-white font-black text-xl sm:text-3xl tracking-tighter drop-shadow-md">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-8 sm:h-10 w-auto" />
+            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-8 sm:h-10 w-auto" style={{ filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
             JIJIPOLL
           </Link>
 
@@ -137,8 +137,8 @@ export default function HomePage() {
         {/* Stat Widgets */}
         <div className="absolute bottom-4 sm:bottom-10 left-0 right-0 sm:right-10 sm:left-auto z-20 flex justify-center sm:justify-end gap-3 sm:gap-6 px-4 sm:px-0">
           <StatWidget value="100K+" label="Businesses Registered" bgColor="#d35400" />
-          <StatWidget value="45+" label="Countries" bgColor="#a8e6cf" />
-          <StatWidget value="1000+" label="Surveyors" bgColor="#bdc3c7" />
+          <StatWidget value="45+" label="Counties" bgColor="#a8e6cf" />
+          <StatWidget value="120+" label="Field Agents" bgColor="#bdc3c7" />
         </div>
       </main>
 
@@ -160,11 +160,11 @@ export default function HomePage() {
             {/* Brand column */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
-                <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ height: "36px", width: "auto" }} />
+                <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ height: "36px", width: "auto", filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
                 <span style={{ color: "#fff", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "-0.02em" }}>JIJIPOLL</span>
               </div>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", lineHeight: "1.6", maxWidth: "280px" }}>
-                Africa's leading field intelligence platform. Mapping businesses, empowering decisions, transforming markets across 45+ countries.
+                Africa's leading field intelligence platform. Mapping businesses, empowering decisions, transforming markets across 45+ counties.
               </p>
               <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
                 {/* Twitter/X */}

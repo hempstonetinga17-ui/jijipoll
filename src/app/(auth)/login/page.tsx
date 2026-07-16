@@ -48,7 +48,7 @@ function LoginForm() {
 
           {/* Logo + title */}
           <div className="flex flex-col items-center mb-8">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-14 w-auto mb-3" />
+            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-14 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Welcome back</h1>
             <p className="text-white/60 text-sm mt-1 text-center">Sign in to access your field intelligence dashboard</p>
           </div>
@@ -85,7 +85,7 @@ function LoginForm() {
 
         {/* Trust badges */}
         <div className="flex items-center justify-center gap-4 mt-5 flex-wrap">
-          {["🔒 Secure", "✅ Verified", "🌍 45+ Countries"].map(badge => (
+          {["🔒 Secure", "✅ Verified", "🌍 45+ Counties"].map(badge => (
             <span key={badge} className="text-white/70 text-xs font-medium bg-white/10 px-3 py-1 rounded-full border border-white/15">
               {badge}
             </span>
