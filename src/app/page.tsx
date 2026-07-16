@@ -21,7 +21,7 @@ export default function HomePage() {
             Log In
           </Link>
           <Link href="/register" className="bg-white text-[#f06135] px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition shadow-xl">
-            Register Business
+            Sign Up
           </Link>
         </div>
       </header>
@@ -38,9 +38,9 @@ export default function HomePage() {
 
       {/* Stat Widgets overlay */}
       <div className="absolute bottom-10 right-10 z-20 flex gap-4 sm:gap-6 origin-bottom-right">
-        <StatWidget value="120+" label="Countries" bgColor="#d35400" />
-        <StatWidget value="73" label="Languages" bgColor="#a8e6cf" />
-        <StatWidget value="10K+" label="Interviewers" bgColor="#bdc3c7" />
+        <StatWidget value="100K+" label="Businesses Registered" bgColor="#d35400" />
+        <StatWidget value="45+" label="Countries" bgColor="#a8e6cf" />
+        <StatWidget value="1000+" label="Surveyors" bgColor="#bdc3c7" />
       </div>
     </main>
   )

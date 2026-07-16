@@ -11,8 +11,6 @@ export default function RegisterPage() {
     companyName: "",
     email: "",
     password: "",
-    latitude: "",
-    longitude: "",
   })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -64,7 +62,7 @@ export default function RegisterPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">Create an Account</h2>
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">Sign Up</h2>
         
         {/* Account Type Toggle */}
         <div className="flex bg-white/20 rounded-lg p-1 mb-6">
@@ -131,34 +129,6 @@ export default function RegisterPage() {
               className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
               placeholder="••••••••"
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-white/80 mb-1 text-sm">Latitude</label>
-              <input 
-                type="number"
-                step="any"
-                name="latitude"
-                value={formData.latitude}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                placeholder="-1.2921"
-              />
-            </div>
-            <div>
-              <label className="block text-white/80 mb-1 text-sm">Longitude</label>
-              <input 
-                type="number"
-                step="any"
-                name="longitude"
-                value={formData.longitude}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                placeholder="36.8219"
-              />
-            </div>
           </div>
           <button 
             type="submit"

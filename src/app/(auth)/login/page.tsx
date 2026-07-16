@@ -43,7 +43,7 @@ function LoginForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">Business Login</h2>
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">Login</h2>
 
         {errorMessage && (
           <div className="bg-red-500/20 border border-red-400/50 text-white text-sm rounded-lg px-4 py-3 mb-4 text-center">
@@ -104,7 +104,7 @@ function LoginForm() {
         </button>
 
         <p className="text-white/70 text-center mt-6 text-sm">
-          Don't have a business account? <a href="/register" className="text-white font-semibold hover:underline">Register</a>
+          Don't have an account? <a href="/register" className="text-white font-semibold hover:underline">Sign up</a>
         </p>
       </div>
     </div>
