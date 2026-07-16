@@ -31,7 +31,12 @@ html, body {
   background: var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
+
+/* Mobile-first safe area */
+* { -webkit-tap-highlight-color: transparent; }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -153,10 +158,19 @@ input::placeholder, textarea::placeholder {
   color: var(--color-text-muted);
 }
 
-label {
+/* Only apply dark label styles inside dashboard routes, not auth pages */
+.dashboard-layout label {
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-text-muted);
   margin-bottom: 0.4rem;
+}
+
+/* Footer responsive grid */
+@media (min-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr !important;
+    gap: 3rem !important;
+  }
 }

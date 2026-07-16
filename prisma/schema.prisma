@@ -1,3 +1,6 @@
+// Add VisitorLog model to existing schema
+// Run: npx prisma db push after this change
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -122,4 +125,19 @@ model Business {
   address     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model VisitorLog {
+  id          String   @id @default(cuid())
+  ip          String?
+  country     String?
+  city        String?
+  region      String?
+  latitude    Float?
+  longitude   Float?
+  userAgent   String?
+  device      String?  // "mobile", "tablet", "desktop"
+  page        String?
+  consentLevel String  @default("essential") // "essential", "analytics", "full"
+  createdAt   DateTime @default(now())
 }
