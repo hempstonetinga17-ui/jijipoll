@@ -137,6 +137,14 @@ export default function AgentCapture() {
       setErrorMessage("A photo is required")
       return
     }
+    if (!contactInfo.trim()) {
+      setErrorMessage("Contact info is required")
+      return
+    }
+    if (!customFeatures.trim()) {
+      setErrorMessage("Features / Notes are required")
+      return
+    }
 
     try {
       setErrorMessage("")
@@ -222,8 +230,12 @@ export default function AgentCapture() {
         <h1 className="text-lg font-bold text-gray-900">New Capture</h1>
       </header>
 
-      <main className="max-w-md mx-auto px-4 mt-6">
+      <main className="max-w-5xl mx-auto px-4 mt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          
+          {/* Left Column (Photo & Geolocation) */}
+          <div className="space-y-6">
           
           {/* Geolocation Section */}
           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
@@ -331,8 +343,9 @@ export default function AgentCapture() {
             {/* Hidden canvas for snapshot */}
             <canvas ref={canvasRef} className="hidden" />
           </div>
+          </div>
 
-          {/* Details Section */}
+          {/* Right Column (Details) */}
           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
             <div>
               <label className="block font-bold text-gray-900 mb-2">Category</label>
@@ -355,9 +368,10 @@ export default function AgentCapture() {
             </div>
 
             <div>
-              <label className="block font-bold text-gray-900 mb-1">Contact Info (Optional)</label>
+              <label className="block font-bold text-gray-900 mb-1">Contact Info <span className="text-red-500">*</span></label>
               <input
                 type="text"
+                required
                 placeholder="Phone number, email, or name"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition"
                 value={contactInfo}
@@ -366,8 +380,9 @@ export default function AgentCapture() {
             </div>
 
             <div>
-              <label className="block font-bold text-gray-900 mb-1">Features / Notes (Optional)</label>
+              <label className="block font-bold text-gray-900 mb-1">Features / Notes <span className="text-red-500">*</span></label>
               <textarea
+                required
                 placeholder="e.g. They use Point of Sale XYZ"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition resize-none h-24"
                 value={customFeatures}
@@ -376,6 +391,9 @@ export default function AgentCapture() {
             </div>
           </div>
 
+          </div>
+          </div>
+          
           {errorMessage && (
             <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-medium">
               {errorMessage}
@@ -384,9 +402,9 @@ export default function AgentCapture() {
 
           <button
             type="submit"
-            disabled={!location || !file || status === "uploading" || status === "submitting"}
+            disabled={!location || !file || !contactInfo.trim() || !customFeatures.trim() || status === "uploading" || status === "submitting"}
             className={`w-full py-4 rounded-xl font-black text-lg transition shadow-xl flex justify-center items-center gap-2 sticky bottom-6 ${
-              !location || !file
+              !location || !file || !contactInfo.trim() || !customFeatures.trim()
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-[#f06135] text-white hover:bg-[#d35400] active:scale-[0.98]'
             }`}

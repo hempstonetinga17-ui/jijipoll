@@ -47,9 +47,9 @@ export async function POST(req: Request) {
     const data = await req.json();
     const { latitude, longitude, category, photoUrl, contactInfo, customFeatures } = data;
 
-    if (!latitude || !longitude || !category || !photoUrl) {
+    if (!latitude || !longitude || !category || !photoUrl || !contactInfo || !customFeatures) {
       return NextResponse.json(
-        { error: "Missing required fields (latitude, longitude, category, photoUrl)" },
+        { error: "Missing required fields (latitude, longitude, category, photoUrl, contactInfo, customFeatures)" },
         { status: 400 }
       );
     }
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         category,
         photoUrl,
         contactInfo,
-        customFeatures: customFeatures ? customFeatures : undefined,
+        customFeatures,
         status: "PENDING",
       },
     });
