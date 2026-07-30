@@ -2,7 +2,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
 
 export default function AgentRegister() {
   const router = useRouter();
@@ -21,21 +20,28 @@ export default function AgentRegister() {
     setLoading(true);
 
     try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        action: "register",
-        email: formData.email,
-        password: formData.password,
-        phoneNumber: formData.phoneNumber
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          password: formData.password,
+          role: "AGENT",
+        }),
       });
 
-      if (res?.error) {
-        setError(res.error);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Registration failed. Please try again.");
       } else {
-        router.push("/field-agent/dashboard");
+        // Registration successful — redirect to field agent login
+        router.push("/field-agent/login?registered=1");
       }
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -80,6 +86,7 @@ export default function AgentRegister() {
               <input
                 type="tel"
                 required
+                placeholder="+254..."
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#f06135] focus:border-[#f06135]"
                 value={formData.phoneNumber}
                 onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
@@ -97,14 +104,14 @@ export default function AgentRegister() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm">{error}</div>
+              <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</div>
             )}
 
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#f06135] hover:bg-[#d35400] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f06135]"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#f06135] hover:bg-[#d35400] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f06135] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? "Registering..." : "Sign up"}
               </button>

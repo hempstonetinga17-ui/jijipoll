@@ -5,25 +5,28 @@ import bcrypt from "bcryptjs"
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { email, password, accountType, companyName, latitude, longitude } = body
+    const { email, password, name, phoneNumber, role: bodyRole, accountType, companyName, latitude, longitude } = body
 
     if (!email || !password) {
       return NextResponse.json({ message: "Email and password are required." }, { status: 400 })
     }
 
-
-
     if (accountType === "Company" && !companyName) {
       return NextResponse.json({ message: "Company name is required for company accounts." }, { status: 400 })
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
-
+    // Check if user already exists by email
+    const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
       return NextResponse.json({ message: "User with this email already exists." }, { status: 409 })
+    }
+
+    // Check phone uniqueness for agents
+    if (phoneNumber) {
+      const existingPhone = await prisma.user.findUnique({ where: { phoneNumber } })
+      if (existingPhone) {
+        return NextResponse.json({ message: "A user with this phone number already exists." }, { status: 409 })
+      }
     }
 
     // Hash the password
@@ -32,8 +35,8 @@ export async function POST(req: Request) {
     const lat = latitude ? parseFloat(latitude) : undefined
     const lng = longitude ? parseFloat(longitude) : undefined
 
-    // Determine role based on account type
-    const role = accountType === "Company" ? "BUSINESS_OWNER" : "USER"
+    // Determine role: explicit bodyRole takes priority, then accountType mapping
+    const role = bodyRole ?? (accountType === "Company" ? "BUSINESS_OWNER" : "USER")
 
     // Create the user
     const user = await prisma.user.create({
@@ -41,6 +44,8 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         role,
+        ...(name ? { name } : {}),
+        ...(phoneNumber ? { phoneNumber } : {}),
         ...(accountType === "Company"
           ? {
               business: {
