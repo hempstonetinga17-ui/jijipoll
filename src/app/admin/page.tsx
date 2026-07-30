@@ -14,6 +14,8 @@ export default function AdminDashboard() {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const currentUserId = session?.user?.id;
+
   useEffect(() => {
     if (sessionStatus === "unauthenticated") {
       router.push("/login");
@@ -193,7 +195,7 @@ export default function AdminDashboard() {
                             <CheckCircle className="w-5 h-5" />
                           </button>
                         )}
-                        {u.status === "ACTIVE" && u.id !== session.user.id && (
+                        {u.status === "ACTIVE" && u.id !== currentUserId && (
                           <button onClick={() => updateUser(u.id, { status: "SUSPENDED" })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
                             <XCircle className="w-5 h-5" />
                           </button>
