@@ -48,17 +48,13 @@ export default function HomePage() {
 
           {/* Desktop CTA buttons */}
           <div className="hidden md:flex gap-3 items-center">
-            <Link href="/login" className="text-white font-semibold hover:text-white/80 transition drop-shadow-md text-sm lg:text-base">
-              Log In
-            </Link>
             <Link href="/book-demo" className="bg-white text-[#f06135] px-4 lg:px-6 py-2.5 rounded-full font-bold hover:bg-gray-100 transition shadow-xl text-sm lg:text-base">
               Book a Demo
             </Link>
           </div>
 
-          {/* Mobile: Login + Hamburger */}
+          {/* Mobile: Hamburger only */}
           <div className="flex md:hidden items-center gap-3">
-            <Link href="/login" className="text-white font-bold text-sm drop-shadow-md">Log In</Link>
             <button
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
               className="text-white p-2 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm"
@@ -245,7 +241,7 @@ export default function HomePage() {
             <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem", margin: 0 }}>
               © {new Date().getFullYear()} Jijipoll Technologies Ltd. All rights reserved.
             </p>
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
               {["Terms of Service", "Privacy Policy", "Cookie Policy"].map(item => (
                 <a key={item} href="#" style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem", textDecoration: "none" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; }}
@@ -253,6 +249,37 @@ export default function HomePage() {
                   {item}
                 </a>
               ))}
+              <Link
+                href="/register"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  background: "rgba(240,97,53,0.15)",
+                  border: "1px solid rgba(240,97,53,0.4)",
+                  color: "#f06135",
+                  fontSize: "0.8rem",
+                  fontWeight: 700,
+                  padding: "0.4rem 0.9rem",
+                  borderRadius: "9999px",
+                  textDecoration: "none",
+                  transition: "background 0.15s, border-color 0.15s",
+                  letterSpacing: "0.02em",
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.3)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(240,97,53,0.7)";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.15)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(240,97,53,0.4)";
+                }}
+              >
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2h5m6 0v-6m0 0a4 4 0 10-8 0 4 4 0 008 0z" />
+                </svg>
+                Agent App
+              </Link>
             </div>
           </div>
         </div>
