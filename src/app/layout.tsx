@@ -3,6 +3,7 @@ import "./globals.css";
 import dynamic from "next/dynamic";
 
 const CookieBanner = dynamic(() => import("@/components/CookieBanner"), { ssr: false });
+const SessionProviderWrapper = dynamic(() => import("@/components/SessionProviderWrapper"), { ssr: false });
 
 export const metadata: Metadata = {
   title: "JijiPoll — Field Maps & Agent Management",
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        {children}
+        <SessionProviderWrapper>
+          {children}
+        </SessionProviderWrapper>
         <CookieBanner />
       </body>
     </html>

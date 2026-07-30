@@ -68,13 +68,18 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
+  phoneNumber   String?   @unique // Added for Field Agents
   emailVerified DateTime?
   passwordHash  String?
   image         String?
-  role          String    @default("USER") // USER, BUSINESS_OWNER, ADMIN
+  role          String    @default("USER") // USER, AGENT, BUSINESS_OWNER, ADMIN
+  points        Int       @default(0) // 1 point = 1 Ksh for agents
+  
   accounts      Account[]
   sessions      Session[]
   business      Business?
+  submissions   DataSubmission[] // Submissions by this agent
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -140,4 +145,24 @@ model VisitorLog {
   page        String?
   consentLevel String  @default("essential") // "essential", "analytics", "full"
   createdAt   DateTime @default(now())
+}
+
+model DataSubmission {
+  id              String   @id @default(cuid())
+  agentId         String
+  agent           User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  latitude        Float
+  longitude       Float
+  
+  category        String   // "BUSINESS", "WATER_FEATURE", "CHURCH", "BUILDING", "OTHER"
+  photoUrl        String   // Cloudflare R2 URL
+  
+  contactInfo     String?
+  customFeatures  Json?    // Optional extra data (e.g. software used, open hours)
+  
+  status          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
