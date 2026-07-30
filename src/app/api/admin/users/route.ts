@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/auth";
 import { auth } from "@/lib/auth";
+import { userUpdateSchema } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -29,10 +30,18 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Forbidden: Not an admin" }, { status: 403 });
     }
 
-    const { userId, status, role } = await req.json();
+    const body = await req.json();
+    const result = userUpdateSchema.safeParse(body);
 
-    if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
+    }
+
+    const { userId, status, role } = result.data;
+
+    // Prevent self-demotion / self-suspension
+    if (userId === session.user.id && (role !== "ADMIN" || status === "SUSPENDED" || status === "FLAGGED")) {
+        return NextResponse.json({ error: "Cannot demote or suspend your own account" }, { status: 400 });
     }
 
     const updateData: any = {};

@@ -85,8 +85,10 @@ export default function AgentProfilePage() {
 
   useEffect(() => {
     if (sessionStatus === "unauthenticated") router.push("/login");
-    else if (sessionStatus === "authenticated" && session.user.role !== "ADMIN") router.push("/");
+    else if (sessionStatus === "authenticated" && !["ADMIN", "SUPERVISOR"].includes(session.user.role)) router.push("/");
   }, [sessionStatus, session, router]);
+
+  const isAdmin = session?.user.role === "ADMIN";
 
   const fetchAgent = useCallback(async () => {
     if (!params.agentId) return;
@@ -105,7 +107,7 @@ export default function AgentProfilePage() {
   }, [params.agentId]);
 
   useEffect(() => {
-    if (sessionStatus === "authenticated" && session?.user.role === "ADMIN") {
+    if (sessionStatus === "authenticated" && ["ADMIN", "SUPERVISOR"].includes(session?.user.role)) {
       fetchAgent();
     }
   }, [sessionStatus, session, fetchAgent]);
@@ -116,12 +118,15 @@ export default function AgentProfilePage() {
   };
 
   const handleVerify = async (submissionId: string, action: "APPROVE" | "REJECT") => {
+    const feedbackStr = prompt(`Enter optional feedback for this ${action.toLowerCase()}:`);
+    if (feedbackStr === null) return; // User cancelled
+
     setActionLoading(`verify-${submissionId}`);
     try {
       const res = await fetch("/api/admin/verify-submission", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId, action }),
+        body: JSON.stringify({ submissionId, action, feedback: feedbackStr || undefined }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -431,7 +436,8 @@ export default function AgentProfilePage() {
               )}
             </div>
 
-            {/* Role Actions */}
+            {/* Role Actions - ONLY FOR ADMINS */}
+            {isAdmin && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#f06135]" /> Role Management
@@ -458,6 +464,7 @@ export default function AgentProfilePage() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Status Actions */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">

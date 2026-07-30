@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Not an admin" }, { status: 403 });
+    if (!session || !session.user || (session.user.role !== "ADMIN" && session.user.role !== "SUPERVISOR")) {
+      return NextResponse.json({ error: "Forbidden: Not authorized" }, { status: 403 });
     }
 
     const withdrawals = await prisma.withdrawalRequest.findMany({
@@ -30,8 +30,8 @@ export async function GET(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Not an admin" }, { status: 403 });
+    if (!session || !session.user || (session.user.role !== "ADMIN" && session.user.role !== "SUPERVISOR")) {
+      return NextResponse.json({ error: "Forbidden: Not authorized" }, { status: 403 });
     }
 
     const { withdrawalId, action } = await req.json(); // action = "APPROVE" or "REJECT"
@@ -95,8 +95,8 @@ export async function POST(req: Request) {
 
     const { amount } = await req.json();
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+    if (!amount || amount < 500) {
+      return NextResponse.json({ error: "Minimum withdrawal amount is 500" }, { status: 400 });
     }
 
     // Check if agent has enough points

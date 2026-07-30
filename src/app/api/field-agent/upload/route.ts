@@ -22,6 +22,14 @@ export async function POST(req: Request) {
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: "File too large. Max 5MB allowed." }, { status: 413 });
+    }
+    
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json({ error: "Only image files are allowed." }, { status: 400 });
+    }
 
     const ext = file.name.split(".").pop() ?? "jpg";
     const key = `field-capture/${session.user.id}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;

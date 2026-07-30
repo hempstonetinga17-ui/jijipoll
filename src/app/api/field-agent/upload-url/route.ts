@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUploadUrl } from "@/lib/r2";
 import { auth } from "@/lib/auth";
+import { uploadUrlSchema } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { filename, contentType } = await req.json();
-
-    if (!filename || !contentType) {
-      return NextResponse.json({ error: "Missing filename or contentType" }, { status: 400 });
+    const body = await req.json();
+    const result = uploadUrlSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
     }
+
+    const { filename, contentType } = result.data;
 
     const ext = filename.split(".").pop();
     const uniqueKey = `field-capture/${session.user.id}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;

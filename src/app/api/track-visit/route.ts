@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/auth";
+import { z } from "zod";
+
+const trackVisitSchema = z.object({
+  consentLevel: z.string().optional(),
+  page: z.string().optional(),
+  userAgent: z.string().optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { consentLevel, page, userAgent } = body;
+    const json = await req.json();
+    const result = trackVisitSchema.safeParse(json);
+    if (!result.success) {
+      return NextResponse.json({ ok: false, error: "Invalid data" }, { status: 400 });
+    }
+    const { consentLevel, page, userAgent } = result.data;
 
     // Get real IP from headers (works behind Vercel / Cloudflare proxies)
     const forwarded = req.headers.get("x-forwarded-for");

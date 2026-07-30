@@ -72,8 +72,8 @@ model User {
   emailVerified DateTime?
   passwordHash  String?
   image         String?
-  role          String    @default("USER") // USER, AGENT, BUSINESS_OWNER, ADMIN
-  status        String    @default("PENDING") // PENDING, ACTIVE, FLAGGED, SUSPENDED
+  role          String    @default("USER") // USER, AGENT, SUPERVISOR, BUSINESS_OWNER, ADMIN
+  status        String    @default("TRAINING") // PENDING, TRAINING, ACTIVE, FLAGGED, SUSPENDED
   points        Int       @default(0) // 1 point = 1 Ksh for agents
   
   accounts      Account[]
@@ -164,6 +164,7 @@ model DataSubmission {
   customFeatures  Json?    // Optional extra data (e.g. software used, open hours)
   
   status          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  feedback        String?  // Feedback from supervisor for rejected or verified submissions
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

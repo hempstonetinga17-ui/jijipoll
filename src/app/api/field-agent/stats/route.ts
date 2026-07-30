@@ -15,32 +15,56 @@ export async function GET() {
 
     const agentId = session.user.id;
 
-    // Get current points
     const user = await prisma.user.findUnique({
       where: { id: agentId },
-      select: { points: true }
+      select: { points: true, status: true }
     });
 
-    // Get submissions today
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
-    const submissionsToday = await prisma.dataSubmission.count({
-      where: {
-        agentId,
-        createdAt: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-      },
-    });
+    const [submissionsToday, allSubmissions] = await Promise.all([
+      prisma.dataSubmission.count({
+        where: { agentId, createdAt: { gte: startOfDay, lte: endOfDay } },
+      }),
+      prisma.dataSubmission.findMany({
+        where: { agentId },
+        select: { status: true }
+      })
+    ]);
+
+    const total = allSubmissions.length;
+    const pending = allSubmissions.filter(s => s.status === "PENDING").length;
+    const approved = allSubmissions.filter(s => s.status === "VERIFIED").length;
+    const rejected = allSubmissions.filter(s => s.status === "REJECTED").length;
+    const decided = approved + rejected;
+    
+    let approvalRate = 0;
+    if (decided > 0) {
+      approvalRate = Math.round((approved / decided) * 100);
+    }
+
+    let grade = "N/A";
+    if (decided >= 3) {
+      if (approvalRate >= 90) grade = "A";
+      else if (approvalRate >= 80) grade = "B";
+      else if (approvalRate >= 70) grade = "C";
+      else grade = "D";
+    }
 
     return NextResponse.json({
       points: user?.points || 0,
-      submissionsToday
+      status: user?.status || "PENDING",
+      submissionsToday,
+      total,
+      pending,
+      approved,
+      rejected,
+      decided,
+      approvalRate,
+      grade
     });
   } catch (error) {
     console.error("Error fetching stats:", error);

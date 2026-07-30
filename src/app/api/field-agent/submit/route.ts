@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/auth";
 import { auth } from "@/lib/auth";
+import { submitSchema } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -73,14 +74,13 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json();
-    const { latitude, longitude, category, photoUrl, contactInfo, customFeatures } = data;
-
-    if (!latitude || !longitude || !category || !photoUrl || !contactInfo || !customFeatures) {
-      return NextResponse.json(
-        { error: "Missing required fields (latitude, longitude, category, photoUrl, contactInfo, customFeatures)" },
-        { status: 400 }
-      );
+    const result = submitSchema.safeParse(data);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
     }
+
+    const { latitude, longitude, category, photoUrl, contactInfo, customFeatures } = result.data;
 
     const submission = await prisma.dataSubmission.create({
       data: {

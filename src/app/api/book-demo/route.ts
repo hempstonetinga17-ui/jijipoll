@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { bookDemoSchema } from '@/lib/validate';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, organisation, website } = body;
-
-    if (!name || !email || !organisation) {
-      return NextResponse.json(
-        { error: 'Name, email, and organisation are required' },
-        { status: 400 }
-      );
+    const result = bookDemoSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
     }
+    
+    const { name, email, organisation, website } = result.data;
 
     const { data, error } = await resend.emails.send({
       from: 'Jijipoll Demo <onboarding@resend.dev>', // Should be a verified domain in production

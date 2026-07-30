@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/auth"
 import bcrypt from "bcryptjs"
+import { registerSchema } from "@/lib/validate"
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { email, password, name, phoneNumber, role: bodyRole, accountType, companyName, latitude, longitude } = body
-
-    if (!email || !password) {
-      return NextResponse.json({ message: "Email and password are required." }, { status: 400 })
+    const result = registerSchema.safeParse(body)
+    
+    if (!result.success) {
+      return NextResponse.json({ message: result.error.issues[0].message }, { status: 400 })
     }
+
+    const { email, password, name, phoneNumber, role: bodyRole, accountType, companyName, latitude, longitude } = result.data
 
     if (accountType === "Company" && !companyName) {
       return NextResponse.json({ message: "Company name is required for company accounts." }, { status: 400 })
@@ -50,7 +53,7 @@ export async function POST(req: Request) {
           ? {
               business: {
                 create: {
-                  companyName,
+                  companyName: companyName as string,
                   ...(lat !== undefined ? { latitude: lat } : {}),
                   ...(lng !== undefined ? { longitude: lng } : {}),
                 },

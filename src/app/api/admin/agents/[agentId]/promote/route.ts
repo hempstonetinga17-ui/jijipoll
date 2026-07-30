@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/auth";
 import { auth } from "@/lib/auth";
+import { agentPromoteSchema } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -14,14 +15,16 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { role } = await req.json();
+    const body = await req.json();
+    const result = agentPromoteSchema.safeParse(body);
 
-    if (!role || !["AGENT", "SUPERVISOR"].includes(role)) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Invalid role. Must be AGENT or SUPERVISOR." },
+        { error: result.error.issues[0].message },
         { status: 400 }
       );
     }
+    const { role } = result.data;
 
     const updated = await prisma.user.update({
       where: { id: params.agentId },

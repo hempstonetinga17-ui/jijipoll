@@ -26,7 +26,7 @@ export default function AdminDashboard() {
     if (sessionStatus === "unauthenticated") {
       router.push("/login");
     } else if (sessionStatus === "authenticated") {
-      if (session.user.role !== "ADMIN") {
+      if (!["ADMIN", "SUPERVISOR"].includes(session.user.role)) {
         router.push("/");
       } else {
         fetchData();
@@ -70,11 +70,14 @@ export default function AdminDashboard() {
 
   const processSubmission = async (submissionId: string, action: string) => {
     if (!confirm(`Are you sure you want to ${action} this submission?`)) return;
+    const feedbackStr = prompt(`Enter optional feedback for this ${action.toLowerCase()}:`);
+    if (feedbackStr === null) return; // cancelled
+
     try {
       await fetch("/api/admin/verify-submission", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId, action }),
+        body: JSON.stringify({ submissionId, action, feedback: feedbackStr || undefined }),
       });
       fetchData();
     } catch (e) {
@@ -203,7 +206,7 @@ export default function AdminDashboard() {
               {activeTab === "overview" ? "Dashboard Overview" : activeTab}
             </h2>
             <p className="text-xs text-gray-400">
-              Welcome back, {session?.user?.name || session?.user?.email || "Admin"}
+              Welcome back, {session?.user?.name || session?.user?.email || "Admin"} ({session?.user?.role})
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -342,7 +345,7 @@ export default function AdminDashboard() {
                               <CheckCircle className="w-4 h-4" />
                             </button>
                           )}
-                          {u.role !== "ADMIN" && (
+                          {u.role !== "ADMIN" && session?.user?.role === "ADMIN" && (
                             <button onClick={() => updateUser(u.id, { role: "ADMIN" })} className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 font-bold">
                               Make Admin
                             </button>
