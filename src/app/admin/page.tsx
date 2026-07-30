@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Users, FileCheck, CreditCard, LayoutDashboard, CheckCircle, XCircle, Trash2, Edit } from "lucide-react";
+import { Users, FileCheck, CreditCard, LayoutDashboard, CheckCircle, XCircle, Trash2, Edit, LogOut } from "lucide-react";
 
 export default function AdminDashboard() {
   const { data: session, status: sessionStatus } = useSession();
@@ -132,6 +132,14 @@ export default function AdminDashboard() {
             <CreditCard className="w-5 h-5" /> Withdrawals {pendingWithdrawals > 0 && <span className="ml-auto bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">{pendingWithdrawals}</span>}
           </button>
         </nav>
+        <div className="p-4 border-t border-gray-100">
+          <button 
+            onClick={() => signOut({ callbackUrl: "/login" })} 
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition"
+          >
+            <LogOut className="w-5 h-5" /> Sign Out
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
