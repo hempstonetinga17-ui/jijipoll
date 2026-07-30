@@ -250,7 +250,7 @@ export default function HomePage() {
                 </a>
               ))}
               <Link
-                href="/register"
+                href="/field-agent/register"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
