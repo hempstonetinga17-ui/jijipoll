@@ -63,33 +63,24 @@ export default function AgentCapture() {
   }
 
   const uploadFileToR2 = async (fileToUpload: File): Promise<string> => {
-    // Get presigned URL
-    const res = await fetch("/api/field-agent/upload-url", {
+    // Upload via server-side proxy to avoid CORS issues with direct R2 access
+    const form = new FormData()
+    form.append("file", fileToUpload)
+
+    const res = await fetch("/api/field-agent/upload", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filename: fileToUpload.name,
-        contentType: fileToUpload.type,
-      })
+      body: form,
     })
 
-    if (!res.ok) throw new Error("Failed to get upload URL")
-    
-    const { uploadUrl, publicUrl } = await res.json()
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error || "Failed to upload image")
+    }
 
-    // Upload directly to Cloudflare R2
-    const uploadRes = await fetch(uploadUrl, {
-      method: "PUT",
-      body: fileToUpload,
-      headers: {
-        "Content-Type": fileToUpload.type,
-      }
-    })
-
-    if (!uploadRes.ok) throw new Error("Failed to upload image")
-
+    const { publicUrl } = await res.json()
     return publicUrl
   }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
