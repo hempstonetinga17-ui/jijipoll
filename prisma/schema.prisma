@@ -73,7 +73,7 @@ model User {
   passwordHash  String?
   image         String?
   role          String    @default("USER") // USER, AGENT, BUSINESS_OWNER, ADMIN
-  status        String    @default("PENDING") // PENDING, ACTIVE, SUSPENDED
+  status        String    @default("PENDING") // PENDING, ACTIVE, FLAGGED, SUSPENDED
   points        Int       @default(0) // 1 point = 1 Ksh for agents
   
   accounts      Account[]
