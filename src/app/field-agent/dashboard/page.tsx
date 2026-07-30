@@ -25,6 +25,10 @@ export default function AgentDashboard() {
 
   useEffect(() => {
     if (status === "authenticated") {
+      if ((session?.user as any)?.role === "ADMIN") {
+        router.push("/admin");
+        return;
+      }
       // Fetch stats from backend
       fetch("/api/field-agent/stats")
         .then(res => res.json())
@@ -58,6 +62,14 @@ export default function AgentDashboard() {
           <span className="text-sm font-medium text-gray-600">
             {session?.user?.name || session?.user?.email}
           </span>
+          <button 
+            onClick={() => {
+              import("next-auth/react").then(mod => mod.signOut({ callbackUrl: "/field-agent/login" }));
+            }}
+            className="text-sm font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg"
+          >
+            Sign out
+          </button>
         </div>
       </header>
 
