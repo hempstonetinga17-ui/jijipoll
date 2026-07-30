@@ -163,7 +163,7 @@ export default function AgentCapture() {
           category,
           photoUrl: uploadedUrl,
           contactInfo,
-          customFeatures: customFeatures ? JSON.stringify({ note: customFeatures }) : undefined
+          customFeatures: { note: customFeatures }
         })
       })
 
