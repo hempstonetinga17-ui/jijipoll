@@ -244,26 +244,33 @@ export default function AgentCapture() {
           
           {/* Geolocation Section */}
           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-full ${location ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+            <h3 className="font-bold text-gray-900 mb-3">📍 GPS Location <span className="text-red-500">*</span></h3>
+            {gettingLocation ? (
+              <div className="flex items-center gap-3 text-gray-500">
+                <div className="w-5 h-5 border-2 border-gray-300 border-t-[#f06135] rounded-full animate-spin" />
+                <span className="text-sm animate-pulse">Acquiring satellite lock...</span>
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900 mb-1">Geolocation</h3>
-                {gettingLocation ? (
-                  <p className="text-sm text-gray-500 animate-pulse">Acquiring satellite lock...</p>
-                ) : locationError ? (
-                  <p className="text-sm text-red-500 font-medium">{locationError}</p>
-                ) : (
-                  <p className="text-sm text-green-600 font-medium tracking-tight">
-                    {location?.lat.toFixed(6)}, {location?.lng.toFixed(6)}
-                  </p>
-                )}
+            ) : locationError ? (
+              <p className="text-sm text-red-500 font-medium">{locationError}</p>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-sm text-green-600 font-bold">Location locked ✓</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                    <p className="text-xs text-gray-500 font-medium mb-0.5">Latitude</p>
+                    <p className="text-sm font-bold text-gray-900 font-mono">{location?.lat.toFixed(6)}</p>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                    <p className="text-xs text-gray-500 font-medium mb-0.5">Longitude</p>
+                    <p className="text-sm font-bold text-gray-900 font-mono">{location?.lng.toFixed(6)}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">These coordinates will be recorded with your submission.</p>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Photo Section — camera capture only, no file upload */}
@@ -353,7 +360,7 @@ export default function AgentCapture() {
           {/* Right Column (Details) */}
           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
             <div>
-              <label className="block font-bold text-gray-900 mb-2">Category</label>
+              <label className="block font-bold text-gray-900 mb-2">Category <span className="text-red-500">*</span></label>
               <div className="grid grid-cols-2 gap-2">
                 {CATEGORIES.map(cat => (
                   <button

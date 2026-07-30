@@ -98,11 +98,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      // For Google OAuth, ensure the user exists in our DB
+      if (account?.provider === "google" && user.email) {
+        try {
+          const existing = await prisma.user.findUnique({
+            where: { email: user.email }
+          })
+          if (!existing) {
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name ?? null,
+                image: user.image ?? null,
+                role: "AGENT",
+                status: "ACTIVE",
+              }
+            })
+            user.id = newUser.id
+            ;(user as any).role = newUser.role
+          } else {
+            user.id = existing.id
+            ;(user as any).role = existing.role
+          }
+        } catch (err) {
+          console.error("signIn callback error:", err)
+          return false
+        }
+      }
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token["id"] = user.id
-        token["role"] = user.role
-        token["phoneNumber"] = user.phoneNumber
+        token["role"] = (user as any).role ?? "AGENT"
+        token["phoneNumber"] = (user as any).phoneNumber ?? null
       }
       return token
     },
