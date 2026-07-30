@@ -395,8 +395,6 @@ export default function AgentCapture() {
               />
             </div>
           </div>
-
-          </div>
           </div>
           
           {errorMessage && (
