@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /entries/{entryId} {
+      allow read, create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      // Client cannot update or delete entries once submitted
+      allow update, delete: if false; 
+    }
+    match /daily_stats/{statId} {
+      // Allow read if the statId starts with the user's uid
+      allow read: if request.auth != null && statId.matches(request.auth.uid + '.*');
+      allow write: if false; // Only updated via Cloud Functions
+    }
+  }
+}

@@ -51,8 +51,8 @@ export default function HomePage() {
             <Link href="/login" className="text-white font-semibold hover:text-white/80 transition drop-shadow-md text-sm lg:text-base">
               Log In
             </Link>
-            <Link href="/login" className="bg-white text-[#f06135] px-4 lg:px-6 py-2.5 rounded-full font-bold hover:bg-gray-100 transition shadow-xl text-sm lg:text-base">
-              Sign Up
+            <Link href="/book-demo" className="bg-white text-[#f06135] px-4 lg:px-6 py-2.5 rounded-full font-bold hover:bg-gray-100 transition shadow-xl text-sm lg:text-base">
+              Book a Demo
             </Link>
           </div>
 
@@ -107,9 +107,9 @@ export default function HomePage() {
             )}
             <Link href="/about" onClick={() => setMobileNavOpen(false)} className="text-white font-semibold py-3 border-b border-white/10">About Us</Link>
             <Link href="/contact" onClick={() => setMobileNavOpen(false)} className="text-white font-semibold py-3 border-b border-white/10">Contact Us</Link>
-            <Link href="/login" onClick={() => setMobileNavOpen(false)}
+            <Link href="/book-demo" onClick={() => setMobileNavOpen(false)}
               className="mt-3 bg-white text-[#f06135] px-6 py-3 rounded-full font-bold text-center hover:bg-gray-100 transition shadow-xl">
-              Sign Up Free
+              Book a Demo
             </Link>
           </div>
         )}
@@ -123,9 +123,9 @@ export default function HomePage() {
             From investors tracking niche industries to researchers mapping territories, Jijipoll transforms raw geographic data into the strategic location intelligence you need to execute.
           </p>
           <div className="flex gap-3 flex-wrap">
-            <Link href="/login"
+            <Link href="/book-demo"
               className="bg-[#1a0a00] text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-black transition shadow-xl border border-transparent hover:border-white/20 text-sm sm:text-base">
-              Get Started
+              Book a Demo
             </Link>
             <Link href="/about"
               className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-white/20 transition shadow-xl text-sm sm:text-base">
