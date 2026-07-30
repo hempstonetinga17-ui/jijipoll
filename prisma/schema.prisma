@@ -73,12 +73,14 @@ model User {
   passwordHash  String?
   image         String?
   role          String    @default("USER") // USER, AGENT, BUSINESS_OWNER, ADMIN
+  status        String    @default("PENDING") // PENDING, ACTIVE, SUSPENDED
   points        Int       @default(0) // 1 point = 1 Ksh for agents
   
   accounts      Account[]
   sessions      Session[]
   business      Business?
   submissions   DataSubmission[] // Submissions by this agent
+  withdrawals   WithdrawalRequest[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -165,4 +167,14 @@ model DataSubmission {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model WithdrawalRequest {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  amount      Int
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -68,13 +68,42 @@ export default function AgentDashboard() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col relative overflow-hidden">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Your Earnings</h3>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-black text-green-600">{stats.points}</span>
               <span className="text-gray-500 font-medium mb-1">KSh</span>
             </div>
             <p className="text-xs text-gray-400 mt-2">1 Point = 1 KSh. Points are awarded upon verification.</p>
+            
+            {stats.points > 0 && (
+              <button 
+                onClick={async () => {
+                  const amt = prompt("How much would you like to withdraw? (Max: " + stats.points + ")");
+                  if (!amt || isNaN(Number(amt)) || Number(amt) <= 0) return;
+                  if (Number(amt) > stats.points) return alert("Insufficient points!");
+                  
+                  try {
+                    const res = await fetch("/api/admin/withdrawals", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ amount: Number(amt) })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      alert("Withdrawal requested successfully!");
+                    } else {
+                      alert(data.error || "Failed to request withdrawal");
+                    }
+                  } catch(e) {
+                    alert("An error occurred");
+                  }
+                }}
+                className="mt-4 w-full bg-green-50 text-green-700 font-bold py-2 rounded-lg hover:bg-green-100 transition text-sm"
+              >
+                Request Withdrawal
+              </button>
+            )}
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
