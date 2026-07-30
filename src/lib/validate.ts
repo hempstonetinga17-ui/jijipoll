@@ -37,6 +37,7 @@ export const verifySubmissionSchema = z.object({
   submissionId: z.string().cuid("Invalid submission ID"),
   action: z.enum(["APPROVE", "REJECT"]),
   feedback: z.string().optional(),
+  grade: z.number().min(0).max(100),
 });
 
 export const agentStatusSchema = z.object({

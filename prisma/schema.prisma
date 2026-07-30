@@ -75,6 +75,7 @@ model User {
   role          String    @default("USER") // USER, AGENT, SUPERVISOR, BUSINESS_OWNER, ADMIN
   status        String    @default("TRAINING") // PENDING, TRAINING, ACTIVE, FLAGGED, SUSPENDED
   points        Int       @default(0) // 1 point = 1 Ksh for agents
+  averageGrade  Float     @default(0) // 0 to 100% average of graded submissions
   
   accounts      Account[]
   sessions      Session[]
@@ -165,6 +166,7 @@ model DataSubmission {
   
   status          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
   feedback        String?  // Feedback from supervisor for rejected or verified submissions
+  grade           Int?     // Percentage grade (0-100)
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

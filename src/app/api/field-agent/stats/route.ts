@@ -17,7 +17,7 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { id: agentId },
-      select: { points: true, status: true }
+      select: { points: true, status: true, averageGrade: true }
     });
 
     const startOfDay = new Date();
@@ -46,11 +46,13 @@ export async function GET() {
       approvalRate = Math.round((approved / decided) * 100);
     }
 
+    const averageGrade = user?.averageGrade || 0;
+
     let grade = "N/A";
     if (decided >= 3) {
-      if (approvalRate >= 90) grade = "A";
-      else if (approvalRate >= 80) grade = "B";
-      else if (approvalRate >= 70) grade = "C";
+      if (averageGrade >= 90) grade = "A";
+      else if (averageGrade >= 80) grade = "B";
+      else if (averageGrade >= 70) grade = "C";
       else grade = "D";
     }
 
@@ -64,6 +66,7 @@ export async function GET() {
       rejected,
       decided,
       approvalRate,
+      averageGrade,
       grade
     });
   } catch (error) {

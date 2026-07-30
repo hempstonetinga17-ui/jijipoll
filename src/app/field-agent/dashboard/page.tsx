@@ -16,6 +16,7 @@ type Stats = {
   rejected: number;
   decided: number;
   approvalRate: number;
+  averageGrade: number;
   grade: string;
 }
 
@@ -27,6 +28,7 @@ type Submission = {
   longitude: number;
   photoUrl: string;
   feedback: string | null;
+  grade: number | null;
   createdAt: string;
 };
 
@@ -252,8 +254,10 @@ export default function AgentDashboard() {
             <div className="flex items-center gap-3 mt-auto">
               <span className="text-4xl">{gMeta.emoji}</span>
               <div>
-                <div className={`text-2xl font-black ${gMeta.text}`}>{stats.grade}</div>
-                <div className={`text-xs font-bold ${gMeta.text} opacity-80`}>{gMeta.label}</div>
+                <div className={`text-2xl font-black ${gMeta.text}`}>
+                  {stats.decided > 0 ? `${stats.averageGrade.toFixed(1)}%` : "N/A"}
+                </div>
+                <div className={`text-xs font-bold ${gMeta.text} opacity-80`}>{gMeta.label} ({stats.grade})</div>
               </div>
             </div>
           </div>
@@ -283,6 +287,7 @@ export default function AgentDashboard() {
                     <th className="p-4 font-semibold text-gray-500 text-xs">Category</th>
                     <th className="p-4 font-semibold text-gray-500 text-xs">Location</th>
                     <th className="p-4 font-semibold text-gray-500 text-xs">Status</th>
+                    <th className="p-4 font-semibold text-gray-500 text-xs">Grade</th>
                     <th className="p-4 font-semibold text-gray-500 text-xs">Feedback</th>
                   </tr>
                 </thead>
@@ -309,6 +314,13 @@ export default function AgentDashboard() {
                         }`}>
                           {sub.status}
                         </span>
+                      </td>
+                      <td className="p-4">
+                        {sub.grade !== null && sub.grade !== undefined ? (
+                          <span className="text-xs font-bold text-gray-700">{sub.grade}%</span>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
                       </td>
                       <td className="p-4">
                         {sub.feedback ? (

@@ -6,9 +6,15 @@ import { useRouter } from "next/navigation"
 export default function AdminSubmissionRow({ submission }: { submission: any }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [grade, setGrade] = useState("")
+  const [feedback, setFeedback] = useState("")
 
   const handleAction = async (action: "APPROVE" | "REJECT") => {
-    if (!confirm(`Are you sure you want to ${action} this submission?`)) return;
+    if (!grade || isNaN(Number(grade)) || Number(grade) < 0 || Number(grade) > 100) {
+      alert("Please provide a valid grade between 0 and 100.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to ${action} this submission with a grade of ${grade}%?`)) return;
     
     setLoading(true)
     try {
@@ -17,7 +23,9 @@ export default function AdminSubmissionRow({ submission }: { submission: any }) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           submissionId: submission.id,
-          action
+          action,
+          grade: Number(grade),
+          feedback
         })
       })
 
@@ -62,20 +70,37 @@ export default function AdminSubmissionRow({ submission }: { submission: any }) 
       </td>
       <td className="p-4 align-top">
         <div className="flex flex-col gap-2">
-          <button 
-            onClick={() => handleAction("APPROVE")}
-            disabled={loading}
-            className="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 text-sm transition"
-          >
-            Approve (+10 pts)
-          </button>
-          <button 
-            onClick={() => handleAction("REJECT")}
-            disabled={loading}
-            className="bg-red-50 text-red-600 font-bold py-2 px-4 rounded-lg hover:bg-red-100 border border-red-200 text-sm transition"
-          >
-            Reject
-          </button>
+          <input 
+            type="number" 
+            placeholder="Grade (0-100) *" 
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
+            className="border border-gray-200 rounded p-2 text-sm w-full focus:ring-1 focus:ring-[#f06135] outline-none"
+            min="0" max="100"
+            required
+          />
+          <textarea
+            placeholder="Feedback (optional)"
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            className="border border-gray-200 rounded p-2 text-sm w-full h-16 resize-none focus:ring-1 focus:ring-[#f06135] outline-none"
+          />
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleAction("APPROVE")}
+              disabled={loading}
+              className="bg-green-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-green-600 text-xs transition flex-1"
+            >
+              Approve (+10 pts)
+            </button>
+            <button 
+              onClick={() => handleAction("REJECT")}
+              disabled={loading}
+              className="bg-red-50 text-red-600 font-bold py-2 px-3 rounded-lg hover:bg-red-100 border border-red-200 text-xs transition flex-1"
+            >
+              Reject
+            </button>
+          </div>
         </div>
       </td>
     </tr>

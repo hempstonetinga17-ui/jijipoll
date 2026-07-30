@@ -8,17 +8,15 @@ export const dynamic = "force-dynamic";
 /** Recalculates agent grade, auto-enforces status, and handles training phase. */
 async function applyAutoGrade(agentId: string) {
   const submissions = await prisma.dataSubmission.findMany({
-    where: { agentId, status: { in: ["VERIFIED", "REJECTED"] } },
-    select: { status: true },
+    where: { agentId, status: { in: ["VERIFIED", "REJECTED"] }, grade: { not: null } },
+    select: { grade: true },
   });
 
-  const approved = submissions.filter((s) => s.status === "VERIFIED").length;
-  const rejected = submissions.filter((s) => s.status === "REJECTED").length;
-  const total = approved + rejected;
-
+  const total = submissions.length;
   if (total === 0) return;
 
-  const rate = (approved / total) * 100;
+  const sum = submissions.reduce((acc, s) => acc + (s.grade || 0), 0);
+  const averageGrade = sum / total;
 
   const agent = await prisma.user.findUnique({
     where: { id: agentId },
@@ -29,33 +27,35 @@ async function applyAutoGrade(agentId: string) {
 
   let newStatus: string | null = null;
   
-  // Training logic: transition to ACTIVE after 50 submissions if they meet minimum 70% rate
+  // Training logic: transition to ACTIVE after 50 submissions if they meet minimum 70% average
   if (agent.status === "TRAINING" && total >= 50) {
-    if (rate >= 70) {
+    if (averageGrade >= 70) {
        newStatus = "ACTIVE";
     } else {
        newStatus = "SUSPENDED"; // Failed training
     }
   } else if (agent.status !== "TRAINING" && total >= 3) {
     // Normal grading logic (ignore for trainees until they hit 50)
-    if (rate < 70) {
+    if (averageGrade < 70) {
       newStatus = "SUSPENDED"; // Grade D → auto-suspend
-    } else if (rate < 80) {
+    } else if (averageGrade < 80) {
       newStatus = "FLAGGED"; // Grade C → flag
     } else {
-      // Rate ≥ 80 — lift FLAGGED/SUSPENDED if it was auto-imposed, restore ACTIVE
+      // averageGrade ≥ 80 — lift FLAGGED/SUSPENDED if it was auto-imposed, restore ACTIVE
       if (agent.status === "FLAGGED" || agent.status === "SUSPENDED") {
         newStatus = "ACTIVE";
       }
     }
   }
 
-  if (newStatus && newStatus !== agent.status) {
-    await prisma.user.update({
-      where: { id: agentId },
-      data: { status: newStatus },
-    });
-  }
+  // Update agent status (and averageGrade)
+  await prisma.user.update({
+    where: { id: agentId },
+    data: { 
+      averageGrade,
+      ...(newStatus && newStatus !== agent.status ? { status: newStatus } : {})
+    },
+  });
 }
 
 export async function POST(req: Request) {
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
     }
 
-    const { submissionId, action, feedback } = result.data;
+    const { submissionId, action, feedback, grade } = result.data;
 
     const submission = await prisma.dataSubmission.findUnique({
       where: { id: submissionId },
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       const [sub] = await prisma.$transaction([
         prisma.dataSubmission.update({
           where: { id: submissionId },
-          data: { status: "VERIFIED", feedback },
+          data: { status: "VERIFIED", feedback, grade },
         }),
         prisma.user.update({
           where: { id: submission.agentId },
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     } else if (action === "REJECT") {
       updatedSubmission = await prisma.dataSubmission.update({
         where: { id: submissionId },
-        data: { status: "REJECTED", feedback },
+        data: { status: "REJECTED", feedback, grade },
       });
     }
 
