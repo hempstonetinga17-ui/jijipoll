@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -17,8 +17,13 @@ export default function AgentCapture() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationError, setLocationError] = useState("")
   const [gettingLocation, setGettingLocation] = useState(true)
-  
-  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Camera state
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [cameraError, setCameraError] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   
@@ -52,15 +57,55 @@ export default function AgentCapture() {
     }
   }, [])
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0]
-      setFile(selectedFile)
-      
-      const objectUrl = URL.createObjectURL(selectedFile)
-      setPreview(objectUrl)
+  const openCamera = useCallback(async () => {
+    setCameraError("")
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false,
+      })
+      streamRef.current = stream
+      setCameraOpen(true)
+      // attach stream after state update
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.play()
+        }
+      }, 100)
+    } catch (err: any) {
+      setCameraError("Could not access camera. Please allow camera permission and try again.")
     }
-  }
+  }, [])
+
+  const stopCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    setCameraOpen(false)
+  }, [])
+
+  const capturePhoto = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    canvas.width = video.videoWidth || 1280
+    canvas.height = video.videoHeight || 720
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    canvas.toBlob(blob => {
+      if (!blob) return
+      const capturedFile = new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" })
+      setFile(capturedFile)
+      setPreview(URL.createObjectURL(capturedFile))
+      stopCamera()
+    }, "image/jpeg", 0.92)
+  }, [stopCamera])
+
+  // Cleanup stream on unmount
+  useEffect(() => {
+    return () => { streamRef.current?.getTracks().forEach(t => t.stop()) }
+  }, [])
 
   const uploadFileToR2 = async (fileToUpload: File): Promise<string> => {
     // Upload via server-side proxy to avoid CORS issues with direct R2 access
@@ -204,45 +249,87 @@ export default function AgentCapture() {
             </div>
           </div>
 
-          {/* Photo Section */}
+          {/* Photo Section — camera capture only, no file upload */}
           <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="font-bold text-gray-900 mb-3">Photo (Required)</h3>
-            
-            {preview ? (
-              <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 group">
-                <img src={preview} alt="Capture" className="w-full h-full object-cover" />
-                <button 
+            <h3 className="font-bold text-gray-900 mb-3">📸 Photo <span className="text-red-500">*</span></h3>
+
+            {/* Live camera viewfinder */}
+            {cameraOpen && (
+              <div className="relative rounded-xl overflow-hidden bg-black mb-3" style={{ aspectRatio: "16/9" }}>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                {/* Crosshair overlay */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <div className="w-16 h-16 border-2 border-white/60 rounded-lg" />
+                </div>
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
+                  <button
+                    type="button"
+                    onClick={stopCamera}
+                    className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-white/30 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={capturePhoto}
+                    className="bg-white text-[#f06135] px-8 py-2.5 rounded-full font-black text-sm shadow-xl hover:bg-gray-100 active:scale-95 transition flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <circle cx="12" cy="12" r="4" strokeWidth={2} />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    </svg>
+                    Capture
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Captured preview */}
+            {!cameraOpen && preview && (
+              <div className="relative rounded-xl overflow-hidden bg-gray-100 mb-3" style={{ aspectRatio: "16/9" }}>
+                <img src={preview} alt="Captured" className="w-full h-full object-cover" />
+                <button
                   type="button"
                   onClick={() => { setFile(null); setPreview(null); }}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600 active:scale-95 transition"
+                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-red-600 active:scale-95 transition flex items-center gap-1"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4l16 16M4 20L20 4" />
                   </svg>
+                  Retake
                 </button>
               </div>
-            ) : (
+            )}
+
+            {/* Open camera button */}
+            {!cameraOpen && !preview && (
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-[#f06135] transition hover:text-[#f06135]"
+                onClick={openCamera}
+                className="w-full border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-[#f06135] hover:text-[#f06135] transition"
+                style={{ aspectRatio: "16/9" }}
               >
-                <svg className="w-10 h-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                <svg className="w-12 h-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span className="font-medium">Tap to take or upload a photo</span>
+                <span className="font-bold text-sm">Open Camera</span>
+                <span className="text-xs mt-1 opacity-60">Camera capture only — no uploads</span>
               </button>
             )}
-            
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange}
-              accept="image/*" 
-              capture="environment" // Suggests native camera on mobile
-              className="hidden" 
-            />
+
+            {cameraError && (
+              <p className="mt-2 text-sm text-red-500 font-medium">{cameraError}</p>
+            )}
+
+            {/* Hidden canvas for snapshot */}
+            <canvas ref={canvasRef} className="hidden" />
           </div>
 
           {/* Details Section */}
