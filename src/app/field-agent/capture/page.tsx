@@ -177,7 +177,12 @@ export default function AgentCapture() {
     } catch (err: any) {
       console.error(err)
       setStatus("error")
-      setErrorMessage(err.message || "Something went wrong")
+      // Provide a clearer error message for network errors (like CORS, offline, or connection reset)
+      if (err.message === "Failed to fetch") {
+        setErrorMessage("Network error: Could not connect to the server. Please check your internet connection or server status.")
+      } else {
+        setErrorMessage(err.message || "Something went wrong")
+      }
     }
   }
 
@@ -373,7 +378,7 @@ export default function AgentCapture() {
                 type="text"
                 required
                 placeholder="Phone number, email, or name"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition"
+                className="w-full px-4 py-3 bg-white text-gray-900 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition shadow-sm placeholder:text-gray-400"
                 value={contactInfo}
                 onChange={e => setContactInfo(e.target.value)}
               />
@@ -384,7 +389,7 @@ export default function AgentCapture() {
               <textarea
                 required
                 placeholder="e.g. They use Point of Sale XYZ"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition resize-none h-24"
+                className="w-full px-4 py-3 bg-white text-gray-900 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition resize-none h-24 shadow-sm placeholder:text-gray-400"
                 value={customFeatures}
                 onChange={e => setCustomFeatures(e.target.value)}
               />
@@ -402,9 +407,9 @@ export default function AgentCapture() {
 
           <button
             type="submit"
-            disabled={!location || !file || !contactInfo.trim() || !customFeatures.trim() || status === "uploading" || status === "submitting"}
+            disabled={status === "uploading" || status === "submitting"}
             className={`w-full py-4 rounded-xl font-black text-lg transition shadow-xl flex justify-center items-center gap-2 sticky bottom-6 ${
-              !location || !file || !contactInfo.trim() || !customFeatures.trim()
+              status === "uploading" || status === "submitting"
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-[#f06135] text-white hover:bg-[#d35400] active:scale-[0.98]'
             }`}
