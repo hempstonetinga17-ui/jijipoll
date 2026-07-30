@@ -13,7 +13,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const agentId = session.user.id;
+    let agentId = session.user.id;
+
+    // Defensive check: verify the agentId exists in the DB
+    // (Handles stale Google OAuth tokens that carry a non-DB id)
+    const agentExists = await prisma.user.findUnique({ where: { id: agentId } });
+    if (!agentExists) {
+      // Try to find by email and use that user's real DB id
+      const email = session.user.email;
+      if (email) {
+        const userByEmail = await prisma.user.findUnique({ where: { email } });
+        if (userByEmail) {
+          agentId = userByEmail.id;
+        } else {
+          // Create the user in DB so they can submit
+          const newUser = await prisma.user.create({
+            data: {
+              email,
+              name: session.user.name ?? null,
+              image: session.user.image ?? null,
+              role: "AGENT",
+              status: "ACTIVE",
+            }
+          });
+          agentId = newUser.id;
+        }
+      } else {
+        return NextResponse.json({ error: "User not found. Please sign out and sign in again." }, { status: 401 });
+      }
+    }
 
     // Optional: enforce role AGENT
     // if (session.user.role !== "AGENT") {

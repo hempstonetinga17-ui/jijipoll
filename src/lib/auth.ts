@@ -128,11 +128,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      // On initial sign-in, populate token from user object
       if (user) {
         token["id"] = user.id
         token["role"] = (user as any).role ?? "AGENT"
         token["phoneNumber"] = (user as any).phoneNumber ?? null
+        token["email"] = user.email
+      }
+      // Always re-verify the DB id using email to prevent stale Google IDs
+      // This runs on every request where the token is refreshed
+      if (!token["id"] || (account?.provider === "google" && token["email"])) {
+        try {
+          const email = token["email"] as string | undefined
+          if (email) {
+            const dbUser = await prisma.user.findUnique({ where: { email } })
+            if (dbUser) {
+              token["id"] = dbUser.id
+              token["role"] = dbUser.role
+              token["phoneNumber"] = dbUser.phoneNumber ?? null
+            }
+          }
+        } catch (err) {
+          console.error("jwt DB lookup error:", err)
+        }
       }
       return token
     },
