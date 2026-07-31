@@ -12,7 +12,7 @@ const NAV = [
   { href: "/agents",      label: "Field Agents",   icon: Smartphone, color: "#f59e0b" },
 ];
 
-export function JijiSidebar() {
+export function KijijiSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -44,11 +44,11 @@ export function JijiSidebar() {
           overflow: "hidden",
         }}
       >
-        <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
+        <img src="/kijijipoll.png" alt="Kijijipoll Logo" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
         {!collapsed && (
           <div>
             <div style={{ color: "#e2e8f0", fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.01em" }}>
-              JijiPoll
+              KijijiPoll
             </div>
             <div style={{ color: "#64748b", fontSize: "0.65rem", fontWeight: 500 }}>
               Field Intelligence
@@ -126,3 +126,4 @@ export function JijiSidebar() {
     </aside>
   );
 }
+

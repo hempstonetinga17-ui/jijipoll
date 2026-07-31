@@ -22,8 +22,8 @@ export default function HomePage() {
         <header className="absolute top-0 left-0 w-full z-20 px-4 sm:px-6 py-4 flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-white font-black text-xl sm:text-3xl tracking-tighter drop-shadow-md">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-8 sm:h-10 w-auto" style={{ filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
-            JIJIPOLL
+            <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-8 sm:h-10 w-auto" style={{ filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
+            KIJIJIPOLL
           </Link>
 
           {/* Desktop Nav */}
@@ -116,7 +116,7 @@ export default function HomePage() {
             Map Any Market.<br />Find Any Business.
           </h1>
           <p className="text-white/90 text-sm sm:text-base font-medium mb-5 sm:mb-6 pointer-events-none max-w-lg">
-            From investors tracking niche industries to researchers mapping territories, Jijipoll transforms raw geographic data into the strategic location intelligence you need to execute.
+            From investors tracking niche industries to researchers mapping territories, Kijijipoll transforms raw geographic data into the strategic location intelligence you need to execute.
           </p>
           <div className="flex gap-3 flex-wrap">
             <Link href="/book-demo"
@@ -156,8 +156,8 @@ export default function HomePage() {
             {/* Brand column */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
-                <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ height: "36px", width: "auto", filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
-                <span style={{ color: "#fff", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "-0.02em" }}>JIJIPOLL</span>
+                <img src="/kijijipoll.png" alt="Kijijipoll Logo" style={{ height: "36px", width: "auto", filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
+                <span style={{ color: "#fff", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "-0.02em" }}>KIJIJIPOLL</span>
               </div>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", lineHeight: "1.6", maxWidth: "280px" }}>
                 Africa's leading field intelligence platform. Mapping businesses, empowering decisions, transforming markets across 45+ counties.
@@ -239,7 +239,7 @@ export default function HomePage() {
           {/* Bottom bar */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
             <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem", margin: 0 }}>
-              © {new Date().getFullYear()} Jijipoll Technologies Ltd. All rights reserved.
+              © {new Date().getFullYear()} Kijijipoll Technologies Ltd. All rights reserved.
             </p>
             <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
               {["Terms of Service", "Privacy Policy", "Cookie Policy"].map(item => (
@@ -296,3 +296,4 @@ export default function HomePage() {
     </div>
   )
 }
+

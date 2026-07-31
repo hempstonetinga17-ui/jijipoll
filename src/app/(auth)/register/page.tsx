@@ -54,7 +54,7 @@ export default function RegisterPage() {
 
           {/* Logo + heading */}
           <div className="flex flex-col items-center mb-6">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-14 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
+            <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-14 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight text-center">
               Start mapping for free
             </h1>
@@ -114,3 +114,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+

@@ -6,10 +6,10 @@ const CookieBanner = dynamic(() => import("@/components/CookieBanner"), { ssr: f
 const SessionProviderWrapper = dynamic(() => import("@/components/SessionProviderWrapper"), { ssr: false });
 
 export const metadata: Metadata = {
-  title: "JijiPoll — Field Maps & Agent Management",
+  title: "KijijiPoll — Field Maps & Agent Management",
   description: "Field sales mapping, agent management, and team coordination platform.",
   icons: {
-    icon: "/jijipoll.png",
+    icon: "/kijijipoll.png",
   },
 };
 
@@ -33,3 +33,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+

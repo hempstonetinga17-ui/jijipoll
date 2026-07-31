@@ -48,7 +48,7 @@ function LoginForm() {
 
           {/* Logo + title */}
           <div className="flex flex-col items-center mb-8">
-            <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-14 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
+            <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-14 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Welcome back</h1>
             <p className="text-white/60 text-sm mt-1 text-center">Sign in to access your field intelligence dashboard</p>
           </div>
@@ -72,7 +72,7 @@ function LoginForm() {
 
           <div className="mt-6 pt-5 border-t border-white/15 text-center">
             <p className="text-white/60 text-sm">
-              New to Jijipoll?{" "}
+              New to Kijijipoll?{" "}
               <button
                 onClick={() => signIn("google", { callbackUrl: "/field-map" })}
                 className="text-white font-bold hover:underline"
@@ -107,3 +107,4 @@ export default function LoginPage() {
     </Suspense>
   )
 }
+

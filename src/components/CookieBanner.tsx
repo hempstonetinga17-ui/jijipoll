@@ -12,7 +12,7 @@ export default function CookieBanner() {
 
   useEffect(() => {
     // Only show if user hasn't consented yet
-    const consent = localStorage.getItem("jijipoll_consent");
+    const consent = localStorage.getItem("kijijipoll_consent");
     if (!consent) {
       // Small delay so page loads first
       const t = setTimeout(() => setVisible(true), 1500);
@@ -23,7 +23,7 @@ export default function CookieBanner() {
   const handleSave = async () => {
     setSaving(true);
     localStorage.setItem(
-      "jijipoll_consent",
+      "kijijipoll_consent",
       JSON.stringify({ level: selected, duration, ts: Date.now() })
     );
 
@@ -298,3 +298,4 @@ export default function CookieBanner() {
     </>
   );
 }
+

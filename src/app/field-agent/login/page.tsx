@@ -41,7 +41,7 @@ export default function AgentLogin() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <img src="/jijipoll.png" alt="Jijipoll Logo" className="h-12 w-auto mx-auto mb-4" />
+        <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-12 w-auto mx-auto mb-4" />
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
           Agent Log In
         </h2>
@@ -123,3 +123,4 @@ export default function AgentLogin() {
     </div>
   )
 }
+

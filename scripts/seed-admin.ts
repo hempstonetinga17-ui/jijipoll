@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding admin account...");
 
-  const email = "admin@jijipoll.com";
+  const email = "admin@kijijipoll.com";
   const password = "password123";
   const passwordHash = await bcrypt.hash(password, 10);
 
@@ -20,7 +20,7 @@ async function main() {
     const admin = await prisma.user.create({
       data: {
         email,
-        name: "Jijipoll Admin",
+        name: "Kijijipoll Admin",
         passwordHash,
         role: "ADMIN",
         status: "ACTIVE",
@@ -38,3 +38,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

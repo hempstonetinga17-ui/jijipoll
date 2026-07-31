@@ -1,5 +1,5 @@
 {
-  "name": "jijipoll",
+  "name": "kijijipoll",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -49,3 +49,4 @@
     "typescript": "^5.4.5"
   }
 }
+

@@ -467,7 +467,7 @@ export function UnifiedSidebar({ activeTab, onTabChange }: Props) {
               flexShrink: 0,
             }}
           >
-            <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "32px", height: "32px", borderRadius: "9px", objectFit: "cover", filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
+            <img src="/kijijipoll.png" alt="Kijijipoll Logo" style={{ width: "32px", height: "32px", borderRadius: "9px", objectFit: "cover", filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
           </div>
 
           {/* Search button (slim mode) */}
@@ -600,11 +600,11 @@ export function UnifiedSidebar({ activeTab, onTabChange }: Props) {
             flexShrink: 0,
           }}
         >
-          <img src="/jijipoll.png" alt="Jijipoll Logo" style={{ width: "34px", height: "34px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
+          <img src="/kijijipoll.png" alt="Kijijipoll Logo" style={{ width: "34px", height: "34px", borderRadius: "10px", objectFit: "cover", flexShrink: 0, filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
           {!collapsed && (
             <div style={{ overflow: "hidden" }}>
               <div style={{ color: "#f1f5f9", fontWeight: 800, fontSize: "0.95rem", letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>
-                JijiPoll
+                KijijiPoll
               </div>
               <div style={{ color: "#475569", fontSize: "0.6rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 Field Intelligence
@@ -851,3 +851,4 @@ function GlobalItem({
     </button>
   );
 }
+
