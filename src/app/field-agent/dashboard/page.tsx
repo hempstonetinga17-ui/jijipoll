@@ -10,7 +10,7 @@ import {
   Mic, FileText, Video, Brain, Camera, Plus,
   LayoutDashboard, Wallet, ChevronRight,
   Zap, Award, BarChart2, LogOut, Bell, Settings,
-  ArrowUpRight, Shield, Activity
+  ArrowUpRight, Shield, Activity, Menu
 } from "lucide-react"
 
 type Stats = {
@@ -110,7 +110,18 @@ export default function AgentDashboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<"overview" | "activity">("overview")
   const [mounted, setMounted] = useState(false)
-  const [showDetailedStats, setShowDetailedStats] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -328,31 +339,95 @@ export default function AgentDashboard() {
             ))}
           </div>
 
-          {/* Avatar */}
-          <div style={{
-            width: 34, height: 34, borderRadius: "50%",
-            background: "linear-gradient(135deg, #1e3a52, #2d5a3d)",
-            border: "2px solid rgba(16,185,129,0.4)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#10b981", fontWeight: 800, fontSize: "0.75rem",
-          }}>
-            {initials}
-          </div>
+          {/* Avatar & Hamburger */}
+          <div style={{ position: "relative" }} ref={menuRef}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ position: "relative" }}>
+                <button className="nav-btn" style={{
+                  padding: "0.4rem", borderRadius: "8px", color: "#64748b",
+                  background: "rgba(255,255,255,0.04)"
+                }}>
+                  <Bell size={18} />
+                </button>
+                <div style={{
+                  position: "absolute", top: 4, right: 4, width: 8, height: 8,
+                  borderRadius: "50%", background: "#ef4444", border: "2px solid #050d1a"
+                }} />
+              </div>
 
-          {/* Sign out */}
-          <button
-            className="nav-btn"
-            onClick={() => import("next-auth/react").then(m => m.signOut({ callbackUrl: "/field-agent/login" }))}
-            style={{
-              padding: "0.4rem",
-              borderRadius: "8px",
-              background: "rgba(239,68,68,0.08)",
-              color: "#ef4444",
-              display: "flex", alignItems: "center",
-            }}
-          >
-            <LogOut size={16} />
-          </button>
+              <div style={{
+                width: 34, height: 34, borderRadius: "50%",
+                background: "linear-gradient(135deg, #1e3a52, #2d5a3d)",
+                border: "2px solid rgba(16,185,129,0.4)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#10b981", fontWeight: 800, fontSize: "0.75rem",
+              }}>
+                {initials}
+              </div>
+
+              <button
+                className="nav-btn"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                style={{
+                  padding: "0.4rem", borderRadius: "8px", color: "rgba(255,255,255,0.7)",
+                  background: isMenuOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.04)",
+                  display: "flex", alignItems: "center"
+                }}
+              >
+                <Menu size={18} />
+              </button>
+            </div>
+
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <div className="fade-up-1" style={{
+                position: "absolute", top: "calc(100% + 0.5rem)", right: 0,
+                width: 200, background: "rgba(10,22,40,0.95)",
+                backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px", padding: "0.5rem",
+                boxShadow: "0 10px 40px rgba(0,0,0,0.5)", zIndex: 100,
+                display: "flex", flexDirection: "column", gap: "2px"
+              }}>
+                <button className="nav-btn" style={{
+                  width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px",
+                  display: "flex", alignItems: "center", gap: "0.5rem",
+                  color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", fontWeight: 600,
+                  textAlign: "left"
+                }}>
+                  <Settings size={15} /> Settings
+                </button>
+                <button className="nav-btn" onClick={handleWithdraw} style={{
+                  width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px",
+                  display: "flex", alignItems: "center", gap: "0.5rem",
+                  color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", fontWeight: 600,
+                  textAlign: "left"
+                }}>
+                  <Wallet size={15} /> Withdrawals
+                </button>
+                <button className="nav-btn" style={{
+                  width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px",
+                  display: "flex", alignItems: "center", gap: "0.5rem",
+                  color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", fontWeight: 600,
+                  textAlign: "left"
+                }}>
+                  <MessageCircle size={15} /> Chat Support
+                </button>
+                <div style={{ height: 1, background: "rgba(255,255,255,0.1)", margin: "4px 0" }} />
+                <button
+                  className="nav-btn"
+                  onClick={() => import("next-auth/react").then(m => m.signOut({ callbackUrl: "/field-agent/login" }))}
+                  style={{
+                    width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px",
+                    display: "flex", alignItems: "center", gap: "0.5rem",
+                    color: "#ef4444", fontSize: "0.8rem", fontWeight: 600,
+                    textAlign: "left", background: "rgba(239,68,68,0.05)"
+                  }}
+                >
+                  <LogOut size={15} /> Sign Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -432,19 +507,7 @@ export default function AgentDashboard() {
           </div>
         </div>
 
-        {/* Toggle Detailed Stats */}
-        <button
-          onClick={() => setShowDetailedStats(!showDetailedStats)}
-          className="nav-btn"
-          style={{
-            marginTop: "1.25rem", width: "100%", padding: "0.75rem",
-            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "16px", color: "rgba(255,255,255,0.6)",
-            fontSize: "0.8rem", fontWeight: 700, cursor: "pointer",
-          }}
-        >
-          {showDetailedStats ? "Hide Detailed Stats" : "View Detailed Stats"}
-        </button>
+
       </div>
 
       {/* ── Main Content ──────────────────────────── */}
@@ -509,8 +572,6 @@ export default function AgentDashboard() {
         )}
 
         {/* ── Stat Cards Grid ──────────────────────── */}
-        {showDetailedStats && (
-          <>
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
@@ -598,8 +659,6 @@ export default function AgentDashboard() {
                   </div>
                 </div>
             </div>
-          </>
-        )}
 
         {/* ── Activity Tab Toggle (mobile) ─────────── */}
         <div style={{

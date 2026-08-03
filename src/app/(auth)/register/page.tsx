@@ -75,7 +75,7 @@ export default function RegisterPage() {
           {/* Google sign-up button */}
           <button
             id="google-signup-btn"
-            onClick={() => signIn("google", { callbackUrl: "/field-map" })}
+            onClick={() => signIn("google", { callbackUrl: "/field-agent/dashboard" })}
             className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-bold py-3.5 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-200 shadow-xl text-sm sm:text-base"
           >
             <GoogleIcon />
