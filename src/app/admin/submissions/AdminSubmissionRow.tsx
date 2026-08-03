@@ -63,9 +63,28 @@ export default function AdminSubmissionRow({ submission }: { submission: any }) 
         </p>
         {submission.contactInfo && <p className="text-sm text-gray-600 mb-1">Contact: {submission.contactInfo}</p>}
         {submission.customFeatures && (
-          <p className="text-xs text-gray-500 bg-gray-50 p-2 rounded border border-gray-100 mt-2 line-clamp-3">
-            {JSON.stringify(submission.customFeatures)}
-          </p>
+          <div className="bg-gray-50 p-3 rounded border border-gray-100 mt-2 flex flex-col gap-2">
+            {submission.customFeatures.caption && (
+              <div>
+                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Caption:</span>
+                <p className="text-sm text-gray-800 italic mt-1 line-clamp-3">"{submission.customFeatures.caption}"</p>
+              </div>
+            )}
+            {submission.customFeatures.audioUrl && (
+              <div className="mt-1">
+                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Audio Context:</span>
+                {submission.customFeatures.audioLanguage && (
+                  <span className="ml-2 text-xs text-[#f06135] font-semibold">[{submission.customFeatures.audioLanguage}]</span>
+                )}
+                <audio controls src={submission.customFeatures.audioUrl} className="w-full mt-2 h-8" />
+              </div>
+            )}
+            {!submission.customFeatures.caption && !submission.customFeatures.audioUrl && (
+              <p className="text-xs text-gray-500 line-clamp-3">
+                {JSON.stringify(submission.customFeatures)}
+              </p>
+            )}
+          </div>
         )}
       </td>
       <td className="p-4 align-top">
