@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const dataset = await prisma.dataset.findUnique({
     where: { id: datasetId },
-    select: { id: true, status: true, priceUsd: true, licenseType: true, name: true },
+    select: { id: true, status: true, priceUsd: true, license: true, name: true },
   })
 
   if (!dataset || dataset.status !== "AVAILABLE") {

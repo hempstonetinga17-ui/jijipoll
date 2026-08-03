@@ -24,7 +24,6 @@ export async function POST(req: Request) {
   // Load submission
   const submission = await prisma.dataSubmission.findUnique({
     where: { id: submissionId },
-    include: { task: { select: { requireIRR: true, qualityThreshold: true } } },
   })
 
   if (!submission) {
@@ -95,8 +94,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, isGolden: true, passed, delta, goldenGrade })
   }
 
-  // ── IRR LOGIC ─────────────────────────────────────────────────
-  const requireIRR = submission.task?.requireIRR ?? false
+  const requireIRR = false // DataSubmissions don't have tasks in this schema
 
   if (requireIRR) {
     // Add annotation record for this reviewer's grade
@@ -146,8 +144,7 @@ export async function POST(req: Request) {
         })
         return NextResponse.json({ success: true, irrConflict: true, disagreement, grades })
       } else {
-        // IRR passed — use average
-        const newStatus = avgGrade >= (submission.task?.qualityThreshold ?? 70) ? "REVIEWER_APPROVED" : "REVIEWER_REJECTED"
+        const newStatus = avgGrade >= 70 ? "REVIEWER_APPROVED" : "REVIEWER_REJECTED"
         await prisma.dataSubmission.update({
           where: { id: submissionId },
           data: {

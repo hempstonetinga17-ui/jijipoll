@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         totalDurationSecs: true,
         averageGrade: true,
         qualityTier: true,
-        licenseType: true,
+        license: true,
         priceUsd: true,
         sampleUrl: true,
         version: true,

@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { datasetId:
       ...(description !== undefined ? { description } : {}),
       ...(status !== undefined ? { status } : {}),
       ...(priceUsd !== undefined ? { priceUsd: parseFloat(priceUsd) } : {}),
-      ...(licenseType !== undefined ? { licenseType } : {}),
+      ...(licenseType !== undefined ? { license: licenseType } : {}),
       ...(datasetCard !== undefined ? { datasetCard } : {}),
     },
   })

@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       description: description || null,
       dataType,
       format,
-      licenseType,
+      license: licenseType,
       priceUsd: parseFloat(priceUsd),
       status: "COMPILING",
       compiledBy: session.user.id,

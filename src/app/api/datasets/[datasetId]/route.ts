@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: { datasetId: s
       id: true, name: true, description: true, version: true,
       dataType: true, format: true, languages: true, itemCount: true,
       totalDurationSecs: true, averageGrade: true, qualityTier: true,
-      licenseType: true, priceUsd: true, sampleUrl: true, datasetCard: true,
+      license: true, priceUsd: true, sampleUrl: true, datasetCard: true,
       status: true, compiledAt: true,
     },
   })
