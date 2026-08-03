@@ -2,6 +2,11 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { 
+  Mic, FileText, Video, Brain, Camera, MapPin, 
+  ChevronLeft, Volume2, Sparkles, Star, Trash2, 
+  CheckCircle2, Play, Pause, Square, Languages, RefreshCw
+} from "lucide-react"
 
 const CATEGORIES = [
   { id: "BUSINESS", label: "🏪 Business / Shop" },
@@ -11,29 +16,101 @@ const CATEGORIES = [
   { id: "OTHER", label: "📌 Other" },
 ]
 
+interface Language {
+  id: string;
+  code: string;
+  name: string;
+  nativeName?: string;
+}
+
+interface CollectionTask {
+  id: string;
+  title: string;
+  description?: string;
+  taskType: string;
+  rewardPerItem: number;
+  prompts: string[];
+  language?: Language;
+}
+
 export default function AgentCapture() {
   const router = useRouter()
   
+  // Selection state
+  const [selectedTaskType, setSelectedTaskType] = useState<"AUDIO" | "TEXT" | "VIDEO" | "EVAL" | "PHOTO" | null>(null)
+  const [tasks, setTasks] = useState<CollectionTask[]>([])
+  const [selectedTask, setSelectedTask] = useState<CollectionTask | null>(null)
+  const [loadingTasks, setLoadingTasks] = useState(false)
+  const [languages, setLanguages] = useState<Language[]>([])
+
+  // Location state
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationError, setLocationError] = useState("")
   const [gettingLocation, setGettingLocation] = useState(true)
 
-  // Camera state
+  // Status and feedback
+  const [status, setStatus] = useState<"idle" | "uploading" | "submitting" | "success" | "error">("idle")
+  const [errorMessage, setErrorMessage] = useState("")
+
+  // --- Photo State (Geo Photo) ---
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const [cameraOpen, setCameraOpen] = useState(false)
   const [cameraError, setCameraError] = useState("")
-  const [file, setFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-  
-  const [category, setCategory] = useState("BUSINESS")
-  const [contactInfo, setContactInfo] = useState("")
-  const [customFeatures, setCustomFeatures] = useState("")
-  
-  const [status, setStatus] = useState<"idle" | "uploading" | "submitting" | "success" | "error">("idle")
-  const [errorMessage, setErrorMessage] = useState("")
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [photoCategory, setPhotoCategory] = useState("BUSINESS")
+  const [photoContactInfo, setPhotoContactInfo] = useState("")
+  const [photoNotes, setPhotoNotes] = useState("")
 
+  // --- Audio State (Voice Recording) ---
+  const [languageId, setLanguageId] = useState("")
+  const [dialect, setDialect] = useState("")
+  const [environment, setEnvironment] = useState("INDOOR")
+  const [promptIdx, setPromptIdx] = useState(0)
+  const [isRecordingAudio, setIsRecordingAudio] = useState(false)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [audioPlaying, setAudioPlaying] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null)
+
+  // --- Text State (Text & Translation) ---
+  const [textType, setTextType] = useState("CORPUS")
+  const [sourceLanguage, setSourceLanguage] = useState("")
+  const [sourceText, setSourceText] = useState("")
+  const [submittedText, setSubmittedText] = useState("")
+  const [textDomain, setTextDomain] = useState("")
+
+  // --- Video State (Video Vision) ---
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoPreview, setVideoPreview] = useState<string | null>(null)
+  const [activityLabel, setActivityLabel] = useState("")
+  const [sceneType, setSceneType] = useState("INDOOR")
+  const [isEgocentric, setIsEgocentric] = useState(false)
+  const [objectLabelsInput, setObjectLabelsInput] = useState("")
+
+  // --- Eval State (AI Evaluation) ---
+  const [evalModelName, setEvalModelName] = useState("")
+  const [evalPromptText, setEvalPromptText] = useState("")
+  const [evalResponseText, setEvalResponseText] = useState("")
+  const [evalOverallRating, setEvalOverallRating] = useState(5)
+  const [evalRaterNotes, setEvalRaterNotes] = useState("")
+
+  // Fetch languages
+  useEffect(() => {
+    fetch("/api/languages")
+      .then(res => res.json())
+      .then(data => {
+        setLanguages(data)
+        if (data.length > 0) setLanguageId(data[0].id)
+      })
+      .catch(err => console.error("Error fetching languages", err))
+  }, [])
+
+  // Geolocation
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -57,6 +134,52 @@ export default function AgentCapture() {
     }
   }, [])
 
+  // Fetch tasks when selected task type changes
+  useEffect(() => {
+    if (!selectedTaskType) return
+    setLoadingTasks(true)
+    setSelectedTask(null)
+    setTasks([])
+    fetch(`/api/tasks?taskType=${selectedTaskType}`)
+      .then(res => res.json())
+      .then(data => {
+        setTasks(data)
+        if (data.length > 0) {
+          setSelectedTask(data[0])
+        }
+        setLoadingTasks(false)
+      })
+      .catch(err => {
+        console.error("Error fetching tasks", err)
+        setLoadingTasks(false)
+      })
+  }, [selectedTaskType])
+
+  // Clean stream on unmount
+  useEffect(() => {
+    return () => { streamRef.current?.getTracks().forEach(t => t.stop()) }
+  }, [])
+
+  // File Upload Helper
+  const uploadFileToR2 = async (fileToUpload: File): Promise<string> => {
+    const form = new FormData()
+    form.append("file", fileToUpload)
+
+    const res = await fetch("/api/field-agent/upload", {
+      method: "POST",
+      body: form,
+    })
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error || "Failed to upload file")
+    }
+
+    const { publicUrl } = await res.json()
+    return publicUrl
+  }
+
+  // --- Photo Capture Methods ---
   const openCamera = useCallback(async () => {
     setCameraError("")
     try {
@@ -66,7 +189,6 @@ export default function AgentCapture() {
       })
       streamRef.current = stream
       setCameraOpen(true)
-      // attach stream after state update
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream
@@ -96,94 +218,211 @@ export default function AgentCapture() {
     canvas.toBlob(blob => {
       if (!blob) return
       const capturedFile = new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" })
-      setFile(capturedFile)
-      setPreview(URL.createObjectURL(capturedFile))
+      setPhotoFile(capturedFile)
+      setPhotoPreview(URL.createObjectURL(capturedFile))
       stopCamera()
     }, "image/jpeg", 0.92)
   }, [stopCamera])
 
-  // Cleanup stream on unmount
-  useEffect(() => {
-    return () => { streamRef.current?.getTracks().forEach(t => t.stop()) }
-  }, [])
+  // --- Audio Recording Methods ---
+  const startRecordingAudio = async () => {
+    audioChunksRef.current = []
+    setAudioUrl(null)
+    setAudioBlob(null)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
 
-  const uploadFileToR2 = async (fileToUpload: File): Promise<string> => {
-    // Upload via server-side proxy to avoid CORS issues with direct R2 access
-    const form = new FormData()
-    form.append("file", fileToUpload)
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
+      }
 
-    const res = await fetch("/api/field-agent/upload", {
-      method: "POST",
-      body: form,
-    })
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" })
+        setAudioBlob(blob)
+        setAudioUrl(URL.createObjectURL(blob))
+        stream.getTracks().forEach(t => t.stop())
+      }
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      throw new Error(err.error || "Failed to upload image")
+      mediaRecorder.start()
+      setIsRecordingAudio(true)
+    } catch (err) {
+      alert("Microphone access is required for audio recording.")
     }
-
-    const { publicUrl } = await res.json()
-    return publicUrl
   }
 
+  const stopRecordingAudio = () => {
+    if (mediaRecorderRef.current && isRecordingAudio) {
+      mediaRecorderRef.current.stop()
+      setIsRecordingAudio(false)
+    }
+  }
 
+  const togglePlaybackAudio = () => {
+    if (!audioUrl) return
+    if (!audioPlayerRef.current) {
+      audioPlayerRef.current = new Audio(audioUrl)
+      audioPlayerRef.current.onended = () => setAudioPlaying(false)
+    }
+    if (audioPlaying) {
+      audioPlayerRef.current.pause()
+      setAudioPlaying(false)
+    } else {
+      audioPlayerRef.current.play()
+      setAudioPlaying(true)
+    }
+  }
+
+  // --- Submit handler for all forms ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!location) {
-      setErrorMessage("Location is required")
-      return
-    }
-    if (!file) {
-      setErrorMessage("A photo is required")
-      return
-    }
-    if (!contactInfo.trim()) {
-      setErrorMessage("Contact info is required")
-      return
-    }
-    if (!customFeatures.trim()) {
-      setErrorMessage("Features / Notes are required")
-      return
-    }
+    setErrorMessage("")
 
     try {
-      setErrorMessage("")
-      setStatus("uploading")
-      
-      const uploadedUrl = await uploadFileToR2(file)
-      
-      setStatus("submitting")
+      if (selectedTaskType === "PHOTO") {
+        if (!location) throw new Error("Location is required")
+        if (!photoFile) throw new Error("A photo is required")
+        if (!photoContactInfo.trim()) throw new Error("Contact info is required")
+        if (!photoNotes.trim()) throw new Error("Notes/Features are required")
 
-      const submitRes = await fetch("/api/field-agent/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          latitude: location.lat,
-          longitude: location.lng,
-          category,
-          photoUrl: uploadedUrl,
-          contactInfo,
-          customFeatures: { note: customFeatures }
+        setStatus("uploading")
+        const uploadedUrl = await uploadFileToR2(photoFile)
+        setStatus("submitting")
+
+        const submitRes = await fetch("/api/field-agent/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            latitude: location.lat,
+            longitude: location.lng,
+            category: photoCategory,
+            photoUrl: uploadedUrl,
+            contactInfo: photoContactInfo,
+            customFeatures: { note: photoNotes }
+          })
         })
-      })
+        if (!submitRes.ok) throw new Error((await submitRes.json()).error || "Submission failed")
+      }
 
-      if (!submitRes.ok) {
-        const errorData = await submitRes.json()
-        throw new Error(errorData.error || "Submission failed")
+      else if (selectedTaskType === "AUDIO") {
+        if (!audioBlob) throw new Error("Please record speech before submitting.")
+        setStatus("uploading")
+        
+        const audioFile = new File([audioBlob], `recording-${Date.now()}.webm`, { type: "audio/webm" })
+        const uploadedUrl = await uploadFileToR2(audioFile)
+        setStatus("submitting")
+
+        const submitRes = await fetch("/api/submissions/audio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            taskId: selectedTask?.id || null,
+            languageId: languageId || null,
+            dialect: dialect || null,
+            audioUrl: uploadedUrl,
+            durationSecs: audioPlayerRef.current ? Math.round(audioPlayerRef.current.duration || 5) : 5,
+            scriptPrompt: selectedTask?.prompts[promptIdx] || "Speech sample",
+            isScripted: true,
+            audioType: "MONOLOGUE",
+            environment,
+            latitude: location?.lat || null,
+            longitude: location?.lng || null,
+          })
+        })
+        if (!submitRes.ok) throw new Error((await submitRes.json()).error || "Submission failed")
+      }
+
+      else if (selectedTaskType === "TEXT") {
+        if (!submittedText.trim()) throw new Error("Please enter some text to submit.")
+        setStatus("submitting")
+
+        const submitRes = await fetch("/api/submissions/text", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            taskId: selectedTask?.id || null,
+            languageId: languageId || null,
+            sourceLanguage: sourceLanguage || null,
+            textType,
+            domain: textDomain || selectedTask?.description || "CORPUS",
+            sourceText: sourceText || null,
+            submittedText,
+          })
+        })
+        if (!submitRes.ok) throw new Error((await submitRes.json()).error || "Submission failed")
+      }
+
+      else if (selectedTaskType === "VIDEO") {
+        if (!videoFile) throw new Error("Please choose or record a video first.")
+        setStatus("uploading")
+        const uploadedUrl = await uploadFileToR2(videoFile)
+        setStatus("submitting")
+
+        const submitRes = await fetch("/api/submissions/video", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            taskId: selectedTask?.id || null,
+            videoUrl: uploadedUrl,
+            durationSecs: 10, // Default mock or calculated duration
+            activityLabel: activityLabel || "Video capture",
+            sceneType,
+            isEgocentric,
+            objectLabels: objectLabelsInput.split(",").map(lbl => lbl.trim()).filter(Boolean),
+            latitude: location?.lat || null,
+            longitude: location?.lng || null,
+          })
+        })
+        if (!submitRes.ok) throw new Error((await submitRes.json()).error || "Submission failed")
+      }
+
+      else if (selectedTaskType === "EVAL") {
+        if (!evalPromptText.trim() || !evalResponseText.trim()) throw new Error("Prompt and Response text are required.")
+        setStatus("submitting")
+
+        const submitRes = await fetch("/api/submissions/eval", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            taskId: selectedTask?.id || null,
+            modelName: evalModelName || "AI Assistant",
+            promptText: evalPromptText,
+            responseText: evalResponseText,
+            overallRating: evalOverallRating,
+            raterNotes: evalRaterNotes,
+            domain: selectedTask?.description || "RLHF",
+          })
+        })
+        if (!submitRes.ok) throw new Error((await submitRes.json()).error || "Submission failed")
       }
 
       setStatus("success")
-      
     } catch (err: any) {
       console.error(err)
       setStatus("error")
-      // Provide a clearer error message for network errors (like CORS, offline, or connection reset)
-      if (err.message === "Failed to fetch") {
-        setErrorMessage("Network error: Could not connect to the server. Please check your internet connection or server status.")
-      } else {
-        setErrorMessage(err.message || "Something went wrong")
-      }
+      setErrorMessage(err.message || "Something went wrong")
     }
+  }
+
+  // Reset function after success
+  const handleReset = () => {
+    setPhotoFile(null)
+    setPhotoPreview(null)
+    setPhotoContactInfo("")
+    setPhotoNotes("")
+    setAudioBlob(null)
+    setAudioUrl(null)
+    setSubmittedText("")
+    setSourceText("")
+    setVideoFile(null)
+    setVideoPreview(null)
+    setEvalPromptText("")
+    setEvalResponseText("")
+    setEvalRaterNotes("")
+    setStatus("idle")
   }
 
   if (status === "success") {
@@ -191,26 +430,18 @@ export default function AgentCapture() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center border border-gray-100">
           <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <CheckCircle2 className="w-12 h-12" />
           </div>
-          <h2 className="text-2xl font-black text-gray-900 mb-2">Submitted!</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-2">Submitted Successfully!</h2>
           <p className="text-gray-600 mb-6">
-            Your data is pending verification. You will earn <strong className="text-[#f06135]">10 KShs</strong> once approved by an admin!
+            Your data has been successfully uploaded. You will earn your reward as soon as it gets approved!
           </p>
           <div className="flex flex-col gap-3">
             <button 
-              onClick={() => {
-                setFile(null)
-                setPreview(null)
-                setContactInfo("")
-                setCustomFeatures("")
-                setStatus("idle")
-              }}
+              onClick={handleReset}
               className="w-full bg-[#f06135] text-white font-bold py-3 rounded-xl hover:bg-[#d35400] transition"
             >
-              Capture Another
+              Collect More Data
             </button>
             <Link 
               href="/field-agent/dashboard"
@@ -225,205 +456,695 @@ export default function AgentCapture() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
-      <header className="bg-white shadow-sm px-6 py-4 flex items-center gap-4 sticky top-0 z-10">
-        <Link href="/field-agent/dashboard" className="text-gray-500 hover:text-gray-900">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-bold text-gray-900">New Capture</h1>
+    <div className="min-h-screen bg-gray-50 pb-16 text-gray-800">
+      {/* Header */}
+      <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => {
+              if (selectedTaskType) setSelectedTaskType(null)
+              else router.push("/field-agent/dashboard")
+            }} 
+            className="text-gray-500 hover:text-gray-900 transition p-1 rounded-lg hover:bg-gray-100"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-black text-gray-900">
+            {selectedTaskType ? `${selectedTaskType.charAt(0) + selectedTaskType.slice(1).toLowerCase()} Task` : "Data Workspace"}
+          </h1>
+        </div>
+        <div className="flex items-center gap-2 bg-[#f06135]/10 text-[#f06135] px-3 py-1.5 rounded-full text-xs font-bold">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Kijijipoll Agent</span>
+        </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 mt-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          
-          {/* Left Column (Photo & Geolocation) */}
+      {/* Main Workspace */}
+      <main className="max-w-4xl mx-auto px-4 mt-8">
+        
+        {/* Step 1: Select Task Type */}
+        {!selectedTaskType && (
           <div className="space-y-6">
-          
-          {/* Geolocation Section */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="font-bold text-gray-900 mb-3">📍 GPS Location <span className="text-red-500">*</span></h3>
-            {gettingLocation ? (
-              <div className="flex items-center gap-3 text-gray-500">
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-[#f06135] rounded-full animate-spin" />
-                <span className="text-sm animate-pulse">Acquiring satellite lock...</span>
-              </div>
-            ) : locationError ? (
-              <p className="text-sm text-red-500 font-medium">{locationError}</p>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm text-green-600 font-bold">Location locked ✓</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-500 font-medium mb-0.5">Latitude</p>
-                    <p className="text-sm font-bold text-gray-900 font-mono">{location?.lat.toFixed(6)}</p>
-                  </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-500 font-medium mb-0.5">Longitude</p>
-                    <p className="text-sm font-bold text-gray-900 font-mono">{location?.lng.toFixed(6)}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">These coordinates will be recorded with your submission.</p>
-              </div>
-            )}
-          </div>
+            <div className="text-center max-w-xl mx-auto mb-8">
+              <h2 className="text-2xl font-black text-gray-900 tracking-tight">Select Data Collection Type</h2>
+              <p className="text-gray-500 mt-2">Choose the type of submission you want to record. Ensure high-quality data to pass verification.</p>
+            </div>
 
-          {/* Photo Section — camera capture only, no file upload */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="font-bold text-gray-900 mb-3">📸 Photo <span className="text-red-500">*</span></h3>
-
-            {/* Live camera viewfinder */}
-            {cameraOpen && (
-              <div className="relative rounded-xl overflow-hidden bg-black mb-3" style={{ aspectRatio: "16/9" }}>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
-                />
-                {/* Crosshair overlay */}
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  <div className="w-16 h-16 border-2 border-white/60 rounded-lg" />
-                </div>
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
-                  <button
-                    type="button"
-                    onClick={stopCamera}
-                    className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-white/30 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={capturePhoto}
-                    className="bg-white text-[#f06135] px-8 py-2.5 rounded-full font-black text-sm shadow-xl hover:bg-gray-100 active:scale-95 transition flex items-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <circle cx="12" cy="12" r="4" strokeWidth={2} />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    </svg>
-                    Capture
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Captured preview */}
-            {!cameraOpen && preview && (
-              <div className="relative rounded-xl overflow-hidden bg-gray-100 mb-3" style={{ aspectRatio: "16/9" }}>
-                <img src={preview} alt="Captured" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => { setFile(null); setPreview(null); }}
-                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-red-600 active:scale-95 transition flex items-center gap-1"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4l16 16M4 20L20 4" />
-                  </svg>
-                  Retake
-                </button>
-              </div>
-            )}
-
-            {/* Open camera button */}
-            {!cameraOpen && !preview && (
-              <button
-                type="button"
-                onClick={openCamera}
-                className="w-full border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-[#f06135] hover:text-[#f06135] transition"
-                style={{ aspectRatio: "16/9" }}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              
+              {/* Voice Recording */}
+              <button 
+                onClick={() => setSelectedTaskType("AUDIO")}
+                className="bg-white hover:border-[#8b5cf6] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
               >
-                <svg className="w-12 h-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="font-bold text-sm">Open Camera</span>
-                <span className="text-xs mt-1 opacity-60">Camera capture only — no uploads</span>
+                <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center transition group-hover:scale-110">
+                  <Mic className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#8b5cf6] transition">Voice Recording</h3>
+                  <p className="text-xs text-gray-500 mt-1">Submit speech recordings in Swahili, Kikuyu, Luo, Sheng, etc.</p>
+                </div>
               </button>
-            )}
 
-            {cameraError && (
-              <p className="mt-2 text-sm text-red-500 font-medium">{cameraError}</p>
-            )}
+              {/* Text & Translation */}
+              <button 
+                onClick={() => setSelectedTaskType("TEXT")}
+                className="bg-white hover:border-[#06b6d4] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+              >
+                <div className="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center transition group-hover:scale-110">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#06b6d4] transition">Text & Translation</h3>
+                  <p className="text-xs text-gray-500 mt-1">Translate phrases, write local corpuses, or submit conversational data.</p>
+                </div>
+              </button>
 
-            {/* Hidden canvas for snapshot */}
-            <canvas ref={canvasRef} className="hidden" />
+              {/* Video Vision */}
+              <button 
+                onClick={() => setSelectedTaskType("VIDEO")}
+                className="bg-white hover:border-[#f43f5e] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+              >
+                <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center transition group-hover:scale-110">
+                  <Video className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#f43f5e] transition">Video Vision</h3>
+                  <p className="text-xs text-gray-500 mt-1">Record activities, events, objects, or environmental landmarks.</p>
+                </div>
+              </button>
+
+              {/* AI Evaluation */}
+              <button 
+                onClick={() => setSelectedTaskType("EVAL")}
+                className="bg-white hover:border-[#eab308] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+              >
+                <div className="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center transition group-hover:scale-110">
+                  <Brain className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#eab308] transition">AI Evaluation</h3>
+                  <p className="text-xs text-gray-500 mt-1">Provide RLHF training data by rating and evaluating AI outputs.</p>
+                </div>
+              </button>
+
+              {/* Geo Photo */}
+              <button 
+                onClick={() => setSelectedTaskType("PHOTO")}
+                className="bg-white hover:border-[#10b981] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48 sm:col-span-2 md:col-span-1"
+              >
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center transition group-hover:scale-110">
+                  <Camera className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#10b981] transition">Geo Photo</h3>
+                  <p className="text-xs text-gray-500 mt-1">Take geotagged photos of physical shops, water pumps, or mosques.</p>
+                </div>
+              </button>
+
+            </div>
           </div>
-          </div>
+        )}
 
-          {/* Right Column (Details) */}
-          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
-            <div>
-              <label className="block font-bold text-gray-900 mb-2">Category <span className="text-red-500">*</span></label>
-              <div className="grid grid-cols-2 gap-2">
-                {CATEGORIES.map(cat => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setCategory(cat.id)}
-                    className={`px-3 py-3 rounded-lg text-sm font-medium border text-left transition ${
-                      category === cat.id 
-                        ? 'border-[#f06135] bg-[#f06135]/5 text-[#f06135] ring-1 ring-[#f06135]' 
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
+        {/* Step 2: Show Task and Form */}
+        {selectedTaskType && (
+          <div className="space-y-6">
+            
+            {/* GPS Status */}
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <MapPin className="w-5 h-5 text-[#f06135]" />
+                <div>
+                  <h4 className="font-bold text-sm text-gray-900">GPS Geolocation</h4>
+                  {gettingLocation ? (
+                    <p className="text-xs text-gray-500 animate-pulse">Acquiring coordinates...</p>
+                  ) : locationError ? (
+                    <p className="text-xs text-red-500 font-semibold">{locationError}</p>
+                  ) : (
+                    <p className="text-xs text-green-600 font-bold">Location Locked ({location?.lat.toFixed(5)}, {location?.lng.toFixed(5)})</p>
+                  )}
+                </div>
               </div>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setGettingLocation(true)
+                  navigator.geolocation.getCurrentPosition(
+                    (p) => { setLocation({ lat: p.coords.latitude, lng: p.coords.longitude }); setGettingLocation(false) },
+                    (e) => { setLocationError("Access denied"); setGettingLocation(false) }
+                  )
+                }}
+                className="text-xs text-gray-500 hover:text-gray-900 border border-gray-200 px-3 py-1.5 rounded-lg transition"
+              >
+                Refresh
+              </button>
             </div>
 
-            <div>
-              <label className="block font-bold text-gray-900 mb-1">Contact Info <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="Phone number, email, or name"
-                className="w-full px-4 py-3 bg-white text-gray-900 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition shadow-sm placeholder:text-gray-400"
-                value={contactInfo}
-                onChange={e => setContactInfo(e.target.value)}
-              />
-            </div>
+            {/* Task selector from database */}
+            {selectedTaskType !== "PHOTO" && (
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-150 space-y-3">
+                <label className="block text-sm font-bold text-gray-900">Select Collection Task</label>
+                {loadingTasks ? (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <RefreshCw className="w-4 h-4 animate-spin text-[#f06135]" />
+                    <span>Loading active tasks...</span>
+                  </div>
+                ) : tasks.length === 0 ? (
+                  <div className="p-4 bg-gray-50 rounded-xl text-center text-sm text-gray-500 font-medium">
+                    No active target tasks for this type. Submit a general data entry below.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <select
+                      className="w-full px-4 py-3 border border-gray-350 bg-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135]"
+                      value={selectedTask?.id || ""}
+                      onChange={(e) => {
+                        const t = tasks.find(x => x.id === e.target.value)
+                        setSelectedTask(t || null)
+                        setPromptIdx(0)
+                      }}
+                    >
+                      {tasks.map(t => (
+                        <option key={t.id} value={t.id}>{t.title} ({t.rewardPerItem} KSh)</option>
+                      ))}
+                    </select>
+                    {selectedTask && (
+                      <div className="bg-[#f06135]/5 p-4 rounded-xl border border-[#f06135]/10 space-y-1">
+                        <span className="text-xs font-bold text-[#f06135] uppercase tracking-wider">Active Task Details</span>
+                        <p className="text-sm font-extrabold text-gray-900">{selectedTask.title}</p>
+                        {selectedTask.description && <p className="text-xs text-gray-600">{selectedTask.description}</p>}
+                        <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#f06135]">
+                          <span>Est. Reward</span>
+                          <span>{selectedTask.rewardPerItem} KSh per item</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
-            <div>
-              <label className="block font-bold text-gray-900 mb-1">Features / Notes <span className="text-red-500">*</span></label>
-              <textarea
-                required
-                placeholder="e.g. They use Point of Sale XYZ"
-                className="w-full px-4 py-3 bg-white text-gray-900 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition resize-none h-24 shadow-sm placeholder:text-gray-400"
-                value={customFeatures}
-                onChange={e => setCustomFeatures(e.target.value)}
-              />
-            </div>
+            {/* Dynamic Submission Forms */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* VOICE RECORDING FORM */}
+              {selectedTaskType === "AUDIO" && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-150 space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Language Metadata</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-xs text-gray-500 font-medium block mb-1">Language</span>
+                        <select
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white font-medium focus:outline-none"
+                          value={languageId}
+                          onChange={e => setLanguageId(e.target.value)}
+                        >
+                          {languages.map(lang => (
+                            <option key={lang.id} value={lang.id}>{lang.name} ({lang.nativeName || lang.code})</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-500 font-medium block mb-1">Dialect / Accent (e.g. Sheng, Coastal)</span>
+                        <input
+                          type="text"
+                          placeholder="Standard or Sheng"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none"
+                          value={dialect}
+                          onChange={e => setDialect(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-gray-500 font-medium block mb-1">Environment</span>
+                      <select
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white font-medium focus:outline-none"
+                        value={environment}
+                        onChange={e => setEnvironment(e.target.value)}
+                      >
+                        <option value="INDOOR">🏠 Indoor / Quiet Room</option>
+                        <option value="OUTDOOR">🌳 Outdoor / Street</option>
+                        <option value="NOISY">🔊 Noisy Environment</option>
+                        <option value="QUIET">🔇 Studio Quiet</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Prompt Box */}
+                  <div className="p-5 bg-purple-50/50 rounded-xl border border-purple-100 text-center space-y-3">
+                    <span className="text-xs font-bold text-purple-600 uppercase tracking-wide">Read the following script out loud</span>
+                    <p className="text-xl font-bold text-gray-950">
+                      {selectedTask?.prompts && selectedTask.prompts.length > 0 
+                        ? selectedTask.prompts[promptIdx]
+                        : "Sema jina lako na mahali unapoishi."}
+                    </p>
+                    {selectedTask?.prompts && selectedTask.prompts.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setPromptIdx((idx) => (idx + 1) % selectedTask.prompts.length)}
+                        className="text-xs font-bold text-purple-600 hover:text-purple-700 underline mt-1"
+                      >
+                        Next Script Prompt →
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Audio Recorder Controls */}
+                  <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-250 rounded-xl space-y-4">
+                    
+                    {isRecordingAudio ? (
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                          <Square className="w-6 h-6" />
+                        </div>
+                        <span className="text-sm font-bold text-red-500 animate-pulse">Recording Speech...</span>
+                        <button
+                          type="button"
+                          onClick={stopRecordingAudio}
+                          className="bg-gray-150 hover:bg-gray-200 text-gray-800 font-bold px-6 py-2 rounded-xl text-sm transition"
+                        >
+                          Stop & Review
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center space-y-3">
+                        {!audioUrl ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={startRecordingAudio}
+                              className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center hover:bg-purple-700 active:scale-95 shadow-lg transition"
+                            >
+                              <Mic className="w-8 h-8" />
+                            </button>
+                            <span className="text-sm font-bold text-gray-700">Click to Start Recording</span>
+                            <span className="text-xs text-gray-400">Microphone permission is required</span>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-4 w-full justify-center">
+                            <button
+                              type="button"
+                              onClick={togglePlaybackAudio}
+                              className="bg-purple-100 hover:bg-purple-200 text-purple-700 p-3 rounded-full transition flex items-center gap-1 font-bold text-sm"
+                            >
+                              {audioPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                              <span>{audioPlaying ? "Pause" : "Play Recording"}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setAudioUrl(null); setAudioBlob(null); }}
+                              className="bg-red-50 hover:bg-red-100 text-red-600 p-3 rounded-full transition flex items-center gap-1 font-bold text-sm"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                              <span>Retake</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* TEXT & TRANSLATION FORM */}
+              {selectedTaskType === "TEXT" && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-gray-500 font-bold block mb-1">Target Language</span>
+                      <select
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white font-medium focus:outline-none"
+                        value={languageId}
+                        onChange={e => setLanguageId(e.target.value)}
+                      >
+                        {languages.map(lang => (
+                          <option key={lang.id} value={lang.id}>{lang.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500 font-bold block mb-1">Text Entry Type</span>
+                      <select
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white font-medium focus:outline-none"
+                        value={textType}
+                        onChange={e => {
+                          setTextType(e.target.value)
+                          if (e.target.value !== "TRANSLATION") {
+                            setSourceLanguage("")
+                            setSourceText("")
+                          }
+                        }}
+                      >
+                        <option value="CORPUS">📖 Local Corpus Text</option>
+                        <option value="TRANSLATION">🔤 Translation Entry</option>
+                        <option value="RLHF_PROMPT">🤖 RLHF Prompt Input</option>
+                        <option value="TRANSCRIPTION">✍️ Audio Transcription</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {textType === "TRANSLATION" && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      <div>
+                        <span className="text-xs text-gray-500 font-bold block mb-1">Source Language (e.g. English, Swahili)</span>
+                        <input 
+                          type="text"
+                          className="w-full px-4 py-2 border border-gray-350 rounded-lg text-sm focus:outline-none"
+                          placeholder="English"
+                          value={sourceLanguage}
+                          onChange={e => setSourceLanguage(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-500 font-bold block mb-1">Source Text to Translate</span>
+                        <textarea
+                          className="w-full px-4 py-2 border border-gray-355 rounded-lg text-sm focus:outline-none resize-none h-16"
+                          placeholder="Enter phrase to be translated"
+                          value={sourceText}
+                          onChange={e => setSourceText(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-1">Domain (optional)</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none"
+                      placeholder="e.g. Health, Agriculture, Finance"
+                      value={textDomain}
+                      onChange={e => setTextDomain(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-1">Submitted Text Entry <span className="text-red-500">*</span></label>
+                    <textarea
+                      required
+                      placeholder="Type or paste the collected text here..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none resize-none h-36 focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135]"
+                      value={submittedText}
+                      onChange={e => setSubmittedText(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* VIDEO VISION FORM */}
+              {selectedTaskType === "VIDEO" && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">Upload Video File <span className="text-red-500">*</span></label>
+                    <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50/50 cursor-pointer relative">
+                      <input 
+                        type="file" 
+                        accept="video/*" 
+                        required={!videoFile}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            setVideoFile(file)
+                            setVideoPreview(URL.createObjectURL(file))
+                          }
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                      <Video className="w-10 h-10 text-gray-400 mb-2" />
+                      <span className="text-sm font-bold text-gray-700">Choose Video file</span>
+                      <span className="text-xs text-gray-400 mt-1">MP4, WebM up to 50MB</span>
+                    </div>
+
+                    {videoPreview && (
+                      <div className="mt-4 rounded-xl overflow-hidden max-w-sm mx-auto shadow-sm border border-gray-200">
+                        <video src={videoPreview} controls className="w-full" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-gray-500 font-bold block mb-1">Activity Label / Description</span>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Shopping, farming, cooking"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none"
+                        value={activityLabel}
+                        onChange={e => setActivityLabel(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500 font-bold block mb-1">Scene Type</span>
+                      <select
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white font-medium focus:outline-none"
+                        value={sceneType}
+                        onChange={e => setSceneType(e.target.value)}
+                      >
+                        <option value="INDOOR">🏠 Indoor</option>
+                        <option value="OUTDOOR">🌳 Outdoor</option>
+                        <option value="STREET">🛣️ Street/Road</option>
+                        <option value="OFFICE">🏢 Office/Retail</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-2">
+                    <input 
+                      type="checkbox" 
+                      id="isEgocentric"
+                      checked={isEgocentric}
+                      onChange={e => setIsEgocentric(e.target.checked)}
+                      className="w-4 h-4 text-[#f06135] focus:ring-[#f06135] border-gray-300 rounded"
+                    />
+                    <label htmlFor="isEgocentric" className="text-sm font-bold text-gray-900 select-none">
+                      Is Egocentric (First-person perspective camera)
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-1">Object Labels (Comma-separated)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. phone, desk, tree, tractor"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none"
+                      value={objectLabelsInput}
+                      onChange={e => setObjectLabelsInput(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* AI EVALUATION FORM */}
+              {selectedTaskType === "EVAL" && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-150 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-gray-500 font-bold block mb-1">AI Model Name</span>
+                      <input
+                        type="text"
+                        placeholder="e.g. Gemini 1.5 Pro, Llama-3"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none"
+                        value={evalModelName}
+                        onChange={e => setEvalModelName(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500 font-bold block mb-1">Overall Response Quality Rating</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setEvalOverallRating(star)}
+                            className="p-1 text-yellow-400 hover:scale-110 transition"
+                          >
+                            <Star className={`w-7 h-7 ${star <= evalOverallRating ? "fill-yellow-400" : "text-gray-350"}`} />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-1">Model Prompt Text <span className="text-red-500">*</span></label>
+                    <textarea
+                      required
+                      placeholder="Enter the prompt that was sent to the model..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none resize-none h-24 focus:ring-2 focus:ring-[#f06135]/50"
+                      value={evalPromptText}
+                      onChange={e => setEvalPromptText(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-1">Model Output Response <span className="text-red-500">*</span></label>
+                    <textarea
+                      required
+                      placeholder="Paste the model's response text here..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none resize-none h-32 focus:ring-2 focus:ring-[#f06135]/50"
+                      value={evalResponseText}
+                      onChange={e => setEvalResponseText(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-1">Rater Notes / Assessment Reasons</label>
+                    <textarea
+                      placeholder="Explain why you rated this response. Highlight accuracy, formatting, safety issues, etc."
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none resize-none h-20"
+                      value={evalRaterNotes}
+                      onChange={e => setEvalRaterNotes(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* GEO PHOTO FORM (Original, preserved logic and classes) */}
+              {selectedTaskType === "PHOTO" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  
+                  {/* Left Column */}
+                  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="font-bold text-gray-900 mb-3">📸 Photo <span className="text-red-500">*</span></h3>
+                    
+                    {cameraOpen && (
+                      <div className="relative rounded-xl overflow-hidden bg-black mb-3" style={{ aspectRatio: "16/9" }}>
+                        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                          <div className="w-16 h-16 border-2 border-white/60 rounded-lg" />
+                        </div>
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
+                          <button
+                            type="button"
+                            onClick={stopCamera}
+                            className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-white/30 transition"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={capturePhoto}
+                            className="bg-white text-[#f06135] px-8 py-2.5 rounded-full font-black text-sm shadow-xl hover:bg-gray-100 active:scale-95 transition flex items-center gap-2"
+                          >
+                            <Camera className="w-5 h-5" />
+                            Capture
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {!cameraOpen && photoPreview && (
+                      <div className="relative rounded-xl overflow-hidden bg-gray-100 mb-3" style={{ aspectRatio: "16/9" }}>
+                        <img src={photoPreview} alt="Captured" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                          className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-red-600 active:scale-95 transition flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Retake
+                        </button>
+                      </div>
+                    )}
+
+                    {!cameraOpen && !photoPreview && (
+                      <button
+                        type="button"
+                        onClick={openCamera}
+                        className="w-full border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-[#f06135] hover:text-[#f06135] transition"
+                        style={{ aspectRatio: "16/9" }}
+                      >
+                        <Camera className="w-12 h-12 mb-2" />
+                        <span className="font-bold text-sm">Open Camera</span>
+                        <span className="text-xs mt-1 opacity-60">Camera capture only — no uploads</span>
+                      </button>
+                    )}
+
+                    {cameraError && <p className="mt-2 text-sm text-red-500 font-medium">{cameraError}</p>}
+                    <canvas ref={canvasRef} className="hidden" />
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+                    <div>
+                      <label className="block font-bold text-gray-900 mb-2">Category <span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {CATEGORIES.map(cat => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setPhotoCategory(cat.id)}
+                            className={`px-3 py-3 rounded-lg text-sm font-medium border text-left transition ${
+                              photoCategory === cat.id 
+                                ? 'border-[#f06135] bg-[#f06135]/5 text-[#f06135] ring-1 ring-[#f06135]' 
+                                : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-gray-900 mb-1">Contact Info <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Phone number, email, or name"
+                        className="w-full px-4 py-3 bg-white text-gray-900 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition shadow-sm placeholder:text-gray-400"
+                        value={photoContactInfo}
+                        onChange={e => setPhotoContactInfo(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-gray-900 mb-1">Features / Notes <span className="text-red-500">*</span></label>
+                      <textarea
+                        required
+                        placeholder="e.g. They use Point of Sale XYZ"
+                        className="w-full px-4 py-3 bg-white text-gray-900 text-lg font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f06135]/50 focus:border-[#f06135] transition resize-none h-24 shadow-sm placeholder:text-gray-400"
+                        value={photoNotes}
+                        onChange={e => setPhotoNotes(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {/* Error Alert */}
+              {errorMessage && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-medium text-sm">
+                  {errorMessage}
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={status === "uploading" || status === "submitting" || gettingLocation}
+                className={`w-full py-4 rounded-xl font-black text-lg transition shadow-xl flex justify-center items-center gap-2 sticky bottom-6 ${
+                  status === "uploading" || status === "submitting" || gettingLocation
+                    ? 'bg-gray-300 text-gray-505 cursor-not-allowed'
+                    : 'bg-[#f06135] text-white hover:bg-[#d35400] active:scale-[0.98]'
+                }`}
+              >
+                {status === "uploading" ? "Uploading Submission Files..." : 
+                 status === "submitting" ? "Saving..." : 
+                 gettingLocation ? "Awaiting GPS Signal..." :
+                 `Submit ${selectedTaskType === "PHOTO" ? "Geo Photo" : selectedTaskType.charAt(0) + selectedTaskType.slice(1).toLowerCase()} Entry`}
+              </button>
+
+            </form>
           </div>
-          </div>
-          
-          {errorMessage && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-medium">
-              {errorMessage}
-            </div>
-          )}
+        )}
 
-          <button
-            type="submit"
-            disabled={status === "uploading" || status === "submitting"}
-            className={`w-full py-4 rounded-xl font-black text-lg transition shadow-xl flex justify-center items-center gap-2 sticky bottom-6 ${
-              status === "uploading" || status === "submitting"
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-[#f06135] text-white hover:bg-[#d35400] active:scale-[0.98]'
-            }`}
-          >
-            {status === "uploading" ? "Uploading Photo..." : 
-             status === "submitting" ? "Saving..." : 
-             "Submit Data"}
-          </button>
-        </form>
       </main>
     </div>
   )
