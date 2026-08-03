@@ -274,41 +274,45 @@ export default function AgentDashboard() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex items-center gap-2">
             <FileCheck className="w-5 h-5 text-[#f06135]" />
-            <h2 className="font-bold text-gray-900 text-lg">Recent Captures</h2>
+            <h2 className="font-bold text-gray-900 text-lg">Recent Submissions & Captures</h2>
           </div>
           {submissions.length === 0 ? (
-            <div className="p-10 text-center text-gray-400 text-sm">No captures yet. Start collecting!</div>
+            <div className="p-10 text-center text-gray-400 text-sm">No submissions yet. Start collecting!</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
                     <th className="p-4 font-semibold text-gray-500 text-xs">Date</th>
+                    <th className="p-4 font-semibold text-gray-500 text-xs">Task Type</th>
                     <th className="p-4 font-semibold text-gray-500 text-xs">Category</th>
-                    <th className="p-4 font-semibold text-gray-500 text-xs">Location</th>
+                    <th className="p-4 font-semibold text-gray-500 text-xs">Details / Content</th>
                     <th className="p-4 font-semibold text-gray-500 text-xs">Status</th>
                     <th className="p-4 font-semibold text-gray-500 text-xs">Grade</th>
-                    <th className="p-4 font-semibold text-gray-500 text-xs">Feedback</th>
+                    <th className="p-4 font-semibold text-gray-500 text-xs">Feedback / Notes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {submissions.map((sub) => (
+                  {submissions.map((sub: any) => (
                     <tr key={sub.id} className="hover:bg-gray-50/50 transition">
                       <td className="p-4 text-gray-600 whitespace-nowrap">
                         {new Date(sub.createdAt).toLocaleDateString("en-KE", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
+                      <td className="p-4 font-semibold text-gray-700 whitespace-nowrap">
+                        {sub.type || "Photo Capture"}
+                      </td>
                       <td className="p-4">
                         <span className="bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-1 rounded-md">{sub.category}</span>
                       </td>
-                      <td className="p-4 text-gray-500 text-xs">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 shrink-0" />
-                          {sub.latitude.toFixed(4)}, {sub.longitude.toFixed(4)}
+                      <td className="p-4 text-gray-500 text-xs max-w-xs truncate">
+                        <span className="flex items-center gap-1" title={sub.info}>
+                          {sub.type === "Photo Capture" && <MapPin className="w-3 h-3 shrink-0 text-gray-400" />}
+                          {sub.info}
                         </span>
                       </td>
                       <td className="p-4">
                         <span className={`text-xs font-bold px-2 py-1 rounded-md ${
-                            sub.status === "VERIFIED" ? "bg-green-100 text-green-700" :
+                            sub.status === "VERIFIED" || sub.status === "APPROVED" ? "bg-green-100 text-green-700" :
                             sub.status === "REJECTED" ? "bg-red-100 text-red-700" :
                             "bg-amber-100 text-amber-700"
                         }`}>
