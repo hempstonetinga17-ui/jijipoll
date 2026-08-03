@@ -86,6 +86,8 @@ model User {
   videoSubmissions  VideoSubmission[]
   evalSubmissions   EvalSubmission[]
   annotations       Annotation[]
+  reviewedSubmissions DataSubmission[] @relation("SubmissionReviewer")
+  qaCertifiedSubmissions DataSubmission[] @relation("SubmissionQA")
   withdrawals   WithdrawalRequest[]
   
   createdAt     DateTime  @default(now())
@@ -169,7 +171,37 @@ model DataSubmission {
   contactInfo     String?
   customFeatures  Json?    // Optional extra data (e.g. software used, open hours)
   
-  status          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  // Pre-screening
+  screenScore     Int?     // Auto-screening score 0-100
+  screenNotes     String?  // e.g. "GPS out of bounds", "blurry image"
+  screenedAt      DateTime?
+
+  // Reviewer (first-pass human review)
+  reviewerId      String?
+  reviewer        User?    @relation("SubmissionReviewer", fields: [reviewerId], references: [id])
+  reviewerGrade   Int?     // 0-100
+  reviewerFeedback String?
+  reviewedAt      DateTime?
+
+  // QA Certification (second-pass, only QA can certify)
+  qaId            String?
+  qaCertifier     User?    @relation("SubmissionQA", fields: [qaId], references: [id])
+  qaGrade         Int?     // 0-100 - the FINAL authoritative grade
+  qaFeedback      String?
+  certifiedAt     DateTime?
+  qaOverrideReason String? // If QA overrode reviewer's decision
+
+  // Golden set
+  isGoldenSet     Boolean  @default(false)
+  goldenGrade     Int?     // The known-correct grade for calibration
+
+  // Admin spot-check
+  spotChecked     Boolean  @default(false)
+  spotCheckVerdict String? // UPHELD or FLAGGED
+  spotCheckedAt   DateTime?
+  spotCheckedBy   String?  // Admin userId
+  
+  status          String   @default("PENDING") // PENDING, SCREENED, REVIEWER_APPROVED, REVIEWER_REJECTED, VERIFIED, REJECTED, ESCALATED
   feedback        String?  // Feedback from supervisor for rejected or verified submissions
   grade           Int?     // Percentage grade (0-100)
   
@@ -185,6 +217,49 @@ model WithdrawalRequest {
   status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Dataset {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  version         String   @default("1.0")
+  dataType        String   // AUDIO, PHOTO, TEXT, VIDEO, MIXED
+  format          String   @default("RAW") // RAW, COCO, COMMON_VOICE, HUGGINGFACE
+  languages       String[] @default([])
+  itemCount       Int      @default(0)
+  totalDurationSecs Float? // for audio datasets
+  averageGrade    Float    @default(0)
+  qualityTier     String   @default("B") // A, B, C
+  license         String   @default("RESEARCH") // RESEARCH, COMMERCIAL, EXCLUSIVE
+  priceUsd        Float    @default(0)
+  storageUrl      String?  // R2 bucket path to dataset folder
+  sampleUrl       String?  // R2 path to sample folder
+  datasetCard     String?  @db.Text // markdown
+  status          String   @default("COMPILING") // COMPILING, AVAILABLE, SOLD_OUT, ARCHIVED
+  compiledBy      String?  // Admin userId
+  compiledAt      DateTime?
+  taskIds         String[] @default([]) // Source CollectionTask IDs
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orders          Order[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  datasetId       String
+  dataset         Dataset  @relation(fields: [datasetId], references: [id])
+  buyerName       String
+  buyerEmail      String
+  buyerOrg        String?
+  licenseType     String   // RESEARCH, COMMERCIAL, EXCLUSIVE
+  amountUsd       Float
+  status          String   @default("PENDING") // PENDING, PAID, DELIVERED, EXPIRED
+  downloadUrl     String?  // Presigned R2 URL
+  downloadExpiry  DateTime?
+  paymentRef      String?  // Stripe/M-Pesa reference
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -222,6 +297,8 @@ model CollectionTask {
   // Targeting
   targetCount     Int      @default(100)  // Total submissions needed
   rewardPerItem   Int      @default(5)    // KES per approved submission
+  qualityThreshold Int @default(70) // Minimum grade for QA to certify as VERIFIED
+  requireIRR      Boolean @default(false) // Require inter-rater reliability (2 reviewers)
   deadline        DateTime?
 
   // Status

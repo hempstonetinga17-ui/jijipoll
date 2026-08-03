@@ -45,7 +45,7 @@ export const agentStatusSchema = z.object({
 });
 
 export const agentPromoteSchema = z.object({
-  role: z.enum(["AGENT", "SUPERVISOR"]),
+  role: z.enum(["AGENT", "REVIEWER", "SUPERVISOR", "PROJECT_MANAGER", "ADMIN"]),
 });
 
 export const userUpdateSchema = z.object({
@@ -53,3 +53,27 @@ export const userUpdateSchema = z.object({
   status: z.enum(["ACTIVE", "FLAGGED", "SUSPENDED", "PENDING", "TRAINING"]).optional(),
   role: z.enum(["USER", "AGENT", "SUPERVISOR", "BUSINESS_OWNER", "ADMIN"]).optional(),
 });
+
+// Reviewer first-pass review
+export const reviewerActionSchema = z.object({
+  submissionId: z.string().cuid(),
+  action: z.enum(["APPROVE", "REJECT"]),
+  grade: z.number().int().min(0).max(100),
+  feedback: z.string().optional(),
+})
+
+// QA certification
+export const qaActionSchema = z.object({
+  submissionId: z.string().cuid(),
+  action: z.enum(["CERTIFY", "REJECT", "ESCALATE"]),
+  grade: z.number().int().min(0).max(100),
+  feedback: z.string().optional(),
+  overrideReason: z.string().optional(), // required if overriding reviewer
+})
+
+// Admin spot-check
+export const spotCheckSchema = z.object({
+  submissionId: z.string().cuid(),
+  verdict: z.enum(["UPHELD", "FLAGGED"]),
+  auditorNote: z.string().optional(),
+})

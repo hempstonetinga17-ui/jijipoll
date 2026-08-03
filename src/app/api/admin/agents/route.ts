@@ -22,7 +22,7 @@ export async function GET() {
     }
 
     const agents = await prisma.user.findMany({
-      where: { role: { in: ["AGENT", "SUPERVISOR"] } },
+      where: { role: { in: ["AGENT", "REVIEWER", "SUPERVISOR", "PROJECT_MANAGER"] } },
       orderBy: { createdAt: "desc" },
       include: {
         submissions: {
