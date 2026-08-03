@@ -110,6 +110,7 @@ export default function AgentDashboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<"overview" | "activity">("overview")
   const [mounted, setMounted] = useState(false)
+  const [showDetailedStats, setShowDetailedStats] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -430,6 +431,20 @@ export default function AgentDashboard() {
             )}
           </div>
         </div>
+
+        {/* Toggle Detailed Stats */}
+        <button
+          onClick={() => setShowDetailedStats(!showDetailedStats)}
+          className="nav-btn"
+          style={{
+            marginTop: "1.25rem", width: "100%", padding: "0.75rem",
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "16px", color: "rgba(255,255,255,0.6)",
+            fontSize: "0.8rem", fontWeight: 700, cursor: "pointer",
+          }}
+        >
+          {showDetailedStats ? "Hide Detailed Stats" : "View Detailed Stats"}
+        </button>
       </div>
 
       {/* ── Main Content ──────────────────────────── */}
@@ -494,93 +509,97 @@ export default function AgentDashboard() {
         )}
 
         {/* ── Stat Cards Grid ──────────────────────── */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "0.875rem",
-          marginBottom: "1.5rem",
-        }}>
-          {statCards.map((card, i) => {
-            const Icon = card.icon
-            return (
-              <div
-                key={card.label}
-                className={`card-hover fade-up-${i + 1}`}
-                style={{
-                  background: card.bg,
-                  border: `1px solid ${card.border}`,
-                  borderRadius: "18px",
-                  padding: "1rem 1.125rem",
-                  position: "relative", overflow: "hidden",
-                }}
-              >
-                {/* Subtle glow accent */}
-                <div style={{
-                  position: "absolute", top: -20, right: -20,
-                  width: 80, height: 80, borderRadius: "50%",
-                  background: `radial-gradient(circle, ${card.color}15 0%, transparent 70%)`,
-                  pointerEvents: "none",
-                }} />
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
-                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", margin: 0 }}>
-                    {card.label}
-                  </p>
-                  <div style={{
-                    width: 28, height: 28, borderRadius: "8px",
-                    background: `${card.color}15`, border: `1px solid ${card.color}25`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <Icon size={13} color={card.color} />
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-                  <div>
-                    <div style={{ color: card.color, fontWeight: 900, fontSize: "1.6rem", lineHeight: 1 }}>{card.value}</div>
-                    <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.65rem", fontWeight: 600, marginTop: "0.2rem" }}>{card.sub}</div>
-                  </div>
-                  <div style={{ position: "relative", width: 44, height: 44 }}>
-                    <RingProgress pct={card.pct} color={card.color} size={44} stroke={4} />
+        {showDetailedStats && (
+          <>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "0.875rem",
+              marginBottom: "1.5rem",
+            }}>
+              {statCards.map((card, i) => {
+                const Icon = card.icon
+                return (
+                  <div
+                    key={card.label}
+                    className={`card-hover fade-up-${i + 1}`}
+                    style={{
+                      background: card.bg,
+                      border: `1px solid ${card.border}`,
+                      borderRadius: "18px",
+                      padding: "1rem 1.125rem",
+                      position: "relative", overflow: "hidden",
+                    }}
+                  >
+                    {/* Subtle glow accent */}
                     <div style={{
-                      position: "absolute", inset: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "0.55rem", fontWeight: 800, color: card.color,
-                    }}>
-                      {Math.round(card.pct)}%
+                      position: "absolute", top: -20, right: -20,
+                      width: 80, height: 80, borderRadius: "50%",
+                      background: `radial-gradient(circle, ${card.color}15 0%, transparent 70%)`,
+                      pointerEvents: "none",
+                    }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
+                      <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", margin: 0 }}>
+                        {card.label}
+                      </p>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: "8px",
+                        background: `${card.color}15`, border: `1px solid ${card.color}25`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>
+                        <Icon size={13} color={card.color} />
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ color: card.color, fontWeight: 900, fontSize: "1.6rem", lineHeight: 1 }}>{card.value}</div>
+                        <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.65rem", fontWeight: 600, marginTop: "0.2rem" }}>{card.sub}</div>
+                      </div>
+                      <div style={{ position: "relative", width: 44, height: 44 }}>
+                        <RingProgress pct={card.pct} color={card.color} size={44} stroke={4} />
+                        <div style={{
+                          position: "absolute", inset: 0,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "0.55rem", fontWeight: 800, color: card.color,
+                        }}>
+                          {Math.round(card.pct)}%
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+                )
+              })}
+            </div>
 
-        {/* ── Quick Stats Row ─────────────────────── */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "0.75rem", marginBottom: "1.5rem",
-        }}>
-          <div style={{ flex: 1, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <Clock size={16} color="#f59e0b" />
-              <div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>PENDING</div>
-                <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.pending ?? 0}</div>
-              </div>
+            {/* ── Quick Stats Row ─────────────────────── */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "0.75rem", marginBottom: "1.5rem",
+            }}>
+              <div style={{ flex: 1, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <Clock size={16} color="#f59e0b" />
+                  <div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>PENDING</div>
+                    <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.pending ?? 0}</div>
+                  </div>
+                </div>
+              <div style={{ flex: 1, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <CheckCircle2 size={16} color="#10b981" />
+                  <div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>APPROVED</div>
+                    <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.approved ?? 0}</div>
+                  </div>
+                </div>
+              <div style={{ flex: 1, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <XCircle size={16} color="#ef4444" />
+                  <div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>REJECTED</div>
+                    <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.rejected ?? 0}</div>
+                  </div>
+                </div>
             </div>
-          <div style={{ flex: 1, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <CheckCircle2 size={16} color="#10b981" />
-              <div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>APPROVED</div>
-                <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.approved ?? 0}</div>
-              </div>
-            </div>
-          <div style={{ flex: 1, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <XCircle size={16} color="#ef4444" />
-              <div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>REJECTED</div>
-                <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.rejected ?? 0}</div>
-              </div>
-            </div>
-        </div>
+          </>
+        )}
 
         {/* ── Activity Tab Toggle (mobile) ─────────── */}
         <div style={{
