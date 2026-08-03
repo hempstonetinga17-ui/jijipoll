@@ -3,7 +3,7 @@ import "./globals.css";
 import dynamic from "next/dynamic";
 
 const CookieBanner = dynamic(() => import("@/components/CookieBanner"), { ssr: false });
-const SessionProviderWrapper = dynamic(() => import("@/components/SessionProviderWrapper"), { ssr: false });
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 export const metadata: Metadata = {
   title: "KijijiPoll — Field Maps & Agent Management",
