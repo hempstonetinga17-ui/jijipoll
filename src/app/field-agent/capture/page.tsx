@@ -6,7 +6,7 @@ import {
   Mic, Camera, Tag,
   ChevronLeft, Star, Trash2,
   CheckCircle2, Play, Pause, Square, RefreshCw, MessageSquare,
-  ChevronRight, Zap, ArrowRight, MapPin, Plus, X
+  ChevronRight, Zap, ArrowRight, MapPin, Plus, X, Send
 } from "lucide-react"
 
 /* ─── Categories for Geo Photo ──────────────────────────── */
@@ -116,6 +116,18 @@ export default function AgentCapture() {
   const [photoContactInfo, setPhotoContactInfo] = useState("")
   const [photoNotes,       setPhotoNotes]       = useState("")
 
+  // Optional Photo Audio
+  const [photoAudioLanguage,      setPhotoAudioLanguage]      = useState("")
+  const [isRecordingPhotoAudio,   setIsRecordingPhotoAudio]   = useState(false)
+  const [photoAudioBlob,          setPhotoAudioBlob]          = useState<Blob | null>(null)
+  const [photoAudioUrl,           setPhotoAudioUrl]           = useState<string | null>(null)
+  const [photoAudioPlaying,       setPhotoAudioPlaying]       = useState(false)
+  const [photoAudioTimer,         setPhotoAudioTimer]         = useState(0)
+  const photoAudioTimerRef    = useRef<ReturnType<typeof setInterval> | null>(null)
+  const photoMediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const photoAudioChunksRef   = useRef<Blob[]>([])
+  const photoAudioPlayerRef   = useRef<HTMLAudioElement | null>(null)
+
   /* ─── AUDIO state ───────────────────────────────────── */
   const [languageId,       setLanguageId]       = useState("")
   const [dialect,          setDialect]          = useState("")
@@ -218,6 +230,47 @@ export default function AgentCapture() {
     }, "image/jpeg", 0.92)
   }, [stopCamera])
 
+  /* ─── Photo Audio methods ───────────────────────────── */
+  const startRecordingPhotoAudio = async () => {
+    photoAudioChunksRef.current = []; setPhotoAudioUrl(null); setPhotoAudioBlob(null); setPhotoAudioTimer(0)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mr = new MediaRecorder(stream)
+      photoMediaRecorderRef.current = mr
+      mr.ondataavailable = e => { if (e.data.size > 0) photoAudioChunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        const blob = new Blob(photoAudioChunksRef.current, { type: "audio/webm" })
+        setPhotoAudioBlob(blob); setPhotoAudioUrl(URL.createObjectURL(blob))
+        stream.getTracks().forEach(t => t.stop())
+        if (photoAudioTimerRef.current) clearInterval(photoAudioTimerRef.current)
+      }
+      mr.start(); setIsRecordingPhotoAudio(true)
+      photoAudioTimerRef.current = setInterval(() => setPhotoAudioTimer(t => t + 1), 1000)
+    } catch { alert("Microphone access is required for audio recording.") }
+  }
+
+  const stopRecordingPhotoAudio = () => {
+    if (photoMediaRecorderRef.current && isRecordingPhotoAudio) {
+      photoMediaRecorderRef.current.stop(); setIsRecordingPhotoAudio(false)
+      if (photoAudioTimerRef.current) clearInterval(photoAudioTimerRef.current)
+    }
+  }
+
+  const togglePlaybackPhotoAudio = () => {
+    if (!photoAudioUrl) return
+    if (!photoAudioPlayerRef.current) {
+      photoAudioPlayerRef.current = new Audio(photoAudioUrl)
+      photoAudioPlayerRef.current.onended = () => setPhotoAudioPlaying(false)
+    }
+    if (photoAudioPlaying) {
+      photoAudioPlayerRef.current.pause()
+      setPhotoAudioPlaying(false)
+    } else {
+      photoAudioPlayerRef.current.play()
+      setPhotoAudioPlaying(true)
+    }
+  }
+
   /* ─── Audio methods ─────────────────────────────────── */
   const startRecordingAudio = async () => {
     audioChunksRef.current = []; setAudioUrl(null); setAudioBlob(null); setAudioTimer(0)
@@ -279,6 +332,12 @@ export default function AgentCapture() {
         if (!photoNotes.trim())     throw new Error("Notes / features are required.")
         setStatus("uploading")
         const photoUrl = await uploadFileToR2(photoFile)
+        
+        let uploadedAudioUrl = null
+        if (photoAudioBlob) {
+           uploadedAudioUrl = await uploadFileToR2(new File([photoAudioBlob], `photo-audio-${Date.now()}.webm`, { type: "audio/webm" }))
+        }
+
         setStatus("submitting")
         const res = await fetch("/api/field-agent/submit", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -286,7 +345,11 @@ export default function AgentCapture() {
             latitude: location.lat, longitude: location.lng,
             category: photoCategory, photoUrl,
             contactInfo: photoContactInfo,
-            customFeatures: { note: photoNotes },
+            customFeatures: { 
+              caption: photoNotes, 
+              audioUrl: uploadedAudioUrl, 
+              audioLanguage: photoAudioLanguage || languageId 
+            },
           }),
         })
         if (!res.ok) throw new Error((await res.json()).error || "Submission failed")
@@ -344,6 +407,7 @@ export default function AgentCapture() {
 
   const handleReset = () => {
     setPhotoFile(null); setPhotoPreview(null); setPhotoContactInfo(""); setPhotoNotes("")
+    setPhotoAudioBlob(null); setPhotoAudioUrl(null); setPhotoAudioTimer(0); setPhotoAudioPlaying(false); photoAudioPlayerRef.current = null
     setAudioBlob(null); setAudioUrl(null); setAudioTimer(0); setAudioPlaying(false)
     audioPlayerRef.current = null
     setAnnotationImageFile(null); setAnnotationImagePreview(null)
@@ -1034,9 +1098,58 @@ export default function AgentCapture() {
                         value={photoContactInfo} onChange={e => setPhotoContactInfo(e.target.value)} />
                     </div>
                     <div>
-                      <label style={labelStyle}>Features / Notes <span style={{ color: "#ef4444" }}>*</span></label>
-                      <textarea required placeholder="e.g. They use Point of Sale XYZ, open Mon–Sat" className="input-focus" style={{ ...darkTextarea, height: 96 }}
+                      <label style={labelStyle}>Caption (Context, Action, Mood, Background, Setting) <span style={{ color: "#ef4444" }}>*</span></label>
+                      <textarea required placeholder="e.g. Busy morning at the local market, vendor looking happy while selling fresh vegetables." className="input-focus" style={{ ...darkTextarea, height: 96 }}
                         value={photoNotes} onChange={e => setPhotoNotes(e.target.value)} />
+                    </div>
+
+                    {/* Optional Audio */}
+                    <div style={{ marginTop: "0.5rem", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.25rem" }}>
+                      <label style={labelStyle}>Optional Audio Context</label>
+                      <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", marginBottom: "0.75rem" }}>
+                        Record a short description of the scene in your local dialect.
+                      </p>
+                      <select className="input-focus" style={{ ...darkSelect, marginBottom: "0.75rem" }}
+                        value={photoAudioLanguage || languageId}
+                        onChange={e => setPhotoAudioLanguage(e.target.value)}>
+                        {languages.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                      </select>
+                      
+                      {photoAudioUrl ? (
+                        <div style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.2)", borderRadius: "12px", padding: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                            <button type="button" onClick={togglePlaybackPhotoAudio} className="nav-btn"
+                              style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg,#a78bfa,#8b5cf6)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", border: "none", boxShadow: "0 4px 12px rgba(167,139,250,0.3)" }}>
+                              {photoAudioPlaying ? <div style={{ width: 12, height: 12, background: "#fff", borderRadius: "2px" }} /> : <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor"><path d="M0 0L14 8L0 16V0Z" /></svg>}
+                            </button>
+                            <div>
+                              <p style={{ color: "#f1f5f9", fontWeight: 700, fontSize: "0.8rem", margin: 0 }}>Recording saved</p>
+                              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.7rem", margin: 0 }}>Ready to upload</p>
+                            </div>
+                          </div>
+                          <button type="button" onClick={() => { setPhotoAudioUrl(null); setPhotoAudioBlob(null); setPhotoAudioTimer(0) }} className="nav-btn" style={{ padding: "0.4rem", borderRadius: "8px", background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ) : isRecordingPhotoAudio ? (
+                        <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "14px", padding: "1.25rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444", animation: "pulse 1.5s infinite" }} />
+                            <span style={{ color: "#f8fafc", fontWeight: 800, fontSize: "1.5rem", fontVariantNumeric: "tabular-nums" }}>
+                              {Math.floor(photoAudioTimer / 60)}:{(photoAudioTimer % 60).toString().padStart(2, "0")}
+                            </span>
+                          </div>
+                          <button type="button" className="nav-btn" onClick={stopRecordingPhotoAudio}
+                            style={{ background: "#ef4444", color: "#fff", fontWeight: 700, fontSize: "0.8rem", padding: "0.6rem 1.5rem", borderRadius: "999px", border: "none", boxShadow: "0 4px 12px rgba(239,68,68,0.4)" }}>
+                            Stop Recording
+                          </button>
+                        </div>
+                      ) : (
+                        <button type="button" className="nav-btn" onClick={startRecordingPhotoAudio}
+                          style={{ width: "100%", background: "rgba(167,139,250,0.08)", border: "1px dashed rgba(167,139,250,0.4)", color: "#a78bfa", fontWeight: 700, fontSize: "0.8rem", padding: "1rem", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                          <Mic size={16} /> Record Audio Context
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1174,20 +1287,20 @@ export default function AgentCapture() {
 
               {/* Submit button */}
               <button type="submit"
-                disabled={status === "uploading" || status === "submitting" || gettingLocation}
+                disabled={status === "uploading" || status === "submitting" || gettingLocation || (selectedTaskType === "PHOTO" && !location)}
                 className="nav-btn"
                 style={{
                   width: "100%", padding: "1rem", borderRadius: "18px",
                   fontWeight: 900, fontSize: "1rem", fontFamily: "inherit", border: "none",
-                  background: (status === "uploading" || status === "submitting" || gettingLocation)
+                  background: (status === "uploading" || status === "submitting" || gettingLocation || (selectedTaskType === "PHOTO" && !location))
                     ? "rgba(255,255,255,0.05)"
                     : `linear-gradient(135deg, ${activeMeta?.color}, ${activeMeta?.color}bb)`,
-                  color: (status === "uploading" || status === "submitting" || gettingLocation)
+                  color: (status === "uploading" || status === "submitting" || gettingLocation || (selectedTaskType === "PHOTO" && !location))
                     ? "rgba(255,255,255,0.3)" : "#fff",
-                  boxShadow: (status === "uploading" || status === "submitting" || gettingLocation)
+                  boxShadow: (status === "uploading" || status === "submitting" || gettingLocation || (selectedTaskType === "PHOTO" && !location))
                     ? "none" : `0 12px 32px ${activeMeta?.glow}`,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-                  cursor: (status === "uploading" || status === "submitting" || gettingLocation) ? "not-allowed" : "pointer",
+                  cursor: (status === "uploading" || status === "submitting" || gettingLocation || (selectedTaskType === "PHOTO" && !location)) ? "not-allowed" : "pointer",
                   transition: "all 0.2s ease",
                   position: "sticky", bottom: "1.5rem",
                 }}>
@@ -1197,8 +1310,10 @@ export default function AgentCapture() {
                   <><RefreshCw size={17} style={{ animation: "spin 0.8s linear infinite" }} /> Saving…</>
                 ) : gettingLocation ? (
                   <>⏳ Awaiting GPS…</>
+                ) : (selectedTaskType === "PHOTO" && !location) ? (
+                  <>📍 GPS Required</>
                 ) : (
-                  <>Submit & Earn <ArrowRight size={17} /></>
+                  <><Send size={17} /> Submit {activeMeta?.badge}</>
                 )}
               </button>
             </form>
