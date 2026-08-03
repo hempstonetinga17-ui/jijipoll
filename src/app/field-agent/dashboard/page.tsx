@@ -197,7 +197,7 @@ export default function AgentDashboard() {
   const gMeta   = GRADE_META[stats.grade] || GRADE_META["N/A"]
   const isTraining  = stats.status === "TRAINING"
   const isSuspended = stats.status === "SUSPENDED"
-  const dailyPct    = Math.min((stats.submissionsToday / 15) * 100, 100)
+  const dailyPct    = Math.min(((stats?.submissionsToday ?? 0) / 15) * 100, 100)
   const progressPct = Math.min((stats.decided / 50) * 100, 100)
   const approvalPct = stats.decided > 0 ? stats.approvalRate : 0
   const userName    = session?.user?.name?.split(" ")[0] || "Agent"
@@ -206,7 +206,7 @@ export default function AgentDashboard() {
   const statCards = [
     {
       label: "Today's Captures",
-      value: `${stats.submissionsToday}`,
+      value: `${stats?.submissionsToday ?? 0}`,
       sub: `of 15 daily`,
       icon: Zap,
       color: "#f97316",
@@ -398,26 +398,23 @@ export default function AgentDashboard() {
             </p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
               <span style={{ color: "#10b981", fontWeight: 900, fontSize: "2.5rem", lineHeight: 1 }}>
-                {stats.points.toLocaleString()}
+                {(stats?.points ?? 0).toLocaleString()}
               </span>
               <span style={{ color: "rgba(16,185,129,0.6)", fontWeight: 700, fontSize: "1rem" }}>KSh</span>
             </div>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontWeight: 500, marginTop: "0.25rem" }}>
-              {stats.points >= 500 ? "Ready to withdraw 🎉" : `${500 - stats.points} KSh more to unlock withdrawal`}
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", margin: "0.5rem 0 0", fontWeight: 600 }}>
+              {(stats?.points ?? 0) >= 500 ? "Ready to withdraw 🎉" : `${500 - (stats?.points ?? 0)} KSh more to unlock withdrawal`}
             </p>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-            <div style={{ position: "relative", width: 64, height: 64 }}>
-              <RingProgress pct={Math.min((stats.points / 2000) * 100, 100)} color="#10b981" size={64} stroke={5} />
-              <div style={{
-                position: "absolute", inset: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <Wallet size={18} color="#10b981" />
+            <div style={{ position: "relative", width: 80, height: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ position: "absolute" }}>
+                <RingProgress pct={(stats?.points ?? 0) > 0 ? 100 : 0} color="#10b981" />
               </div>
+              <Wallet size={24} color="#10b981" />
             </div>
-            {stats.points >= 500 && (
+            {(stats?.points ?? 0) >= 500 && (
               <button
                 onClick={handleWithdraw}
                 className="nav-btn"
@@ -485,7 +482,7 @@ export default function AgentDashboard() {
           </div>
         )}
 
-        {stats.submissionsToday >= 15 && (
+        {(stats?.submissionsToday ?? 0) >= 15 && (
           <div className="fade-up-1" style={{
             background: "rgba(250,204,21,0.08)", border: "1px solid rgba(250,204,21,0.2)",
             borderRadius: "12px", padding: "0.875rem 1.25rem",
@@ -562,30 +559,27 @@ export default function AgentDashboard() {
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
           gap: "0.75rem", marginBottom: "1.5rem",
         }}>
-          {[
-            { label: "Pending", value: stats.pending, color: "#f59e0b", icon: Clock },
-            { label: "Approved", value: stats.approved, color: "#10b981", icon: CheckCircle2 },
-            { label: "Rejected", value: stats.rejected, color: "#ef4444", icon: XCircle },
-          ].map(item => {
-            const Icon = item.icon
-            return (
-              <div key={item.label} className="fade-up" style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: "14px", padding: "0.875rem",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: "0.35rem",
-              }}>
-                <div style={{
-                  width: 30, height: 30, borderRadius: "8px",
-                  background: `${item.color}12`, display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <Icon size={14} color={item.color} />
-                </div>
-                <span style={{ color: item.color, fontWeight: 900, fontSize: "1.3rem", lineHeight: 1 }}>{item.value}</span>
-                <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase" }}>{item.label}</span>
+          <div style={{ flex: 1, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Clock size={16} color="#f59e0b" />
+              <div>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>PENDING</div>
+                <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.pending ?? 0}</div>
               </div>
-            )
-          })}
+            </div>
+          <div style={{ flex: 1, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <CheckCircle2 size={16} color="#10b981" />
+              <div>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>APPROVED</div>
+                <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.approved ?? 0}</div>
+              </div>
+            </div>
+          <div style={{ flex: 1, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "12px", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <XCircle size={16} color="#ef4444" />
+              <div>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.65rem", fontWeight: 700 }}>REJECTED</div>
+                <div style={{ color: "#f8fafc", fontSize: "0.9rem", fontWeight: 800 }}>{stats?.rejected ?? 0}</div>
+              </div>
+            </div>
         </div>
 
         {/* ── Activity Tab Toggle (mobile) ─────────── */}
