@@ -1,19 +1,19 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { Mic, FileText, Camera, Search, MessageSquare, ChevronRight, Check, ArrowRight, Globe, Zap, Shield } from "lucide-react"
 
 const LANGUAGES = [
-  { code: "EN", name: "English",    native: "English"    },
-  { code: "SW", name: "Swahili",    native: "Kiswahili"  },
-  { code: "BN", name: "Bengali",    native: "বাংলা"       },
-  { code: "KN", name: "Kannada",    native: "ಕನ್ನಡ"       },
-  { code: "ML", name: "Malayalam",  native: "മലയാളം"     },
-  { code: "OR", name: "Odia",       native: "ଓଡ଼ିଆ"       },
-  { code: "TA", name: "Tamil",      native: "தமிழ்"      },
-  { code: "HI", name: "Hindi",      native: "हिंदी"      },
+  { code: "EN", name: "English",  native: "English"   },
+  { code: "SW", name: "Swahili",  native: "Kiswahili" },
+  { code: "KI", name: "Kikuyu",   native: "Gĩkũyũ"    },
+  { code: "LU", name: "Luo",      native: "Dholuo"    },
+  { code: "KA", name: "Kalenjin", native: "Kalenjin"  },
+  { code: "KM", name: "Kamba",    native: "Kikamba"   },
+  { code: "LH", name: "Luhya",    native: "Luluhya"   },
+  { code: "ME", name: "Meru",     native: "Kimeru"    },
 ]
 
 const TASK_SHOWCASES = [
@@ -24,9 +24,16 @@ const TASK_SHOWCASES = [
 
 export default function AgentLogin() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [step, setStep] = useState<"LANGUAGE" | "INFO" | "LOGIN">("LANGUAGE")
   const [selectedLang, setSelectedLang] = useState("EN")
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/field-agent/dashboard")
+    }
+  }, [status, router])
 
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
