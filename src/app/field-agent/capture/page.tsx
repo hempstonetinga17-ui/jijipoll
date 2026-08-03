@@ -484,82 +484,87 @@ export default function AgentCapture() {
         
         {/* Step 1: Select Task Type */}
         {!selectedTaskType && (
-          <div className="space-y-6">
-            <div className="text-center max-w-xl mx-auto mb-8">
-              <h2 className="text-2xl font-black text-gray-900 tracking-tight">Select Data Collection Type</h2>
-              <p className="text-gray-500 mt-2">Choose the type of submission you want to record. Ensure high-quality data to pass verification.</p>
+          <div className="space-y-8 max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight">Complete Simple Tasks and Earn Money</h2>
+              <p className="text-gray-500 mt-2">Select a task type to begin collecting high-quality AI training data and earn KShs rewards.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-4">
               
               {/* Voice Recording */}
               <button 
                 onClick={() => setSelectedTaskType("AUDIO")}
-                className="bg-white hover:border-[#8b5cf6] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+                className="w-full bg-white border border-gray-150/70 hover:border-purple-300 hover:shadow-md p-4 sm:p-5 rounded-2xl flex items-center gap-5 text-left transition active:scale-[0.99] group shadow-sm"
               >
-                <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center transition group-hover:scale-110">
-                  <Mic className="w-6 h-6" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-50 text-purple-600 shrink-0 flex items-center justify-center transition group-hover:scale-105 border border-purple-100">
+                  <Mic className="w-7 h-7 sm:w-9 sm:h-9" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#8b5cf6] transition">Voice Recording</h3>
-                  <p className="text-xs text-gray-500 mt-1">Submit speech recordings in Swahili, Kikuyu, Luo, Sheng, etc.</p>
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-gray-950 text-base sm:text-lg group-hover:text-purple-600 transition">Record speech & sentences</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Submit speech recordings in Swahili, Kikuyu, Luo, Sheng, etc.</p>
                 </div>
+                <span className="text-gray-300 group-hover:text-purple-500 transition text-2xl font-bold font-mono px-2">›</span>
               </button>
 
               {/* Text & Translation */}
               <button 
                 onClick={() => setSelectedTaskType("TEXT")}
-                className="bg-white hover:border-[#06b6d4] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+                className="w-full bg-white border border-gray-150/70 hover:border-cyan-300 hover:shadow-md p-4 sm:p-5 rounded-2xl flex items-center gap-5 text-left transition active:scale-[0.99] group shadow-sm"
               >
-                <div className="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center transition group-hover:scale-110">
-                  <FileText className="w-6 h-6" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-cyan-50 text-cyan-600 shrink-0 flex items-center justify-center transition group-hover:scale-105 border border-cyan-100">
+                  <FileText className="w-7 h-7 sm:w-9 sm:h-9" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#06b6d4] transition">Text & Translation</h3>
-                  <p className="text-xs text-gray-500 mt-1">Translate phrases, write local corpuses, or submit conversational data.</p>
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-gray-950 text-base sm:text-lg group-hover:text-cyan-600 transition">Type out sentences describing images & recordings</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Translate phrases, write local corpuses, or submit conversational data.</p>
                 </div>
+                <span className="text-gray-300 group-hover:text-cyan-500 transition text-2xl font-bold font-mono px-2">›</span>
               </button>
 
               {/* Video Vision */}
               <button 
                 onClick={() => setSelectedTaskType("VIDEO")}
-                className="bg-white hover:border-[#f43f5e] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+                className="w-full bg-white border border-gray-150/70 hover:border-rose-300 hover:shadow-md p-4 sm:p-5 rounded-2xl flex items-center gap-5 text-left transition active:scale-[0.99] group shadow-sm"
               >
-                <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center transition group-hover:scale-110">
-                  <Video className="w-6 h-6" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-rose-50 text-rose-600 shrink-0 flex items-center justify-center transition group-hover:scale-105 border border-rose-100">
+                  <Video className="w-7 h-7 sm:w-9 sm:h-9" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#f43f5e] transition">Video Vision</h3>
-                  <p className="text-xs text-gray-500 mt-1">Record activities, events, objects, or environmental landmarks.</p>
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-gray-950 text-base sm:text-lg group-hover:text-rose-600 transition">Record activities, events, & objects</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Record activities, events, objects, or environmental landmarks.</p>
                 </div>
+                <span className="text-gray-300 group-hover:text-rose-500 transition text-2xl font-bold font-mono px-2">›</span>
               </button>
 
               {/* AI Evaluation */}
               <button 
                 onClick={() => setSelectedTaskType("EVAL")}
-                className="bg-white hover:border-[#eab308] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48"
+                className="w-full bg-white border border-gray-150/70 hover:border-yellow-300 hover:shadow-md p-4 sm:p-5 rounded-2xl flex items-center gap-5 text-left transition active:scale-[0.99] group shadow-sm"
               >
-                <div className="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center transition group-hover:scale-110">
-                  <Brain className="w-6 h-6" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-yellow-50 text-yellow-600 shrink-0 flex items-center justify-center transition group-hover:scale-105 border border-yellow-100">
+                  <Brain className="w-7 h-7 sm:w-9 sm:h-9" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#eab308] transition">AI Evaluation</h3>
-                  <p className="text-xs text-gray-500 mt-1">Provide RLHF training data by rating and evaluating AI outputs.</p>
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-gray-950 text-base sm:text-lg group-hover:text-yellow-600 transition">Rate & evaluate AI responses</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Provide RLHF training data by rating and evaluating AI outputs.</p>
                 </div>
+                <span className="text-gray-300 group-hover:text-yellow-500 transition text-2xl font-bold font-mono px-2">›</span>
               </button>
 
               {/* Geo Photo */}
               <button 
                 onClick={() => setSelectedTaskType("PHOTO")}
-                className="bg-white hover:border-[#10b981] border-2 border-transparent p-6 rounded-2xl shadow-sm text-left transition hover:shadow-md group flex flex-col justify-between h-48 sm:col-span-2 md:col-span-1"
+                className="w-full bg-white border border-gray-150/70 hover:border-emerald-300 hover:shadow-md p-4 sm:p-5 rounded-2xl flex items-center gap-5 text-left transition active:scale-[0.99] group shadow-sm"
               >
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center transition group-hover:scale-110">
-                  <Camera className="w-6 h-6" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 text-emerald-600 shrink-0 flex items-center justify-center transition group-hover:scale-105 border border-emerald-100">
+                  <Camera className="w-7 h-7 sm:w-9 sm:h-9" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-950 text-lg group-hover:text-[#10b981] transition">Geo Photo</h3>
-                  <p className="text-xs text-gray-500 mt-1">Take geotagged photos of physical shops, water pumps, or mosques.</p>
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-gray-950 text-base sm:text-lg group-hover:text-emerald-600 transition">Outline & mark objects or capture storefronts</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Take geotagged photos of physical shops, water pumps, or mosques.</p>
                 </div>
+                <span className="text-gray-300 group-hover:text-emerald-500 transition text-2xl font-bold font-mono px-2">›</span>
               </button>
 
             </div>
