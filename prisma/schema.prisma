@@ -72,11 +72,16 @@ model User {
   emailVerified DateTime?
   passwordHash  String?
   image         String?
-  role          String    @default("USER") // USER, AGENT, SUPERVISOR, BUSINESS_OWNER, ADMIN, ANNOTATOR, LINGUIST, EVALUATOR
+  role          String    @default("USER") // USER, AGENT, REVIEWER, SUPERVISOR, BUSINESS_OWNER, ADMIN, ANNOTATOR, LINGUIST, EVALUATOR
   status        String    @default("TRAINING") // PENDING, TRAINING, ACTIVE, FLAGGED, SUSPENDED
   points        Int       @default(0) // 1 point = 1 Ksh for agents
   averageGrade  Float     @default(0) // 0 to 100% average of graded submissions
-  
+
+  // Reviewer calibration (golden set system)
+  isCalibrated        Boolean  @default(false)
+  calibrationScore    Float    @default(100) // % agreement with QA on golden set items (0-100)
+  calibrationReviewCount Int   @default(0)   // total golden items reviewed so far
+
   accounts      Account[]
   sessions      Session[]
   business      Business?
@@ -89,7 +94,16 @@ model User {
   reviewedSubmissions DataSubmission[] @relation("SubmissionReviewer")
   qaCertifiedSubmissions DataSubmission[] @relation("SubmissionQA")
   withdrawals   WithdrawalRequest[]
-  
+  goldenSetResults GoldenSetResult[]
+
+  // Back-references for Audio/Text/Video reviewer + QA relations
+  reviewedAudioSubmissions  AudioSubmission[]  @relation("AudioSubmissionReviewer")
+  qaAudioSubmissions        AudioSubmission[]  @relation("AudioSubmissionQA")
+  reviewedTextSubmissions   TextSubmission[]   @relation("TextSubmissionReviewer")
+  qaTextSubmissions         TextSubmission[]   @relation("TextSubmissionQA")
+  reviewedVideoSubmissions  VideoSubmission[]  @relation("VideoSubmissionReviewer")
+  qaVideoSubmissions        VideoSubmission[]  @relation("VideoSubmissionQA")
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -200,11 +214,16 @@ model DataSubmission {
   spotCheckVerdict String? // UPHELD or FLAGGED
   spotCheckedAt   DateTime?
   spotCheckedBy   String?  // Admin userId
-  
+
+  // Inter-Rater Reliability (IRR)
+  reviewCount     Int      @default(0)  // number of reviewers who have graded this
+  irrConflict     Boolean  @default(false) // true if reviewers disagreed > 10 pts
+  irrAverageGrade Float?   // averaged grade when IRR passes
+
   status          String   @default("PENDING") // PENDING, SCREENED, REVIEWER_APPROVED, REVIEWER_REJECTED, VERIFIED, REJECTED, ESCALATED
   feedback        String?  // Feedback from supervisor for rejected or verified submissions
   grade           Int?     // Percentage grade (0-100)
-  
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -258,6 +277,15 @@ model Order {
   downloadUrl     String?  // Presigned R2 URL
   downloadExpiry  DateTime?
   paymentRef      String?  // Stripe/M-Pesa reference
+  licenseSignedAt DateTime?
+  licenseHash     String?  // SHA-256 of license text + timestamp
+  ipAtPurchase    String?
+  checksum        String?  // SHA-256 of the dataset package
+  redownloadCount Int      @default(0)
+  notes           String?  // Admin notes
+  paidAt          DateTime?
+  paidBy          String?  // Admin userId who confirmed payment
+  accessLogs      AccessLog[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -341,6 +369,35 @@ model AudioSubmission {
   latitude        Float?
   longitude       Float?
 
+  // Reviewer (first-pass human review)
+  reviewerId      String?
+  reviewer        User?    @relation("AudioSubmissionReviewer", fields: [reviewerId], references: [id])
+  reviewerGrade   Int?
+  reviewerFeedback String?
+  reviewedAt      DateTime?
+
+  // QA Certification
+  qaId            String?
+  qaCertifier     User?    @relation("AudioSubmissionQA", fields: [qaId], references: [id])
+  qaGrade         Int?
+  qaFeedback      String?
+  certifiedAt     DateTime?
+
+  // Golden set
+  isGoldenSet     Boolean  @default(false)
+  goldenGrade     Int?
+
+  // IRR
+  reviewCount     Int      @default(0)
+  irrConflict     Boolean  @default(false)
+  irrAverageGrade Float?
+
+  // Admin spot-check
+  spotChecked     Boolean  @default(false)
+  spotCheckVerdict String?
+  spotCheckedAt   DateTime?
+  spotCheckedBy   String?
+
   // Quality
   status          String   @default("PENDING")
   grade           Int?
@@ -371,6 +428,23 @@ model TextSubmission {
   conversationTurn Int?    @default(1)
   parentId        String?
 
+  // Reviewer / QA (matching DataSubmission pattern)
+  reviewerId      String?
+  reviewer        User?    @relation("TextSubmissionReviewer", fields: [reviewerId], references: [id])
+  reviewerGrade   Int?
+  reviewerFeedback String?
+  reviewedAt      DateTime?
+  qaId            String?
+  qaCertifier     User?    @relation("TextSubmissionQA", fields: [qaId], references: [id])
+  qaGrade         Int?
+  certifiedAt     DateTime?
+  isGoldenSet     Boolean  @default(false)
+  goldenGrade     Int?
+  reviewCount     Int      @default(0)
+  irrConflict     Boolean  @default(false)
+  spotChecked     Boolean  @default(false)
+  spotCheckVerdict String?
+
   status          String   @default("PENDING")
   grade           Int?
   feedback        String?
@@ -399,6 +473,23 @@ model VideoSubmission {
 
   latitude        Float?
   longitude       Float?
+
+  // Reviewer / QA
+  reviewerId      String?
+  reviewer        User?    @relation("VideoSubmissionReviewer", fields: [reviewerId], references: [id])
+  reviewerGrade   Int?
+  reviewerFeedback String?
+  reviewedAt      DateTime?
+  qaId            String?
+  qaCertifier     User?    @relation("VideoSubmissionQA", fields: [qaId], references: [id])
+  qaGrade         Int?
+  certifiedAt     DateTime?
+  isGoldenSet     Boolean  @default(false)
+  goldenGrade     Int?
+  reviewCount     Int      @default(0)
+  irrConflict     Boolean  @default(false)
+  spotChecked     Boolean  @default(false)
+  spotCheckVerdict String?
 
   status          String   @default("PENDING")
   grade           Int?
@@ -450,11 +541,44 @@ model Annotation {
   videoSubmission    VideoSubmission? @relation(fields: [videoSubmissionId], references: [id])
 
   grade           Int?
+  reviewerGrade   Int?     // explicit grade this reviewer gave (for IRR comparison)
   approved        Boolean?
   notes           String?  @db.Text
   labels          String[] @default([])
   phoneticMarking String?
   culturalNote    String?
+  reviewDurationSecs Int?  // seconds spent reviewing (for bias detection)
 
   createdAt       DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// GOLDEN SET CALIBRATION
+// ─────────────────────────────────────────────────────────────
+
+model GoldenSetResult {
+  id            String   @id @default(cuid())
+  reviewerId    String
+  reviewer      User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  submissionId  String   // The DataSubmission/AudioSubmission id
+  submissionType String  // "PHOTO", "AUDIO", "TEXT", "VIDEO"
+  reviewerScore Int      // What the reviewer graded it
+  goldenGrade   Int      // The QA-certified correct grade
+  delta         Int      // abs(reviewerScore - goldenGrade)
+  passed        Boolean  // delta <= 10
+  injectedAt    DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// ORDER ACCESS LOG
+// ─────────────────────────────────────────────────────────────
+
+model AccessLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  ip        String?
+  userAgent String?
+  action    String   // "DOWNLOAD", "REDOWNLOAD", "VIEW_SAMPLE"
+  createdAt DateTime @default(now())
 }

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { auth, prisma } from '@/lib/auth'
+import { screenAudioSubmission } from '@/lib/screener'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -52,6 +50,10 @@ export async function POST(req: NextRequest) {
 
   const agentId = (session.user as any).id
 
+  // Run pre-screener immediately
+  const screen = screenAudioSubmission({ audioUrl, durationSecs, scriptPrompt, dialect })
+  const screenStatus = screen.passed ? 'SCREENED' : 'REJECTED'
+
   const submission = await prisma.audioSubmission.create({
     data: {
       agentId,
@@ -68,7 +70,10 @@ export async function POST(req: NextRequest) {
       speakerAge,
       latitude,
       longitude,
+      status: screenStatus,
+      // Store screen notes in feedback field if auto-rejected
+      feedback: !screen.passed ? `Auto-rejected: ${screen.notes.join('; ')}` : null,
     },
   })
-  return NextResponse.json(submission, { status: 201 })
+  return NextResponse.json({ ...submission, screenScore: screen.score, screenNotes: screen.notes }, { status: 201 })
 }

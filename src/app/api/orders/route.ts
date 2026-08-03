@@ -1,25 +1,34 @@
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/auth"
-import { NextResponse } from "next/server"
 
-export async function POST(req: Request) {
+// POST /api/orders — create a new order (buyer facing, no auth required for now)
+export async function POST(req: NextRequest) {
   const body = await req.json()
   const { datasetId, buyerName, buyerEmail, buyerOrg, licenseType } = body
 
   if (!datasetId || !buyerName || !buyerEmail || !licenseType) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    return NextResponse.json({ error: "datasetId, buyerName, buyerEmail, licenseType are required" }, { status: 400 })
   }
 
-  const dataset = await prisma.dataset.findUnique({ where: { id: datasetId } })
+  const dataset = await prisma.dataset.findUnique({
+    where: { id: datasetId },
+    select: { id: true, status: true, priceUsd: true, licenseType: true, name: true },
+  })
+
   if (!dataset || dataset.status !== "AVAILABLE") {
-    return NextResponse.json({ error: "Dataset not available" }, { status: 404 })
+    return NextResponse.json({ error: "Dataset not available for purchase" }, { status: 404 })
   }
 
-  const priceMap: Record<string, number> = {
-    RESEARCH: dataset.priceUsd * 0.5,
-    COMMERCIAL: dataset.priceUsd,
-    EXCLUSIVE: dataset.priceUsd * 8,
+  const validLicenses = ["RESEARCH", "COMMERCIAL", "EXCLUSIVE"]
+  if (!validLicenses.includes(licenseType)) {
+    return NextResponse.json({ error: "Invalid licenseType" }, { status: 400 })
   }
-  const amount = priceMap[licenseType] || dataset.priceUsd
+
+  // Pricing multiplier by license type
+  const priceMultiplier = licenseType === "EXCLUSIVE" ? 7.5 : licenseType === "COMMERCIAL" ? 1.0 : 0.5
+  const amountUsd = dataset.priceUsd * priceMultiplier
+
+  const ipAtPurchase = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || undefined
 
   const order = await prisma.order.create({
     data: {
@@ -28,25 +37,40 @@ export async function POST(req: Request) {
       buyerEmail,
       buyerOrg: buyerOrg || null,
       licenseType,
-      amountUsd: amount,
+      amountUsd,
       status: "PENDING",
-    }
+      ipAtPurchase: ipAtPurchase || null,
+    },
   })
 
-  return NextResponse.json(order)
+  return NextResponse.json({
+    success: true,
+    orderId: order.id,
+    amountUsd,
+    status: "PENDING",
+    message: "Order created. An admin will confirm payment and generate your download link.",
+  }, { status: 201 })
 }
 
-export async function GET(req: Request) {
-  const { auth } = await import("@/lib/auth")
-  const session = await auth()
-  if (!session?.user?.id || !["ADMIN", "PROJECT_MANAGER"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+// GET /api/orders — list orders by buyerEmail (buyer) or all (admin)
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const email = searchParams.get("email")
+  const adminKey = req.headers.get("x-admin-key")
+
+  const isAdmin = adminKey === process.env.ADMIN_API_KEY
+
+  if (!email && !isAdmin) {
+    return NextResponse.json({ error: "email param or admin key required" }, { status: 401 })
   }
 
   const orders = await prisma.order.findMany({
-    include: { dataset: { select: { name: true, dataType: true } } },
+    where: email ? { buyerEmail: email } : {},
+    include: {
+      dataset: { select: { id: true, name: true, version: true, dataType: true } },
+    },
     orderBy: { createdAt: "desc" },
   })
 
-  return NextResponse.json(orders)
+  return NextResponse.json({ orders })
 }
