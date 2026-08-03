@@ -3,17 +3,23 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { signIn } from "next-auth/react"
-import { Mic, FileText, Camera, Search, HelpCircle, MessageSquare } from "lucide-react"
+import { Mic, FileText, Camera, Search, MessageSquare, ChevronRight, Check, ArrowRight, Globe, Zap, Shield } from "lucide-react"
 
 const LANGUAGES = [
-  { code: "EN", name: "English", native: "English" },
-  { code: "SW", name: "Swahili", native: "Kiswahili" },
-  { code: "BN", name: "Bengali", native: "বাংলা" },
-  { code: "KN", name: "Kannada", native: "ಕನ್ನಡ" },
-  { code: "ML", name: "Malayalam", native: "മലയാളം" },
-  { code: "OR", name: "Odia", native: "ଓଡ଼ିଆ" },
-  { code: "TA", name: "Tamil", native: "தமிழ்" },
-  { code: "HI", name: "Hindi", native: "हिंदी" },
+  { code: "EN", name: "English",    native: "English"    },
+  { code: "SW", name: "Swahili",    native: "Kiswahili"  },
+  { code: "BN", name: "Bengali",    native: "বাংলা"       },
+  { code: "KN", name: "Kannada",    native: "ಕನ್ನಡ"       },
+  { code: "ML", name: "Malayalam",  native: "മലയാളം"     },
+  { code: "OR", name: "Odia",       native: "ଓଡ଼ିଆ"       },
+  { code: "TA", name: "Tamil",      native: "தமிழ்"      },
+  { code: "HI", name: "Hindi",      native: "हिंदी"      },
+]
+
+const TASK_SHOWCASES = [
+  { icon: Mic,      color: "#a78bfa", bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.2)", title: "Record speech & sentences", desc: "Earn by speaking in your language" },
+  { icon: FileText, color: "#22d3ee", bg: "rgba(34,211,238,0.1)",  border: "rgba(34,211,238,0.2)",  title: "Type & translate text",      desc: "Earn by writing & translating"    },
+  { icon: Camera,   color: "#34d399", bg: "rgba(52,211,153,0.1)",  border: "rgba(52,211,153,0.2)",  title: "Capture storefronts & places", desc: "Earn by photographing locations" },
 ]
 
 export default function AgentLogin() {
@@ -22,10 +28,7 @@ export default function AgentLogin() {
   const [selectedLang, setSelectedLang] = useState("EN")
   const [searchQuery, setSearchQuery] = useState("")
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: ""
-  })
+  const [formData, setFormData] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -33,7 +36,6 @@ export default function AgentLogin() {
     e.preventDefault()
     setError("")
     setLoading(true)
-
     try {
       const res = await signIn("credentials", {
         redirect: false,
@@ -41,13 +43,9 @@ export default function AgentLogin() {
         email: formData.email,
         password: formData.password,
       })
-
-      if (res?.error) {
-        setError("Invalid email or password")
-      } else {
-        router.push("/field-agent/dashboard")
-      }
-    } catch (err) {
+      if (res?.error) setError("Invalid email or password")
+      else router.push("/field-agent/dashboard")
+    } catch {
       setError("Login failed. Please try again.")
     } finally {
       setLoading(false)
@@ -59,214 +57,381 @@ export default function AgentLogin() {
       lang.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lang.native.toLowerCase().includes(searchQuery.toLowerCase())
   )
-
   const activeLangObj = LANGUAGES.find(l => l.code === selectedLang) || LANGUAGES[0]
 
   return (
-    <div className="min-h-screen bg-[#f7fbf9] flex flex-col items-center justify-center py-10 px-4 relative">
-      
-      {/* Floating Support Indicator (Karya style Chatbot screenshot) */}
-      <a 
-        href="https://wa.me/254700000000" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="fixed bottom-6 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition z-50 flex items-center gap-2 group"
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(160deg, #050d1a 0%, #0a1628 40%, #0f1e35 100%)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      padding: "1.5rem 1rem",
+      fontFamily: "'Inter', -apple-system, sans-serif",
+      WebkitFontSmoothing: "antialiased",
+      position: "relative", overflow: "hidden",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+        .fade-up { animation: fadeUp 0.45s ease forwards; }
+        .btn-main { transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; border: none; }
+        .btn-main:hover { transform: translateY(-1px); }
+        .btn-main:active { transform: scale(0.97); }
+        .lang-item { transition: all 0.15s ease; cursor: pointer; border: none; }
+        .lang-item:hover { background: rgba(16,185,129,0.06) !important; }
+        input:focus { outline: none; border-color: rgba(16,185,129,0.5) !important; box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important; }
+      `}</style>
+
+      {/* Decorative orbs */}
+      <div style={{ position: "absolute", top: -80, right: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -60, left: -60, width: 250, height: 250, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+      {/* WhatsApp Support */}
+      <a
+        href="https://wa.me/254700000000"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          position: "fixed", bottom: "1.5rem", right: "1.5rem", zIndex: 50,
+          width: 48, height: 48, borderRadius: "14px",
+          background: "#25D366",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 20px rgba(37,211,102,0.4)",
+          transition: "transform 0.2s",
+          textDecoration: "none",
+        }}
+        title="WhatsApp Support"
       >
-        <MessageSquare className="w-6 h-6" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold text-xs whitespace-nowrap">Whatsapp Support</span>
+        <MessageSquare size={20} color="#fff" />
       </a>
 
-      <div className="w-full max-w-md bg-white border border-gray-150 rounded-[2.5rem] shadow-xl overflow-hidden p-6 sm:p-8 flex flex-col justify-between min-h-[600px] border-emerald-800/10">
+      {/* Logo */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.75rem" }} className="fade-up">
+        <div style={{
+          width: 40, height: 40, borderRadius: "12px",
+          background: "linear-gradient(135deg, #10b981, #059669)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 0 20px rgba(16,185,129,0.4)",
+        }}>
+          <span style={{ color: "#fff", fontWeight: 900, fontSize: "0.9rem" }}>KP</span>
+        </div>
+        <div>
+          <div style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1rem", lineHeight: 1 }}>KijijiPoll</div>
+          <div style={{ color: "#10b981", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase" }}>Agent Portal</div>
+        </div>
+      </div>
 
-        {/* STEP 1: LANGUAGE SELECTION */}
+      {/* Card */}
+      <div
+        className="fade-up"
+        style={{
+          width: "100%", maxWidth: 420,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderRadius: "24px",
+          padding: "1.75rem",
+          backdropFilter: "blur(20px)",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)",
+          minHeight: 500,
+          display: "flex", flexDirection: "column",
+        }}
+      >
+        {/* Step indicator */}
+        <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginBottom: "1.75rem" }}>
+          {["LANGUAGE", "INFO", "LOGIN"].map((s, i) => (
+            <div key={s} style={{
+              width: step === s ? 24 : 8, height: 8, borderRadius: "999px",
+              background: step === s
+                ? "linear-gradient(90deg, #10b981, #059669)"
+                : ["LANGUAGE", "INFO", "LOGIN"].indexOf(step) > i
+                  ? "rgba(16,185,129,0.4)"
+                  : "rgba(255,255,255,0.1)",
+              transition: "all 0.3s ease",
+            }} />
+          ))}
+        </div>
+
+        {/* ── STEP 1: Language ────────────────────── */}
         {step === "LANGUAGE" && (
-          <div className="flex-1 flex flex-col justify-between">
-            <div>
-              <div className="text-center mb-6">
-                <div className="w-24 h-24 mx-auto mb-4 bg-emerald-50 rounded-full flex items-center justify-center">
-                  <svg className="w-12 h-12 text-[#1b7348]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 7.31 16.5 3 19" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-black text-[#0f172a] tracking-tight">Supports 12+ Languages</h2>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <div style={{
+                width: 60, height: 60, borderRadius: "18px",
+                background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 1rem",
+              }}>
+                <Globe size={28} color="#10b981" />
               </div>
+              <h2 style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1.3rem", margin: 0 }}>Choose Your Language</h2>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.78rem", marginTop: "0.4rem" }}>
+                We support 12+ languages for your work
+              </p>
+            </div>
 
-              {/* Search Bar */}
-              <div className="relative mb-4">
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
-                <input 
-                  type="text"
-                  placeholder="Search Language"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-[#f8fafc] text-gray-800 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1b7348]/45 focus:border-[#1b7348]"
-                />
-              </div>
+            {/* Search */}
+            <div style={{ position: "relative", marginBottom: "0.875rem" }}>
+              <Search size={15} color="rgba(255,255,255,0.25)" style={{ position: "absolute", left: "0.875rem", top: "50%", transform: "translateY(-50%)" }} />
+              <input
+                type="text"
+                placeholder="Search language…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%", boxSizing: "border-box",
+                  paddingLeft: "2.5rem", paddingRight: "1rem", paddingTop: "0.65rem", paddingBottom: "0.65rem",
+                  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "12px", color: "#e2e8f0", fontSize: "0.85rem",
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                }}
+              />
+            </div>
 
-              {/* Language list */}
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                {filteredLanguages.map(lang => (
-                  <button
-                    key={lang.code}
-                    onClick={() => setSelectedLang(lang.code)}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition ${
-                      selectedLang === lang.code
-                        ? 'border-[#1b7348] bg-emerald-50/40 font-bold'
-                        : 'border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-md">{lang.code}</span>
-                      <span className="text-gray-900 font-medium">{lang.native}</span>
+            {/* Language list */}
+            <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: 260, paddingRight: "2px" }}>
+              {filteredLanguages.map(lang => (
+                <button
+                  key={lang.code}
+                  className="lang-item"
+                  onClick={() => setSelectedLang(lang.code)}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "0.75rem 1rem", borderRadius: "12px",
+                    background: selectedLang === lang.code ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
+                    border: `1px solid ${selectedLang === lang.code ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.07)"}`,
+                    textAlign: "left",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <span style={{
+                      background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+                      fontSize: "0.65rem", fontWeight: 800, padding: "3px 8px", borderRadius: "6px",
+                      letterSpacing: "0.05em",
+                    }}>{lang.code}</span>
+                    <span style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "0.88rem" }}>{lang.native}</span>
+                  </div>
+                  {selectedLang === lang.code && (
+                    <div style={{
+                      width: 20, height: 20, borderRadius: "50%",
+                      background: "linear-gradient(135deg, #10b981, #059669)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      flexShrink: 0,
+                    }}>
+                      <Check size={11} color="#fff" strokeWidth={3} />
                     </div>
-                    {selectedLang === lang.code && (
-                      <div className="w-5 h-5 bg-[#1b7348] text-white rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
+                  )}
+                </button>
+              ))}
             </div>
 
             <button
+              className="btn-main"
               onClick={() => setStep("INFO")}
-              className="w-full bg-[#1b7348] hover:bg-[#145635] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 mt-6 active:scale-95 transition"
+              style={{
+                marginTop: "1.25rem", width: "100%",
+                background: "linear-gradient(135deg, #10b981, #059669)",
+                color: "#fff", fontWeight: 800, fontSize: "0.9rem",
+                padding: "0.875rem", borderRadius: "14px",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+                boxShadow: "0 4px 20px rgba(16,185,129,0.4)",
+              }}
             >
-              <span>Continue in {activeLangObj.name}</span>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
+              Continue in {activeLangObj.name} <ArrowRight size={16} />
             </button>
           </div>
         )}
 
-        {/* STEP 2: TASKS SHOWCASE */}
+        {/* ── STEP 2: Task Showcase ───────────────── */}
         {step === "INFO" && (
-          <div className="flex-1 flex flex-col justify-between">
-            <div>
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-black text-[#0f172a] tracking-tight">Complete Simple Tasks and Earn Money</h2>
-                <p className="text-sm text-gray-500 mt-2">Work on small tasks directly from your smartphone.</p>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <div style={{
+                width: 60, height: 60, borderRadius: "18px",
+                background: "rgba(250,204,21,0.1)", border: "1px solid rgba(250,204,21,0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 1rem",
+              }}>
+                <Zap size={28} color="#facc15" />
               </div>
-
-              <div className="space-y-6">
-                
-                {/* Task Item 1 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#1b7348] flex items-center justify-center shrink-0 border border-emerald-100">
-                    <Mic className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-[#0f172a] text-base leading-snug">Record speech & sentences</h3>
-                  </div>
-                </div>
-
-                {/* Task Item 2 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#1b7348] flex items-center justify-center shrink-0 border border-emerald-100">
-                    <FileText className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-[#0f172a] text-base leading-snug">Type out sentences describing images & recordings</h3>
-                  </div>
-                </div>
-
-                {/* Task Item 3 */}
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#1b7348] flex items-center justify-center shrink-0 border border-emerald-100">
-                    <Camera className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-[#0f172a] text-base leading-snug">Outline & mark objects or capture storefronts</h3>
-                  </div>
-                </div>
-
-              </div>
+              <h2 style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1.25rem", margin: 0 }}>Simple Tasks. Real Earnings.</h2>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.78rem", marginTop: "0.4rem" }}>
+                Work from your smartphone and get paid
+              </p>
             </div>
 
-            <div className="flex flex-col gap-3 mt-8">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1 }}>
+              {TASK_SHOWCASES.map(task => {
+                const Icon = task.icon
+                return (
+                  <div key={task.title} style={{
+                    display: "flex", alignItems: "center", gap: "1rem",
+                    background: task.bg, border: `1px solid ${task.border}`,
+                    borderRadius: "14px", padding: "0.875rem 1rem",
+                  }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: "12px",
+                      background: task.bg, border: `1px solid ${task.border}`,
+                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    }}>
+                      <Icon size={20} color={task.color} />
+                    </div>
+                    <div>
+                      <p style={{ color: "#e2e8f0", fontWeight: 800, fontSize: "0.875rem", margin: 0 }}>{task.title}</p>
+                      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", margin: "0.15rem 0 0" }}>{task.desc}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem", marginTop: "1.5rem" }}>
               <button
+                className="btn-main"
                 onClick={() => setStep("LOGIN")}
-                className="w-full bg-[#1b7348] hover:bg-[#145635] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition"
+                style={{
+                  width: "100%",
+                  background: "linear-gradient(135deg, #10b981, #059669)",
+                  color: "#fff", fontWeight: 800, fontSize: "0.9rem",
+                  padding: "0.875rem", borderRadius: "14px",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+                  boxShadow: "0 4px 20px rgba(16,185,129,0.4)",
+                }}
               >
-                <span>Get Started</span>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
+                Get Started <ArrowRight size={16} />
               </button>
-              <button 
+              <button
                 onClick={() => setStep("LANGUAGE")}
-                className="text-xs text-gray-500 font-bold hover:underline"
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontWeight: 600,
+                  padding: "0.5rem",
+                }}
               >
-                Go Back / Change Language
+                ← Change Language
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 3: LOGIN / AUTH FORM */}
+        {/* ── STEP 3: Login ──────────────────────── */}
         {step === "LOGIN" && (
-          <div className="flex-1 flex flex-col justify-between">
-            <div>
-              <div className="text-center mb-6">
-                <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-10 w-auto mx-auto mb-3" />
-                <h2 className="text-2xl font-black text-[#0f172a]">Agent Sign In</h2>
-                <p className="text-xs text-gray-500 mt-1">Access your workspace and submissions</p>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <div style={{
+                width: 60, height: 60, borderRadius: "18px",
+                background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 1rem",
+              }}>
+                <Shield size={28} color="#3b82f6" />
               </div>
-
-              <form className="space-y-4" onSubmit={handleLoginSubmit}>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Email address</label>
-                  <input
-                    type="email"
-                    required
-                    className="mt-1 block w-full border border-gray-300 rounded-xl py-2.5 px-3.5 focus:outline-none focus:ring-2 focus:ring-[#1b7348]/45 focus:border-[#1b7348] text-sm text-gray-900"
-                    value={formData.email}
-                    onChange={e => setFormData({...formData, email: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Password</label>
-                  <input
-                    type="password"
-                    required
-                    className="mt-1 block w-full border border-gray-300 rounded-xl py-2.5 px-3.5 focus:outline-none focus:ring-2 focus:ring-[#1b7348]/45 focus:border-[#1b7348] text-sm text-gray-900"
-                    value={formData.password}
-                    onChange={e => setFormData({...formData, password: e.target.value})}
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-red-600 text-xs font-bold bg-red-50 p-2 rounded-lg border border-red-100">{error}</div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl font-bold text-white bg-[#1b7348] hover:bg-[#145635] active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Signing in..." : "Log in"}
-                </button>
-              </form>
-
-              <div className="mt-4 text-center">
-                <Link href="/field-agent/register" className="text-xs font-bold text-[#1b7348] hover:underline">
-                  Don't have an account? Create one
-                </Link>
-              </div>
+              <h2 style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1.25rem", margin: 0 }}>Agent Sign In</h2>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.78rem", marginTop: "0.4rem" }}>
+                Access your workspace and submissions
+              </p>
             </div>
 
-            <div className="mt-6 border-t border-gray-150 pt-4">
-              <div className="text-center text-xs text-gray-400 font-medium mb-3">Or continue with</div>
+            <form onSubmit={handleLoginSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", flex: 1 }}>
+              <div>
+                <label style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="agent@example.com"
+                  style={{
+                    width: "100%", boxSizing: "border-box",
+                    padding: "0.75rem 1rem",
+                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "12px", color: "#e2e8f0", fontSize: "0.9rem",
+                    transition: "border-color 0.2s, box-shadow 0.2s",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={e => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="••••••••"
+                  style={{
+                    width: "100%", boxSizing: "border-box",
+                    padding: "0.75rem 1rem",
+                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "12px", color: "#e2e8f0", fontSize: "0.9rem",
+                    transition: "border-color 0.2s, box-shadow 0.2s",
+                  }}
+                />
+              </div>
+
+              {error && (
+                <div style={{
+                  background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)",
+                  borderRadius: "10px", padding: "0.75rem 1rem",
+                  color: "#fca5a5", fontSize: "0.8rem", fontWeight: 600,
+                }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-main"
+                style={{
+                  width: "100%", marginTop: "0.5rem",
+                  background: loading ? "rgba(16,185,129,0.3)" : "linear-gradient(135deg, #10b981, #059669)",
+                  color: "#fff", fontWeight: 800, fontSize: "0.9rem",
+                  padding: "0.875rem", borderRadius: "14px",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+                  boxShadow: loading ? "none" : "0 4px 20px rgba(16,185,129,0.4)",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.7 : 1,
+                  border: "none",
+                }}
+              >
+                {loading ? (
+                  <>
+                    <div style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.7s linear infinite" }} />
+                    Signing in…
+                  </>
+                ) : (
+                  <>Sign In <ArrowRight size={16} /></>
+                )}
+              </button>
+
+              <div style={{ textAlign: "center" }}>
+                <Link href="/field-agent/register" style={{ color: "#10b981", fontSize: "0.8rem", fontWeight: 700, textDecoration: "none" }}>
+                  Don't have an account? <span style={{ textDecoration: "underline" }}>Create one</span>
+                </Link>
+              </div>
+            </form>
+
+            {/* Google sign in */}
+            <div style={{ marginTop: "1.25rem", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "1.25rem" }}>
+              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: "0.72rem", fontWeight: 600, marginBottom: "0.875rem" }}>
+                Or continue with
+              </div>
               <button
                 type="button"
                 onClick={() => signIn("google", { callbackUrl: "/field-agent/dashboard" })}
-                className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 border border-gray-200 font-bold py-2.5 px-4 rounded-xl hover:bg-gray-50 focus:outline-none active:scale-95 transition text-sm"
+                className="btn-main"
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem",
+                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#e2e8f0", fontWeight: 700, fontSize: "0.875rem",
+                  padding: "0.75rem", borderRadius: "12px",
+                  cursor: "pointer",
+                }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -275,10 +440,25 @@ export default function AgentLogin() {
                 Google
               </button>
             </div>
+
+            <button
+              onClick={() => setStep("INFO")}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                color: "rgba(255,255,255,0.25)", fontSize: "0.75rem", fontWeight: 600,
+                marginTop: "1rem", padding: "0.25rem",
+              }}
+            >
+              ← Go Back
+            </button>
           </div>
         )}
-
       </div>
+
+      <p style={{ color: "rgba(255,255,255,0.15)", fontSize: "0.65rem", fontWeight: 500, marginTop: "1.25rem", textAlign: "center" }}>
+        © 2025 KijijiPoll. All rights reserved.
+      </p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
