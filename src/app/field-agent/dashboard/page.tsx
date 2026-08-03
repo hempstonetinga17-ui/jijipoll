@@ -10,7 +10,7 @@ import {
   Mic, FileText, Video, Brain, Camera, Plus,
   LayoutDashboard, Wallet, ChevronRight,
   Zap, Award, BarChart2, LogOut, Bell, Settings,
-  ArrowUpRight, Shield, Activity, Menu
+  ArrowUpRight, Shield, Activity, Menu, Eye, EyeOff
 } from "lucide-react"
 
 type Stats = {
@@ -111,6 +111,7 @@ export default function AgentDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "activity">("overview")
   const [mounted, setMounted] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showDetailedStats, setShowDetailedStats] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -388,6 +389,15 @@ export default function AgentDashboard() {
                 boxShadow: "0 10px 40px rgba(0,0,0,0.5)", zIndex: 100,
                 display: "flex", flexDirection: "column", gap: "2px"
               }}>
+                <button className="nav-btn" onClick={() => { setShowDetailedStats(!showDetailedStats); setIsMenuOpen(false); }} style={{
+                  width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px",
+                  display: "flex", alignItems: "center", gap: "0.5rem",
+                  color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", fontWeight: 600,
+                  textAlign: "left"
+                }}>
+                  {showDetailedStats ? <EyeOff size={15} /> : <Eye size={15} />}
+                  {showDetailedStats ? "Hide Stats" : "Show Stats"}
+                </button>
                 <button className="nav-btn" style={{
                   width: "100%", padding: "0.6rem 0.8rem", borderRadius: "8px",
                   display: "flex", alignItems: "center", gap: "0.5rem",
@@ -572,6 +582,8 @@ export default function AgentDashboard() {
         )}
 
         {/* ── Stat Cards Grid ──────────────────────── */}
+        {showDetailedStats && (
+          <>
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
@@ -659,6 +671,8 @@ export default function AgentDashboard() {
                   </div>
                 </div>
             </div>
+          </>
+        )}
 
         {/* ── Activity Tab Toggle (mobile) ─────────── */}
         <div style={{
