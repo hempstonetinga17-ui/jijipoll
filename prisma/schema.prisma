@@ -72,7 +72,7 @@ model User {
   emailVerified DateTime?
   passwordHash  String?
   image         String?
-  role          String    @default("USER") // USER, AGENT, SUPERVISOR, BUSINESS_OWNER, ADMIN
+  role          String    @default("USER") // USER, AGENT, SUPERVISOR, BUSINESS_OWNER, ADMIN, ANNOTATOR, LINGUIST, EVALUATOR
   status        String    @default("TRAINING") // PENDING, TRAINING, ACTIVE, FLAGGED, SUSPENDED
   points        Int       @default(0) // 1 point = 1 Ksh for agents
   averageGrade  Float     @default(0) // 0 to 100% average of graded submissions
@@ -81,6 +81,11 @@ model User {
   sessions      Session[]
   business      Business?
   submissions   DataSubmission[] // Submissions by this agent
+  audioSubmissions  AudioSubmission[]
+  textSubmissions   TextSubmission[]
+  videoSubmissions  VideoSubmission[]
+  evalSubmissions   EvalSubmission[]
+  annotations       Annotation[]
   withdrawals   WithdrawalRequest[]
   
   createdAt     DateTime  @default(now())
@@ -180,4 +185,199 @@ model WithdrawalRequest {
   status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────
+// AI DATA COLLECTION PLATFORM MODELS
+// ─────────────────────────────────────────────────────────────
+
+model Language {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g. "sw", "ki", "luo"
+  name        String   // e.g. "Swahili"
+  nativeName  String?  // e.g. "Kiswahili"
+  region      String?  // e.g. "East Africa"
+  country     String?  // e.g. "Kenya"
+  isLowResource Boolean @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  audioSubmissions AudioSubmission[]
+  textSubmissions  TextSubmission[]
+  tasks            CollectionTask[]
+}
+
+model CollectionTask {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  taskType        String   // "AUDIO", "TEXT", "VIDEO", "PHOTO", "EVAL"
+  domain          String?  // "agriculture", "law", "health", "education", "finance", "public"
+  languageId      String?
+  language        Language? @relation(fields: [languageId], references: [id])
+
+  // Script/prompt bank (array of strings agents are shown)
+  prompts         String[] @default([])
+
+  // Targeting
+  targetCount     Int      @default(100)  // Total submissions needed
+  rewardPerItem   Int      @default(5)    // KES per approved submission
+  deadline        DateTime?
+
+  // Status
+  status          String   @default("ACTIVE") // "DRAFT", "ACTIVE", "PAUSED", "CLOSED"
+  isPublic        Boolean  @default(true) // If true, all agents see it; else assigned
+
+  audioSubmissions AudioSubmission[]
+  textSubmissions  TextSubmission[]
+  videoSubmissions VideoSubmission[]
+  evalSubmissions  EvalSubmission[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AudioSubmission {
+  id              String   @id @default(cuid())
+  agentId         String
+  agent           User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            CollectionTask? @relation(fields: [taskId], references: [id])
+
+  // Language metadata
+  languageId      String?
+  language        Language? @relation(fields: [languageId], references: [id])
+  dialect         String?   // e.g. "Coastal Swahili", "Sheng"
+
+  // Recording
+  audioUrl        String    // Cloudflare R2 URL
+  durationSecs    Float?
+  scriptPrompt    String?   // The sentence the agent was given
+  isScripted      Boolean   @default(true)
+
+  // Context
+  audioType       String   @default("MONOLOGUE") // "MONOLOGUE", "DIALOGUE", "CALL_CENTER"
+  environment     String   @default("INDOOR")    // "INDOOR", "OUTDOOR", "NOISY", "QUIET"
+  speakerGender   String?  // "MALE", "FEMALE", "OTHER"
+  speakerAge      String?  // "18-25", "26-35", "36-50", "50+"
+
+  latitude        Float?
+  longitude       Float?
+
+  // Quality
+  status          String   @default("PENDING")
+  grade           Int?
+  feedback        String?
+  annotations     Annotation[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TextSubmission {
+  id              String   @id @default(cuid())
+  agentId         String
+  agent           User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            CollectionTask? @relation(fields: [taskId], references: [id])
+
+  languageId      String?
+  language        Language? @relation(fields: [languageId], references: [id])
+  sourceLanguage  String?
+
+  textType        String   @default("CORPUS") // "CORPUS", "TRANSLATION", "RLHF_PROMPT", "TRANSCRIPTION"
+  domain          String?
+
+  sourceText      String?  @db.Text
+  submittedText   String   @db.Text
+
+  conversationTurn Int?    @default(1)
+  parentId        String?
+
+  status          String   @default("PENDING")
+  grade           Int?
+  feedback        String?
+  phoneticNotes   String?
+  annotations     Annotation[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model VideoSubmission {
+  id              String   @id @default(cuid())
+  agentId         String
+  agent           User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            CollectionTask? @relation(fields: [taskId], references: [id])
+
+  videoUrl        String
+  thumbnailUrl    String?
+  durationSecs    Float?
+
+  activityLabel   String?
+  sceneType       String?
+  isEgocentric    Boolean  @default(false)
+  objectLabels    String[] @default([])
+
+  latitude        Float?
+  longitude       Float?
+
+  status          String   @default("PENDING")
+  grade           Int?
+  feedback        String?
+  annotations     Annotation[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EvalSubmission {
+  id              String   @id @default(cuid())
+  agentId         String
+  agent           User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            CollectionTask? @relation(fields: [taskId], references: [id])
+
+  modelName       String?
+  promptText      String   @db.Text
+  responseText    String   @db.Text
+
+  overallRating   Int
+  safetyRating    Int?
+  factualRating   Int?
+  domainRating    Int?
+
+  hasSafetyIssue  Boolean  @default(false)
+  safetyNote      String?
+  language        String?
+  domain          String?
+  raterNotes      String?  @db.Text
+
+  status          String   @default("SUBMITTED")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Annotation {
+  id                String   @id @default(cuid())
+  annotatorId       String
+  annotator         User     @relation(fields: [annotatorId], references: [id], onDelete: Cascade)
+
+  audioSubmissionId  String?
+  audioSubmission    AudioSubmission? @relation(fields: [audioSubmissionId], references: [id])
+  textSubmissionId   String?
+  textSubmission     TextSubmission?  @relation(fields: [textSubmissionId], references: [id])
+  videoSubmissionId  String?
+  videoSubmission    VideoSubmission? @relation(fields: [videoSubmissionId], references: [id])
+
+  grade           Int?
+  approved        Boolean?
+  notes           String?  @db.Text
+  labels          String[] @default([])
+  phoneticMarking String?
+  culturalNote    String?
+
+  createdAt       DateTime @default(now())
 }

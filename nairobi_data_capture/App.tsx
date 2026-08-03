@@ -8,6 +8,9 @@ import AuthScreen from './src/screens/AuthScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import AddEntryScreen from './src/screens/AddEntryScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
+import AudioCaptureScreen from './src/screens/AudioCaptureScreen';
+import TextEntryScreen from './src/screens/TextEntryScreen';
+import EvalTaskScreen from './src/screens/EvalTaskScreen';
 import { syncQueue } from './src/OfflineQueue';
 import { AppState } from 'react-native';
 
@@ -39,6 +42,9 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Nairobi Data Capture' }} />
             <Stack.Screen name="AddEntry" component={AddEntryScreen} options={{ title: 'Add Entry' }} />
             <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'Submission History' }} />
+            <Stack.Screen name="AudioCapture" component={AudioCaptureScreen} options={{ title: 'Voice Recording' }} />
+            <Stack.Screen name="TextEntry" component={TextEntryScreen} options={{ title: 'Text Entry' }} />
+            <Stack.Screen name="EvalTask" component={EvalTaskScreen} options={{ title: 'AI Evaluation' }} />
           </>
         )}
       </Stack.Navigator>

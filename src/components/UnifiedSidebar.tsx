@@ -27,6 +27,12 @@ import {
   Search,
   X,
   ArrowRight,
+  Mic,
+  Video,
+  Brain,
+  ClipboardList,
+  Star,
+  Globe,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────
@@ -59,10 +65,15 @@ interface Props {
 // Nav structure
 // ─────────────────────────────────────────────
 const GLOBAL_LINKS: NavItem[] = [
-  { id: "field-map",   label: "Field Map",    icon: <Map size={18} />,        color: "#3b82f6", href: "/field-map" },
-  { id: "field-entry", label: "Agent Entry",  icon: <Navigation size={18} />, color: "#10b981", href: "/field-entry" },
-  { id: "agents",      label: "Field Agents", icon: <Smartphone size={18} />, color: "#f59e0b", href: "/agents" },
-  { id: "team",        label: "Team Members", icon: <Users size={18} />,      color: "#8b5cf6", href: "/team" },
+  { id: "field-map",         label: "Field Map",        icon: <Map size={18} />,           color: "#3b82f6", href: "/field-map" },
+  { id: "field-entry",       label: "Agent Entry",      icon: <Navigation size={18} />,    color: "#10b981", href: "/field-entry" },
+  { id: "agents",            label: "Field Agents",     icon: <Smartphone size={18} />,    color: "#f59e0b", href: "/agents" },
+  { id: "team",              label: "Team Members",     icon: <Users size={18} />,         color: "#8b5cf6", href: "/team" },
+  // ── AI Data Collection ──
+  { id: "data-collections",  label: "Data Collections", icon: <Globe size={18} />,         color: "#f06135", href: "/data-collections" },
+  { id: "tasks",             label: "Tasks",            icon: <ClipboardList size={18} />, color: "#06b6d4", href: "/tasks" },
+  { id: "review-audio",      label: "Review: Audio",    icon: <Mic size={18} />,           color: "#8b5cf6", href: "/review/audio" },
+  { id: "review-text",       label: "Review: Text",     icon: <FileText size={18} />,      color: "#06b6d4", href: "/review/text" },
 ];
 
 const MAP_TABS: NavItem[] = [
@@ -86,23 +97,28 @@ const MAP_TABS: NavItem[] = [
 // ─────────────────────────────────────────────
 const SEARCH_INDEX: SearchResult[] = [
   // Pages
-  { id: "s-field-map",   label: "Field Map",    subtitle: "Interactive map view",         icon: <Map size={15} />,        color: "#3b82f6", href: "/field-map",   category: "page" },
-  { id: "s-agents",      label: "Field Agents", subtitle: "Manage field agents",           icon: <Smartphone size={15} />, color: "#f59e0b", href: "/agents",      category: "page" },
-  { id: "s-team",        label: "Team Members", subtitle: "View your team",               icon: <Users size={15} />,      color: "#8b5cf6", href: "/team",        category: "page" },
-  { id: "s-field-entry", label: "Agent Entry",  subtitle: "Submit field data",            icon: <Navigation size={15} />, color: "#10b981", href: "/field-entry", category: "page" },
+  { id: "s-field-map",        label: "Field Map",         subtitle: "Interactive map view",              icon: <Map size={15} />,           color: "#3b82f6", href: "/field-map",         category: "page" },
+  { id: "s-agents",           label: "Field Agents",      subtitle: "Manage field agents",              icon: <Smartphone size={15} />,    color: "#f59e0b", href: "/agents",           category: "page" },
+  { id: "s-team",             label: "Team Members",      subtitle: "View your team",                   icon: <Users size={15} />,         color: "#8b5cf6", href: "/team",             category: "page" },
+  { id: "s-field-entry",      label: "Agent Entry",       subtitle: "Submit field data",               icon: <Navigation size={15} />,    color: "#10b981", href: "/field-entry",      category: "page" },
+  // AI Data Collection
+  { id: "s-data-collections", label: "Data Collections",  subtitle: "AI training data hub",            icon: <Globe size={15} />,         color: "#f06135", href: "/data-collections",  category: "page" },
+  { id: "s-tasks",            label: "Tasks",             subtitle: "Collection task management",       icon: <ClipboardList size={15} />, color: "#06b6d4", href: "/tasks",            category: "page" },
+  { id: "s-review-audio",     label: "Review: Audio",     subtitle: "Annotate voice recordings",        icon: <Mic size={15} />,           color: "#8b5cf6", href: "/review/audio",     category: "page" },
+  { id: "s-review-text",      label: "Review: Text",      subtitle: "Annotate text submissions",        icon: <FileText size={15} />,      color: "#06b6d4", href: "/review/text",      category: "page" },
   // Map sections
-  { id: "s-visualize",   label: "Visualize",    subtitle: "Map visualization layer",      icon: <Eye size={15} />,        color: "#3b82f6", href: "/field-map?tab=visualize",  category: "place" },
-  { id: "s-accounts",    label: "Accounts",     subtitle: "Customer accounts on map",     icon: <Users size={15} />,      color: "#10b981", href: "/field-map?tab=accounts",   category: "account" },
-  { id: "s-places",      label: "Places",       subtitle: "Saved locations & pins",       icon: <MapPin size={15} />,     color: "#f59e0b", href: "/field-map?tab=places",     category: "place" },
-  { id: "s-routes",      label: "Routes",       subtitle: "Agent travel routes",          icon: <Route size={15} />,      color: "#ec4899", href: "/field-map?tab=routes",     category: "place" },
-  { id: "s-schedule",    label: "Schedule",     subtitle: "Appointments & visits",        icon: <Calendar size={15} />,   color: "#14b8a6", href: "/field-map?tab=schedule",   category: "page" },
-  { id: "s-territory",   label: "Territory",    subtitle: "Sales territory management",   icon: <Grid3X3 size={15} />,    color: "#f97316", href: "/field-map?tab=territory",  category: "place" },
-  { id: "s-reports",     label: "Reports",      subtitle: "Analytics & reports",          icon: <BarChart3 size={15} />,  color: "#84cc16", href: "/field-map?tab=reports",    category: "page" },
-  { id: "s-crm",         label: "CRM",          subtitle: "Customer relationship data",   icon: <Database size={15} />,   color: "#06b6d4", href: "/field-map?tab=crm",        category: "account" },
-  { id: "s-routing",     label: "Routing",      subtitle: "Optimize delivery routes",     icon: <GitBranch size={15} />,  color: "#a855f7", href: "/field-map?tab=routing",    category: "place" },
-  { id: "s-layers",      label: "Layers",       subtitle: "Map layer controls",           icon: <Layers size={15} />,     color: "#64748b", href: "/field-map?tab=layers",     category: "place" },
-  { id: "s-security",    label: "Security",     subtitle: "Permissions & security",       icon: <Shield size={15} />,     color: "#ef4444", href: "/field-map?tab=security",   category: "page" },
-  { id: "s-data-entry",  label: "Data Entry",   subtitle: "Enter field survey data",      icon: <FileText size={15} />,   color: "#6366f1", href: "/field-map?tab=data-entry", category: "page" },
+  { id: "s-visualize",        label: "Visualize",         subtitle: "Map visualization layer",         icon: <Eye size={15} />,           color: "#3b82f6", href: "/field-map?tab=visualize",  category: "place" },
+  { id: "s-accounts",         label: "Accounts",          subtitle: "Customer accounts on map",        icon: <Users size={15} />,         color: "#10b981", href: "/field-map?tab=accounts",   category: "account" },
+  { id: "s-places",           label: "Places",            subtitle: "Saved locations & pins",          icon: <MapPin size={15} />,        color: "#f59e0b", href: "/field-map?tab=places",     category: "place" },
+  { id: "s-routes",           label: "Routes",            subtitle: "Agent travel routes",             icon: <Route size={15} />,         color: "#ec4899", href: "/field-map?tab=routes",     category: "place" },
+  { id: "s-schedule",         label: "Schedule",          subtitle: "Appointments & visits",           icon: <Calendar size={15} />,      color: "#14b8a6", href: "/field-map?tab=schedule",   category: "page" },
+  { id: "s-territory",        label: "Territory",         subtitle: "Sales territory management",      icon: <Grid3X3 size={15} />,       color: "#f97316", href: "/field-map?tab=territory",  category: "place" },
+  { id: "s-reports",          label: "Reports",           subtitle: "Analytics & reports",             icon: <BarChart3 size={15} />,     color: "#84cc16", href: "/field-map?tab=reports",    category: "page" },
+  { id: "s-crm",              label: "CRM",               subtitle: "Customer relationship data",      icon: <Database size={15} />,      color: "#06b6d4", href: "/field-map?tab=crm",        category: "account" },
+  { id: "s-routing",          label: "Routing",           subtitle: "Optimize delivery routes",        icon: <GitBranch size={15} />,     color: "#a855f7", href: "/field-map?tab=routing",    category: "place" },
+  { id: "s-layers",           label: "Layers",            subtitle: "Map layer controls",              icon: <Layers size={15} />,        color: "#64748b", href: "/field-map?tab=layers",     category: "place" },
+  { id: "s-security",         label: "Security",          subtitle: "Permissions & security",          icon: <Shield size={15} />,        color: "#ef4444", href: "/field-map?tab=security",   category: "page" },
+  { id: "s-data-entry",       label: "Data Entry",        subtitle: "Enter field survey data",         icon: <FileText size={15} />,      color: "#6366f1", href: "/field-map?tab=data-entry", category: "page" },
 ];
 
 const CATEGORY_LABELS: Record<string, string> = {
