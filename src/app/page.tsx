@@ -185,7 +185,7 @@ export default function HomePage() {
             </span>
           </Link>
 
-          <nav style={{ display: "flex", alignItems: "center", gap: "0.1rem" }} className="hidden md:flex">
+          <nav style={{ alignItems: "center", gap: "0.1rem" }} className="hidden md:flex">
             {NAV_LINKS.map(({ label, href }) => (
               <Link key={label} href={href} style={{
                 padding: "0.45rem 0.8rem", borderRadius: "6px",
@@ -463,11 +463,11 @@ export default function HomePage() {
       <section style={{ background: "#faf8f5", padding: "4.5rem 1.5rem" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
           <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "clamp(1.6rem, 2.5vw, 2rem)", color: "#1a1a1a", marginBottom: "2.5rem" }}>Our Services</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "3rem", alignItems: "start" }}>
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12 items-start">
             {/* Shape cluster */}
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {[["circle","square","triangle"],["triangle","hex","circle"],["hex","circle","square"]].map((row, ri) => (
-                <div key={ri} style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                <div key={ri} className="flex gap-4 items-center">
                   {row.map((shape, ci) => (
                     <div key={ci} style={{
                       width: "52px", height: "52px",
@@ -484,7 +484,7 @@ export default function HomePage() {
             {/* Service list */}
             <div>
               {SERVICES.map((s, i) => (
-                <div key={i} style={{ padding: "1.5rem 0", borderBottom: "1px solid #e8e4de" }}>
+                <div key={i} className="py-6 border-b border-[#e8e4de] last:border-b-0">
                   <h3 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "1rem", color: "#1a1a1a", marginBottom: s.desc ? "0.5rem" : 0 }}>{s.title}</h3>
                   {s.desc && <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 400, fontSize: "0.875rem", lineHeight: 1.65, color: "#6a6460", marginBottom: s.link ? "0.75rem" : 0 }}>{s.desc}</p>}
                   {s.link && (
@@ -519,7 +519,7 @@ export default function HomePage() {
       {/* ── FOOTER ──────────────────────────────────────────────── */}
       <footer style={{ background: "linear-gradient(160deg, #e8f4f0 0%, #d4eae4 60%, #c8e4dc 100%)", borderTop: "1px solid rgba(26,58,52,0.1)" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "3.5rem 1.5rem 0" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(160px, 260px) 1fr", gap: "4rem", paddingBottom: "3rem" }} className="footer-top-grid">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(160px,260px)_1fr] gap-8 md:gap-16 pb-12">
             {/* Logo */}
             <div>
               <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none", marginBottom: "1rem" }}>
@@ -528,7 +528,7 @@ export default function HomePage() {
               </Link>
             </div>
             {/* 3 nav columns */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-4 md:gap-8">
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
                 {FOOTER_COL_1.map(({ label, href }) => (
                   <li key={label}>
@@ -573,15 +573,7 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <style>{`
-        @media (max-width: 700px) {
-          .footer-top-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
-          .footer-top-grid > div:last-child { grid-template-columns: 1fr 1fr !important; }
-        }
-        @media (min-width: 640px) {
-          .sm\\:footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr !important; gap: 3rem !important; }
-        }
-      `}</style>
+
     </div>
   )
 }
