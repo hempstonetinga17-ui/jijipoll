@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: "Platform", href: "/solutions/location-intelligence" },
 ]
 const IMPACT_LINKS = [
-  { label: "Youth Earners", href: "#" },
+  { label: "Ethical Sourcing", href: "/about" },
   { label: "Language Datasets", href: "/datasets" },
   { label: "Audio Collection", href: "/datasets" },
   { label: "Image Captioning", href: "/datasets" },
@@ -31,7 +31,6 @@ const FOOTER_COL_2 = [
   { label: "Evaluations", href: "/solutions/market-segmentation" },
   { label: "Platform", href: "/solutions/location-intelligence" },
   { label: "Case Studies", href: "/case-studies" },
-  { label: "Join as Worker", href: "/field-agent/register" },
 ]
 const FOOTER_COL_3 = [
   { label: "Terms & Conditions", href: "#" },
@@ -44,12 +43,12 @@ const FOOTER_COL_3 = [
 const PROJECTS = [
   {
     tag: "Multilingual Captioning",
-    title: "A pipeline for image and scene captioning across 10 Kenyan languages — built by youth in peri-urban communities",
+    title: "A pipeline for image and scene captioning across 10 Kenyan languages, providing nuanced local context.",
     stat1: { value: "500k+", label: "captions collected" },
   },
   {
     tag: "Audio Dataset Project",
-    title: "Recording and transcribing speech across Swahili, Kikuyu, Luo, Kalenjin and more for frontier speech models",
+    title: "High-fidelity speech recordings across Swahili, Kikuyu, Luo, and Kalenjin for frontier ASR and TTS models.",
     stat1: { value: "80k+", label: "audio clips" },
     stat2: { value: "12", label: "languages covered" },
   },
@@ -57,15 +56,15 @@ const PROJECTS = [
 const SMALL_PROJECTS = [
   {
     tag: "LLM Bias Evaluation",
-    title: "Community-led evaluation of large language models for cultural sensitivity in East African contexts",
+    title: "Community-led evaluation of large language models for cultural sensitivity in East African contexts.",
   },
   {
     tag: "Visual Grounding",
-    title: "Youth workers label and annotate images of everyday Kenyan environments for computer vision training",
+    title: "Geo-tagged images of everyday Kenyan environments precisely labeled for computer vision training.",
   },
   {
     tag: "Human-in-the-Loop",
-    title: "Verified data enrichment tasks — crowdsourced and quality-checked through our microtask platform",
+    title: "Verified data enrichment tasks, crowdsourced and quality-checked by our skilled local workforce.",
   },
 ]
 
@@ -73,18 +72,18 @@ const SMALL_PROJECTS = [
 const SERVICES = [
   {
     title: "Image & Photo Datasets",
-    desc: "Youth contributors capture, label, and annotate real-world images via smartphone — from street scenes and household objects to agricultural environments — ready for vision model training.",
+    desc: "Acquire extensive, geo-tagged image datasets — from street scenes and household objects to agricultural environments — accurately captioned in local languages.",
     link: { label: "Browse Catalogue ↗", href: "/datasets" },
   },
   {
     title: "Audio & Speech Datasets",
-    desc: "High-quality spoken-word recordings across Kenya's major languages, dialects, and accents — transcribed and verified for ASR, TTS, and embodied AI.",
+    desc: "Access high-quality spoken-word recordings across Kenya's major languages, dialects, and accents — transcribed and verified for speech model training.",
     link: null,
   },
   {
-    title: "LLM Evaluations",
-    desc: "Culturally grounded, human-reviewed evaluation sets that test model performance across real-world contexts, local languages, and high-impact domains like health, law, and agriculture.",
-    link: null,
+    title: "Custom Data Collection",
+    desc: "Need something specific? We deploy our distributed workforce to collect bespoke text, audio, or visual datasets tailored exactly to your model's requirements.",
+    link: { label: "Request Custom Data ↗", href: "/contact" },
   },
 ]
 
@@ -92,12 +91,12 @@ const SERVICES = [
 const CAPABILITIES = [
   {
     title: "Multilingual Text & Captions",
-    desc: "Large-scale text datasets in Swahili, Kikuyu, Luo, Dholuo, Kalenjin and more — covering conversation, captioning, translation, and domain-specific terminology.",
+    desc: "Large-scale text datasets in Swahili, Kikuyu, Luo, Kalenjin and more — covering conversation, captioning, translation, and domain-specific terminology.",
     cta: { label: "Explore Datasets ↗", href: "/datasets" },
   },
   {
     title: "Speech & Audio",
-    desc: "Recording, transcription, and speaker-diversity coverage across 12+ Kenyan languages — built for ASR, TTS, voice assistants, and physical AI systems.",
+    desc: "Recording, transcription, and speaker-diversity coverage across 12+ Kenyan languages — built for ASR, TTS, voice assistants, and AI systems.",
     cta: { label: "Explore Audio ↗", href: "/datasets" },
   },
   {
@@ -114,23 +113,23 @@ const TRUSTED = ["Government of Kenya", "Microsoft", "Google", "Gates Foundation
 const HOW_IT_WORKS = [
   {
     num: "01",
-    title: "Download the App",
-    desc: "Young Kenyans sign up on the Rieng app — no laptop, no office. Just a smartphone and a few minutes to get started.",
+    title: "Define Your Needs",
+    desc: "Tell us what data your AI model requires — whether it's geo-tagged images, audio recordings, or text in specific Kenyan dialects.",
   },
   {
     num: "02",
-    title: "Pick a Microtask",
-    desc: "The platform breaks AI data jobs into small tasks — take a photo, record a sentence, caption an image, or evaluate a response. Each task pays.",
+    title: "We Deploy Our Workforce",
+    desc: "We distribute micro-tasks through our app to a network of Kenyan youth, 70% of whom are previously unemployed, who use their smartphones to capture data.",
   },
   {
     num: "03",
-    title: "Earn Real Income",
-    desc: "Completed tasks are reviewed and workers receive fair, transparent pay — directly to M-Pesa. No middleman, no delay.",
+    title: "Quality Assurance",
+    desc: "Every data point — photo, audio clip, or caption — goes through rigorous human-in-the-loop verification to ensure the highest quality and accuracy.",
   },
   {
     num: "04",
-    title: "Build Kenya's AI Future",
-    desc: "Every task trains a better, more inclusive AI model — one that understands Kenyan languages, culture, and context.",
+    title: "Delivery & Impact",
+    desc: "You receive decision-ready, locally contextualized datasets to train your AI, while providing meaningful income to young Kenyans.",
   },
 ]
 
@@ -292,27 +291,27 @@ export default function HomePage() {
               fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "0.75rem",
               letterSpacing: "0.14em", textTransform: "uppercase", color: "#f06135", marginBottom: "1.25rem",
             }}>
-              AI Datasets · Earned by Kenyan Youth · Powered by Smartphones
+              High-Quality AI Datasets · Local Languages · Ethically Sourced
             </p>
             <h1 className="anim-slide-up-2" style={{
               fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
               fontSize: "clamp(2.6rem, 5.5vw, 4.4rem)", lineHeight: 1.1,
               letterSpacing: "-0.015em", color: "#1a1a1a", marginBottom: "1.5rem",
             }}>
-              Building inclusive AI.<br />
-              <em style={{ color: "#f06135", fontStyle: "italic" }}>One task at a time.</em>
+              Authentic Kenyan data.<br />
+              <em style={{ color: "#f06135", fontStyle: "italic" }}>For the AI revolution.</em>
             </h1>
             <p className="anim-slide-up-3" style={{
               fontFamily: "'Manrope', sans-serif", fontWeight: 400,
               fontSize: "clamp(1rem, 1.6vw, 1.15rem)", lineHeight: 1.75,
               color: "#5a5248", marginBottom: "2.25rem", maxWidth: "560px",
             }}>
-              Rieng connects Kenya's young, unemployed talent with AI companies that need real-world data.
-              Through our smartphone app, workers earn fair income by capturing photos, recording speech,
-              and captioning content in local languages — fuelling the next generation of inclusive AI.
+              Rieng provides AI developers with rich, accurately annotated datasets — from 
+              multilingual audio to geo-tagged, captioned images. Sourced ethically across Kenya by 
+              our mobile workforce of young professionals, fueling more inclusive AI.
             </p>
             <div className="anim-slide-up-3" style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap" }}>
-              <Link href="/field-agent/register" style={{
+              <Link href="/datasets" style={{
                 padding: "0.85rem 2rem", background: "#f06135", color: "#fff", borderRadius: "8px",
                 fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "0.95rem",
                 textDecoration: "none", boxShadow: "0 4px 18px rgba(240,97,53,0.35)",
@@ -321,9 +320,9 @@ export default function HomePage() {
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 28px rgba(240,97,53,0.45)" }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 18px rgba(240,97,53,0.35)" }}
               >
-                Start Earning
+                Browse Datasets
               </Link>
-              <Link href="/datasets" style={{
+              <Link href="/contact" style={{
                 padding: "0.85rem 2rem", background: "transparent", color: "#1a1a1a",
                 border: "1.5px solid #c8c0b4", borderRadius: "8px",
                 fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: "0.95rem",
@@ -332,7 +331,7 @@ export default function HomePage() {
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "#f06135"; (e.currentTarget as HTMLElement).style.color = "#f06135" }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "#c8c0b4"; (e.currentTarget as HTMLElement).style.color = "#1a1a1a" }}
               >
-                Explore Datasets
+                Request Custom Data
               </Link>
             </div>
           </div>
@@ -343,10 +342,10 @@ export default function HomePage() {
       <section style={{ background: "#fff", borderBottom: "1px solid #e8e4de", padding: "2rem 1.5rem" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "1.5rem" }}>
           {[
-            { value: "65M+", label: "Tasks Distributed" },
-            { value: "130k+", label: "Youth Workers" },
-            { value: "12+", label: "Kenyan Languages" },
-            { value: "70%", label: "Youth Unemployment Addressed" },
+            { value: "65M+", label: "Data Points Collected" },
+            { value: "12+", label: "Local Languages" },
+            { value: "45+", label: "Counties Mapped" },
+            { value: "70%", label: "Jobs Provided to Youth" },
           ].map(({ value, label }) => (
             <div key={label} style={{ textAlign: "center" }}>
               <p style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)", fontWeight: 400, color: "#f06135", lineHeight: 1, marginBottom: "0.3rem" }}>{value}</p>
@@ -375,10 +374,10 @@ export default function HomePage() {
       <section style={{ background: "#fff", padding: "5rem 1.5rem" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
           <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "#f06135", marginBottom: "0.75rem" }}>
-            How Rieng Works
+            How We Source Your Data
           </p>
-          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", color: "#1a1a1a", lineHeight: 1.2, marginBottom: "3rem", maxWidth: "560px" }}>
-            A phone, a few minutes,<br />and a decent income.
+          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", color: "#1a1a1a", lineHeight: 1.2, marginBottom: "3rem", maxWidth: "600px" }}>
+            High-quality datasets,<br />delivered by a distributed workforce.
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0px", background: "#e0d9d0", border: "1px solid #e0d9d0", borderRadius: "12px", overflow: "hidden" }}>
             {HOW_IT_WORKS.map((step, i) => (
@@ -395,7 +394,7 @@ export default function HomePage() {
       {/* ── OUR WORK ─────────────────────────────────────────────── */}
       <section style={{ background: "#faf8f5", padding: "4rem 1.5rem" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "clamp(1.6rem, 2.5vw, 2rem)", color: "#1a1a1a", marginBottom: "2rem" }}>Our Work</h2>
+          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "clamp(1.6rem, 2.5vw, 2rem)", color: "#1a1a1a", marginBottom: "2rem" }}>Our Data Projects</h2>
 
           {/* Large projects */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1px", background: "#e0d9d0", border: "1px solid #e0d9d0", borderRadius: "12px 12px 0 0", overflow: "hidden" }}>
@@ -421,7 +420,7 @@ export default function HomePage() {
                 <Link href="/case-studies" style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "#f06135", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.gap = "0.6rem"}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.gap = "0.35rem"}
-                >Read More <span>+</span></Link>
+                >Read Case Study <span>+</span></Link>
               </div>
             ))}
           </div>
@@ -511,7 +510,7 @@ export default function HomePage() {
       {/* ── CTA BAND ─────────────────────────────────────────────── */}
       <section style={{ background: "linear-gradient(135deg, #e8f4f0 0%, #d4eae4 50%, #e8f4f0 100%)", padding: "6rem 1.5rem", textAlign: "center" }}>
         <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "clamp(2rem, 4vw, 3.2rem)", color: "#1a3a34", lineHeight: 1.2, marginBottom: "2rem" }}>
-          Let's build better AI, together.
+          Get high-quality Kenyan datasets for your AI models.
         </h2>
         <Link href="/contact" style={{
           display: "inline-block", padding: "0.85rem 2.25rem",
@@ -521,7 +520,7 @@ export default function HomePage() {
         }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#1a3a34"; (e.currentTarget as HTMLElement).style.color = "#fff" }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#1a3a34" }}
-        >Connect with us</Link>
+        >Contact our Data Team</Link>
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────────────── */}
