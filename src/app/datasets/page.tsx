@@ -1,190 +1,157 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
-import { Database, Filter, Search, ChevronRight, Activity, Download, FileText, Image as ImageIcon, Headphones, Tag } from "lucide-react"
+import { Database, Filter, Search, ChevronRight, Check } from "lucide-react"
+
+// Mock Data for Kenyan probationary projects
+const MOCK_DATASETS = [
+  { id: "1", name: "Swahili General Dual Channel Conversations", hours: 2000, language: "Swahili", type: "Conversational" },
+  { id: "2", name: "Kikuyu General Dual Channel Conversations", hours: 500, language: "Kikuyu", type: "Conversational" },
+  { id: "3", name: "Luo General Dual Channel Conversations", hours: 500, language: "Luo", type: "Conversational" },
+  { id: "4", name: "Sheng Voice Commands & Queries", hours: 600, language: "Sheng", type: "Voice Commands" },
+  { id: "5", name: "Kalenjin Read Speech Corpus", hours: 300, language: "Kalenjin", type: "Read Speech" },
+  { id: "6", name: "Kenyan English Customer Support Transcripts", hours: 1000, language: "English (KE)", type: "Text" },
+]
+
+const TYPES = ["All", "Read Speech", "Voice Commands", "Conversational", "Video", "Text"]
+const LANGUAGES = ["All languages", "Swahili", "Kikuyu", "Luo", "Sheng", "Kalenjin", "English (KE)"]
 
 export default function DatasetsCatalog() {
-  const [datasets, setDatasets] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [typeFilter, setTypeFilter] = useState<string>("")
-  
-  useEffect(() => {
-    fetchDatasets()
-  }, [typeFilter])
-  
-  const fetchDatasets = async () => {
-    setLoading(true)
-    try {
-      const url = new URL("/api/datasets", window.location.origin)
-      if (typeFilter) url.searchParams.set("type", typeFilter)
-      const res = await fetch(url.toString())
-      const data = await res.json()
-      setDatasets(data.datasets || [])
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [typeFilter, setTypeFilter] = useState<string>("All")
+  const [langFilter, setLangFilter] = useState<string>("All languages")
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "AUDIO": return <Headphones className="w-5 h-5 text-blue-500" />
-      case "PHOTO": return <ImageIcon className="w-5 h-5 text-emerald-500" />
-      case "TEXT": return <FileText className="w-5 h-5 text-amber-500" />
-      default: return <Database className="w-5 h-5 text-purple-500" />
-    }
-  }
+  const filteredDatasets = useMemo(() => {
+    return MOCK_DATASETS.filter(d => {
+      const matchesType = typeFilter === "All" || d.type === typeFilter
+      const matchesLang = langFilter === "All languages" || d.language === langFilter
+      const matchesSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            d.language.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            d.type.toLowerCase().includes(searchQuery.toLowerCase())
+      return matchesType && matchesLang && matchesSearch
+    })
+  }, [typeFilter, langFilter, searchQuery])
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 font-sans">
-      {/* Header */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f06135] to-[#f58f70] flex items-center justify-center">
-              <Database className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-black text-xl tracking-tight text-neutral-900">JijiPoll<span className="text-[#f06135]">Data</span></span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 font-medium text-sm text-neutral-600">
-            <Link href="/" className="hover:text-neutral-900 transition">Platform</Link>
-            <Link href="/datasets" className="text-[#f06135]">Datasets</Link>
-            <Link href="/buyer" className="hover:text-neutral-900 transition">My Purchases</Link>
+    <div className="min-h-screen bg-[#faf8f5] text-neutral-900 font-sans">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap');
+      `}</style>
+      {/* Navigation */}
+      <header className="bg-white border-b border-[#f0e8e0] sticky top-0 z-10 px-6">
+        <div className="max-w-[1200px] mx-auto h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 text-decoration-none">
+            <img src="/rieng_logo.jpg" alt="Rieng" className="h-9 w-9 rounded-lg object-cover" />
+            <span className="font-['DM_Serif_Display'] text-xl text-[#1a1a1a]">Rieng</span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
+            <Link href="/" className="text-neutral-500 hover:text-neutral-900">Platform</Link>
+            <Link href="/about" className="text-neutral-500 hover:text-neutral-900">About Us</Link>
+            <Link href="/datasets" className="text-[#f06135]">Data Catalogue</Link>
+            <Link href="/contact" className="text-neutral-500 hover:text-neutral-900">Contact</Link>
           </nav>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="bg-neutral-900 text-white py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-neutral-900 to-neutral-900"></div>
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-6">
-            High-Quality AI Training Data<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f06135] to-[#f58f70]">From the Ground Up</span>
-          </h1>
-          <p className="text-xl text-neutral-400 max-w-2xl mx-auto mb-10">
-            Curated, QA-certified datasets collected by our network of field agents across East Africa. Perfect for training robust, inclusive AI models.
-          </p>
+      {/* Page Header */}
+      <div className="bg-[#faf8f5] border-b border-[#cdd2ce] py-10 px-6">
+        <div className="max-w-[1200px] mx-auto">
+          <h1 className="font-['DM_Serif_Display'] text-4xl text-[#1a3848]">Data Catalogue</h1>
         </div>
-      </section>
+      </div>
 
-      {/* Catalog */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col md:flex-row gap-8">
+      {/* Main Content */}
+      <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col md:flex-row gap-10">
+        
+        {/* Sidebar Filters */}
+        <div className="w-full md:w-56 shrink-0 space-y-10">
+          <div>
+            <div className="text-sm font-semibold tracking-wider text-[#1a3848] mb-4 uppercase">
+              {filteredDatasets.length} Results
+            </div>
+          </div>
           
-          {/* Sidebar Filters */}
-          <div className="w-full md:w-64 shrink-0 space-y-8">
-            <div>
-              <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Filter className="w-4 h-4" /> Filters
-              </h3>
-              <div className="space-y-2">
+          <div>
+            <h3 className="text-xs font-bold text-[#455c68] uppercase tracking-widest mb-4">Type</h3>
+            <div className="space-y-3">
+              {TYPES.map(type => (
                 <button 
-                  onClick={() => setTypeFilter("")}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition ${typeFilter === "" ? "bg-neutral-200 text-neutral-900" : "text-neutral-600 hover:bg-neutral-100"}`}
+                  key={type}
+                  onClick={() => setTypeFilter(type)}
+                  className="flex items-center gap-3 w-full text-left text-sm font-medium text-[#455c68] hover:text-[#1a3848] transition group"
                 >
-                  All Types
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${typeFilter === type ? 'bg-[#1a3848] border-[#1a3848]' : 'border-[#b5c2c7] group-hover:border-[#1a3848]'}`}>
+                    {typeFilter === type && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  {type}
                 </button>
-                <button 
-                  onClick={() => setTypeFilter("AUDIO")}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition ${typeFilter === "AUDIO" ? "bg-blue-50 text-blue-700" : "text-neutral-600 hover:bg-neutral-100"}`}
-                >
-                  Audio / Speech
-                </button>
-                <button 
-                  onClick={() => setTypeFilter("PHOTO")}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition ${typeFilter === "PHOTO" ? "bg-emerald-50 text-emerald-700" : "text-neutral-600 hover:bg-neutral-100"}`}
-                >
-                  Photos / Vision
-                </button>
-                <button 
-                  onClick={() => setTypeFilter("TEXT")}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition ${typeFilter === "TEXT" ? "bg-amber-50 text-amber-700" : "text-neutral-600 hover:bg-neutral-100"}`}
-                >
-                  Text / NLP
-                </button>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Grid */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-neutral-900">Available Datasets</h2>
-              <div className="text-sm text-neutral-500 font-medium">Showing {datasets.length} results</div>
+          <div>
+            <h3 className="text-xs font-bold text-[#455c68] uppercase tracking-widest mb-4">Language</h3>
+            <div className="space-y-3">
+              {LANGUAGES.map(lang => (
+                <button 
+                  key={lang}
+                  onClick={() => setLangFilter(lang)}
+                  className="flex items-center gap-3 w-full text-left text-sm font-medium text-[#455c68] hover:text-[#1a3848] transition group"
+                >
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${langFilter === lang ? 'bg-[#1a3848] border-[#1a3848]' : 'border-[#b5c2c7] group-hover:border-[#1a3848]'}`}>
+                    {langFilter === lang && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  {lang}
+                </button>
+              ))}
             </div>
-
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-white rounded-2xl h-80 border border-neutral-100 shadow-sm animate-pulse"></div>
-                ))}
-              </div>
-            ) : datasets.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-neutral-200 border-dashed p-12 text-center">
-                <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-neutral-400" />
-                </div>
-                <h3 className="text-lg font-bold text-neutral-900">No datasets found</h3>
-                <p className="text-neutral-500 mt-2">Try adjusting your filters.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {datasets.map(d => (
-                  <Link href={`/datasets/${d.id}`} key={d.id} className="group flex flex-col bg-white rounded-3xl border border-neutral-200 shadow-sm hover:shadow-xl hover:border-[#f06135]/30 transition-all duration-300 overflow-hidden">
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-neutral-50 border border-neutral-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          {getTypeIcon(d.dataType)}
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className="bg-neutral-100 text-neutral-600 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide">
-                            v{d.version}
-                          </span>
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide ${
-                            d.qualityTier === "A" ? "bg-green-100 text-green-700" :
-                            d.qualityTier === "B" ? "bg-blue-100 text-blue-700" : "bg-neutral-100 text-neutral-700"
-                          }`}>
-                            Tier {d.qualityTier}
-                          </span>
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-black text-neutral-900 mb-2 leading-tight group-hover:text-[#f06135] transition-colors line-clamp-2">
-                        {d.name}
-                      </h3>
-                      <p className="text-sm text-neutral-500 mb-6 line-clamp-2">
-                        {d.description || "High-quality dataset collected by JijiPoll."}
-                      </p>
-                      <div className="mt-auto space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-neutral-600">
-                          <Activity className="w-4 h-4 text-neutral-400 shrink-0" />
-                          <span className="font-medium">{d.itemCount.toLocaleString()} items</span>
-                          {d.totalDurationSecs && (
-                            <span className="text-neutral-400">({Math.round(d.totalDurationSecs/3600*10)/10}h)</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-neutral-600">
-                          <Tag className="w-4 h-4 text-neutral-400 shrink-0" />
-                          <span className="font-medium truncate">{d.languages.join(", ") || "Global"}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-neutral-50 p-4 border-t border-neutral-100 flex items-center justify-between mt-auto">
-                      <div className="font-black text-lg text-neutral-900">
-                        ${d.priceUsd} <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Base</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-[#f06135] font-bold text-sm">
-                        View details <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
           </div>
         </div>
-      </section>
+
+        {/* Grid and Search */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#cdd2ce]">
+            <div className="relative w-full max-w-md flex items-center">
+              <Search className="w-4 h-4 text-[#8a9b9e] absolute left-0" />
+              <input 
+                type="text" 
+                placeholder="Search by language, domain, or type"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent border-none focus:ring-0 pl-7 text-[#1a3848] placeholder:text-[#8a9b9e] font-medium"
+                style={{ outline: 'none' }}
+              />
+            </div>
+            <div className="text-sm font-medium text-[#455c68] flex items-center gap-2">
+              Sort By: <span className="text-[#1a3848] flex items-center cursor-pointer">Default <ChevronRight className="w-4 h-4 ml-1 rotate-90" /></span>
+            </div>
+          </div>
+
+          {filteredDatasets.length === 0 ? (
+            <div className="py-20 text-center">
+              <p className="text-[#455c68] font-medium">No datasets found matching your filters.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#cdd2ce] border border-[#cdd2ce]">
+              {filteredDatasets.map(d => (
+                <div key={d.id} className="bg-white p-8 flex flex-col hover:bg-neutral-50 transition cursor-pointer min-h-[220px]">
+                  <h3 className="text-xl font-['DM_Serif_Display'] text-[#1a3848] leading-tight mb-auto">
+                    {d.name}
+                  </h3>
+                  
+                  <div className="flex items-center gap-2 text-sm text-[#455c68] mt-8">
+                    <span>{d.hours} hours</span>
+                    <span className="text-[#b5c2c7]">|</span>
+                    <span>{d.language}</span>
+                    <span className="text-[#b5c2c7]">|</span>
+                    <span>{d.type}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
