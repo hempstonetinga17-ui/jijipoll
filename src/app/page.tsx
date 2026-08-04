@@ -107,7 +107,7 @@ const CAPABILITIES = [
 ]
 
 /* ─── Trusted by ────────────────────────────────────────────────── */
-const TRUSTED = ["Government of Kenya", "Microsoft", "Google", "Gates Foundation", "Anthropic"]
+const TRUSTED = ["Government of Kenya", "Lacuna Fund", "Statspeak", "Coolcatch", "StampKE", "SEKU"]
 
 /* ─── How it works steps ────────────────────────────────────────── */
 const HOW_IT_WORKS = [
@@ -335,7 +335,7 @@ export default function HomePage() {
       <section style={{ background: "#fff", borderBottom: "1px solid #e8e4de", padding: "2rem 1.5rem" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "1.5rem" }}>
           {[
-            { value: "65M+", label: "Data Points Collected" },
+            { value: "10,000+", label: "Data Points Collected" },
             { value: "12+", label: "Local Languages" },
             { value: "45+", label: "Counties Mapped" },
             { value: "70%", label: "Jobs Provided to Youth" },
