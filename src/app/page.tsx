@@ -295,11 +295,11 @@ export default function HomePage() {
             </p>
             <h1 className="anim-slide-up-2" style={{
               fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
-              fontSize: "clamp(2.6rem, 5.5vw, 4.4rem)", lineHeight: 1.1,
+              fontSize: "clamp(2.2rem, 4vw, 3.5rem)", lineHeight: 1.1,
               letterSpacing: "-0.015em", color: "#1a1a1a", marginBottom: "1.5rem",
             }}>
-              Authentic Kenyan data.<br />
-              <em style={{ color: "#f06135", fontStyle: "italic" }}>For the AI revolution.</em>
+              Providing Kenya language and image datasets<br />
+              <em style={{ color: "#f06135", fontStyle: "italic" }}>for AI training and solutions.</em>
             </h1>
             <p className="anim-slide-up-3" style={{
               fontFamily: "'Manrope', sans-serif", fontWeight: 400,
