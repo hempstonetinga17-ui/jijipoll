@@ -1,291 +1,849 @@
 "use client"
-import { useState } from "react"
-import dynamic from "next/dynamic"
-import StatWidget from "@/components/StatWidget"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 
-const LandingMap = dynamic(() => import("@/components/LandingMap"), { ssr: false })
+/* ─── Nav data ──────────────────────────────────────────────────── */
+const NAV_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "Data Catalogue", href: "/datasets" },
+  { label: "About Us", href: "/about" },
+  { label: "Evaluations", href: "/solutions/market-segmentation" },
+  { label: "Platform", href: "/solutions/location-intelligence" },
+]
+
+const IMPACT_LINKS = [
+  { label: "Targeted Advertising", href: "/solutions/targeted-advertising" },
+  { label: "Market Segmentation", href: "/solutions/market-segmentation" },
+  { label: "Route Optimisation", href: "/solutions/route-planning-and-optimization" },
+  { label: "Location Intelligence", href: "/solutions/location-intelligence" },
+]
+
+/* ─── Footer columns (Karya-style) ──────────────────────────────── */
+const FOOTER_COL_1 = [
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "Data Catalogue", href: "/datasets" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Careers", href: "#" },
+]
+const FOOTER_COL_2 = [
+  { label: "Impact", href: "#" },
+  { label: "Evaluations", href: "/solutions/market-segmentation" },
+  { label: "Platform", href: "/solutions/location-intelligence" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "Field Agents", href: "/field-agent/register" },
+]
+const FOOTER_COL_3 = [
+  { label: "Terms & Conditions", href: "#" },
+  { label: "Privacy Policy", href: "#" },
+  { label: "Cookie Policy", href: "#" },
+  { label: "Refund & Cancellation", href: "#" },
+]
+
+/* ─── Projects ──────────────────────────────────────────────────── */
+const PROJECTS = [
+  {
+    tag: "Field Coverage",
+    title: "A nationwide mapping pipeline across 45+ counties and 100 k+ businesses",
+    stat1: { value: "100k+", label: "businesses mapped" },
+  },
+  {
+    tag: "Route Optimisation",
+    title: "Smart dispatch and territory planning for field teams, deployed in under 30 days",
+    stat1: { value: "30%", label: "reduction in travel time" },
+    stat2: { value: "120+", label: "active field agents" },
+  },
+]
+
+const SMALL_PROJECTS = [
+  {
+    tag: "Project Astitva",
+    title: "Voice-assisted field capture built with communities for low-connectivity zones",
+  },
+  {
+    tag: "Project Vaani",
+    title: "Building Kenya's largest multilingual speech and transcription dataset",
+  },
+  {
+    tag: "Samudaye",
+    title: "A national marketplace connecting multilingual field workers to data-collection work",
+  },
+]
+
+/* ─── Services ──────────────────────────────────────────────────── */
+const SERVICES = [
+  {
+    title: "Data Collection",
+    desc: "Custom field-intelligence solutions — domain-specific surveys, geo-tagged asset capture, and multimodal dataset creation at scale.",
+    link: null,
+  },
+  {
+    title: "Territory Planning",
+    desc: "Algorithmic route optimisation and territory carving so every agent covers maximum ground with minimum overlap.",
+    link: null,
+  },
+  {
+    title: "Location Intelligence",
+    desc: "Diverse, geo-verified datasets across 45+ counties — ready for analysis, routing, and market gap discovery.",
+    link: { label: "Browse Catalogue ↗", href: "/datasets" },
+  },
+]
+
+/* ─── Capability cards ───────────────────────────────────────────── */
+const CAPABILITIES = [
+  {
+    title: "Field Coverage",
+    desc: "Large-scale mapping across all 47 counties with verified agent networks and GPS-tagged business data.",
+    cta: { label: "Explore Coverage ↗", href: "/datasets" },
+  },
+  {
+    title: "Route Optimisation",
+    desc: "Smart dispatch and territory carving for field teams — deployed in under 30 days, proven to cut travel time by 30%.",
+    cta: { label: "Explore Routing ↗", href: "/solutions/route-planning-and-optimization" },
+  },
+  {
+    title: "Evaluation Benchmarks",
+    desc: "End-to-end evaluation frameworks across sectors — combining community feedback with expert-verified ground truth.",
+    cta: { label: "Explore Evaluations ↗", href: "/solutions/market-segmentation" },
+  },
+]
+
+const TRUSTED = ["Government of Kenya", "Microsoft", "Google", "Gates Foundation", "Safaricom"]
+
+/* ─── Rieng "R" logo SVG (inline, no image dependency) ──────────── */
+function RiengLogoMark({ size = 36, dark = false }: { size?: number; dark?: boolean }) {
+  return (
+    <div style={{
+      width: size,
+      height: size,
+      borderRadius: Math.round(size * 0.22),
+      background: dark ? "rgba(255,255,255,0.12)" : "#f06135",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+    }}>
+      {/* Custom R letterform */}
+      <svg width={size * 0.58} height={size * 0.65} viewBox="0 0 21 24" fill="none">
+        <path
+          d="M2 2h9.5C14.5 2 17 4.2 17 7.2c0 2.4-1.5 4.4-3.8 5.1L17.8 19c.4.6.1 1.4-.7 1.4H15a1.5 1.5 0 01-1.3-.8L10 13H5.5v6.5A1.5 1.5 0 014 21H3.5A1.5 1.5 0 012 19.5V2z"
+          fill={dark ? "#fff" : "#fff"}
+        />
+        <path
+          d="M5.5 5v5H11c1.7 0 3-1.1 3-2.5S12.7 5 11 5H5.5z"
+          fill={dark ? "#f06135" : "#f06135"}
+        />
+        {/* Curved leg accent */}
+        <path
+          d="M13.5 13l4 6.5"
+          stroke={dark ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.35)"}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  )
+}
 
 export default function HomePage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [solutionsOpen, setSolutionsOpen] = useState(false)
+  const [impactOpen, setImpactOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="relative w-full h-screen overflow-hidden bg-[#f06135]">
-        {/* Dynamic Map Background */}
-        <div className="absolute inset-0 z-0 mix-blend-luminosity">
-          <LandingMap />
-        </div>
+    <div style={{ fontFamily: "'Manrope', sans-serif", background: "#faf8f5", color: "#1a1a1a" }}>
 
-        {/* Header / Navigation */}
-        <header className="absolute top-0 left-0 w-full z-20 px-4 sm:px-6 py-4 flex justify-between items-center">
+      {/* ── HEADER ──────────────────────────────────────────────── */}
+      <header style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        background: "rgba(255,255,255,0.97)",
+        borderBottom: "1px solid #e8e4de",
+        backdropFilter: "blur(10px)",
+        transition: "box-shadow 0.3s",
+        boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.06)" : "none",
+      }}>
+        <div style={{
+          maxWidth: "1280px",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: "64px",
+        }}>
+
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-white font-black text-xl sm:text-3xl tracking-tighter drop-shadow-md">
-            <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-8 sm:h-10 w-auto" style={{ filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
-            KIJIJIPOLL
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none" }}>
+            <RiengLogoMark size={34} />
+            <span style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "1.25rem",
+              letterSpacing: "-0.01em",
+              color: "#1a1a1a",
+            }}>
+              Rieng
+            </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-white font-semibold">
-            <div className="relative group">
-              <button className="flex items-center gap-1 hover:text-white/80 transition py-2">
-                Solutions
-                <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          {/* Desktop nav */}
+          <nav style={{ display: "flex", alignItems: "center", gap: "0.1rem" }} className="hidden md:flex">
+            {NAV_LINKS.map(({ label, href }) => (
+              <Link key={label} href={href} style={{
+                padding: "0.45rem 0.8rem",
+                borderRadius: "6px",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                color: label === "Home" ? "#f06135" : "#3a3530",
+                textDecoration: "none",
+                transition: "color 0.2s, background 0.2s",
+              }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.color = "#f06135"
+                  ;(e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.06)"
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.color = label === "Home" ? "#f06135" : "#3a3530"
+                  ;(e.currentTarget as HTMLElement).style.background = "transparent"
+                }}
+              >
+                {label}
+              </Link>
+            ))}
+
+            {/* Impact dropdown */}
+            <div style={{ position: "relative" }}
+              onMouseEnter={() => setImpactOpen(true)}
+              onMouseLeave={() => setImpactOpen(false)}
+            >
+              <button style={{
+                display: "flex", alignItems: "center", gap: "0.25rem",
+                padding: "0.45rem 0.8rem",
+                borderRadius: "6px",
+                fontSize: "0.875rem", fontWeight: 600,
+                color: "#3a3530",
+                background: "none", border: "none", cursor: "pointer",
+              }}>
+                Impact
+                <svg style={{
+                  width: "13px", height: "13px",
+                  transition: "transform 0.2s",
+                  transform: impactOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left flex flex-col overflow-hidden border border-gray-100">
-                <Link href="/solutions/targeted-advertising" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Targeted Advertising</Link>
-                <Link href="/solutions/market-segmentation" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Market Segmentation</Link>
-                <Link href="/solutions/location-intelligence" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Location Intelligence</Link>
-                <Link href="/solutions/route-planning-and-optimization" className="px-5 py-3 text-gray-800 hover:bg-[#f06135] hover:text-white transition-colors text-sm font-medium">Route Planning & Optimization</Link>
-              </div>
+              {impactOpen && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 4px)", left: 0,
+                  background: "#fff", border: "1px solid #e8e4de",
+                  borderRadius: "12px", boxShadow: "0 12px 40px rgba(0,0,0,0.1)",
+                  minWidth: "220px", overflow: "hidden", zIndex: 100,
+                }}>
+                  {IMPACT_LINKS.map(({ label, href }) => (
+                    <Link key={label} href={href} style={{
+                      display: "block", padding: "0.7rem 1.1rem",
+                      fontSize: "0.875rem", fontWeight: 500, color: "#3a3530",
+                      textDecoration: "none", transition: "background 0.15s, color 0.15s",
+                    }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.06)"
+                        ;(e.currentTarget as HTMLElement).style.color = "#f06135"
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.background = "transparent"
+                        ;(e.currentTarget as HTMLElement).style.color = "#3a3530"
+                      }}
+                    >{label}</Link>
+                  ))}
+                </div>
+              )}
             </div>
-            <Link href="/about" className="hover:text-white/80 transition py-2">About Us</Link>
-            <Link href="/contact" className="hover:text-white/80 transition py-2">Contact Us</Link>
           </nav>
 
-          {/* Desktop CTA buttons */}
-          <div className="hidden md:flex gap-3 items-center">
-            <Link href="/book-demo" className="bg-white text-[#f06135] px-4 lg:px-6 py-2.5 rounded-full font-bold hover:bg-gray-100 transition shadow-xl text-sm lg:text-base">
-              Book a Demo
+          {/* CTA */}
+          <div className="hidden md:flex">
+            <Link href="/contact" style={{
+              padding: "0.5rem 1.25rem",
+              border: "1.5px solid #1a1a1a", borderRadius: "8px",
+              fontSize: "0.875rem", fontWeight: 700, color: "#1a1a1a",
+              textDecoration: "none", transition: "background 0.2s, color 0.2s, border-color 0.2s",
+            }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = "#f06135"
+                ;(e.currentTarget as HTMLElement).style.borderColor = "#f06135"
+                ;(e.currentTarget as HTMLElement).style.color = "#fff"
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = "transparent"
+                ;(e.currentTarget as HTMLElement).style.borderColor = "#1a1a1a"
+                ;(e.currentTarget as HTMLElement).style.color = "#1a1a1a"
+              }}
+            >
+              Contact Us
             </Link>
           </div>
 
-          {/* Mobile: Hamburger only */}
-          <div className="flex md:hidden items-center gap-3">
-            <button
-              onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="text-white p-2 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm"
-              aria-label="Toggle menu"
-            >
-              {mobileNavOpen ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </header>
+          {/* Mobile hamburger */}
+          <button className="md:hidden"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            style={{
+              background: "none", border: "1.5px solid #d6cfc4",
+              borderRadius: "8px", padding: "0.45rem", cursor: "pointer", color: "#3a3530",
+            }}>
+            {mobileNavOpen
+              ? <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              : <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            }
+          </button>
+        </div>
 
-        {/* Mobile Slide-down Nav */}
+        {/* Mobile nav panel */}
         {mobileNavOpen && (
-          <div className="absolute top-16 left-0 right-0 z-30 bg-[#1a0a00]/95 backdrop-blur-md border-b border-white/10 flex flex-col py-4 px-6 gap-1">
-            {/* Solutions accordion */}
-            <button
-              onClick={() => setSolutionsOpen(!solutionsOpen)}
-              className="flex items-center justify-between text-white font-semibold py-3 border-b border-white/10"
-            >
-              Solutions
-              <svg className={`w-4 h-4 transition-transform ${solutionsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {solutionsOpen && (
-              <div className="flex flex-col pl-4 gap-1 py-1">
-                {[
-                  ["Targeted Advertising", "/solutions/targeted-advertising"],
-                  ["Market Segmentation", "/solutions/market-segmentation"],
-                  ["Location Intelligence", "/solutions/location-intelligence"],
-                  ["Route Planning & Optimization", "/solutions/route-planning-and-optimization"],
-                ].map(([label, href]) => (
-                  <Link key={href} href={href} onClick={() => setMobileNavOpen(false)}
-                    className="text-white/70 hover:text-white py-2 text-sm font-medium transition">
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            )}
-            <Link href="/about" onClick={() => setMobileNavOpen(false)} className="text-white font-semibold py-3 border-b border-white/10">About Us</Link>
-            <Link href="/contact" onClick={() => setMobileNavOpen(false)} className="text-white font-semibold py-3 border-b border-white/10">Contact Us</Link>
-            <Link href="/book-demo" onClick={() => setMobileNavOpen(false)}
-              className="mt-3 bg-white text-[#f06135] px-6 py-3 rounded-full font-bold text-center hover:bg-gray-100 transition shadow-xl">
-              Book a Demo
+          <div style={{
+            background: "#fff", borderTop: "1px solid #e8e4de",
+            padding: "1rem 1.5rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.25rem",
+          }}>
+            {[...NAV_LINKS, { label: "Impact", href: "#" }].map(({ label, href }) => (
+              <Link key={label} href={href} onClick={() => setMobileNavOpen(false)}
+                style={{ padding: "0.7rem 0", borderBottom: "1px solid #f0ece5", fontSize: "0.95rem", fontWeight: 600, color: "#3a3530", textDecoration: "none" }}
+              >{label}</Link>
+            ))}
+            <Link href="/contact" onClick={() => setMobileNavOpen(false)}
+              style={{ marginTop: "0.75rem", padding: "0.8rem 1.5rem", background: "#f06135", borderRadius: "8px", textAlign: "center", fontSize: "0.95rem", fontWeight: 700, color: "#fff", textDecoration: "none" }}>
+              Contact Us
             </Link>
           </div>
         )}
+      </header>
 
-        {/* Hero Content */}
-        <div className="absolute top-[25%] sm:top-[30%] left-0 right-0 z-20 px-6 sm:px-10 max-w-xl sm:max-w-2xl drop-shadow-lg">
-          <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight mb-3 pointer-events-none">
-            Map Any Market.<br />Find Any Business.
-          </h1>
-          <p className="text-white/90 text-sm sm:text-base font-medium mb-5 sm:mb-6 pointer-events-none max-w-lg">
-            From investors tracking niche industries to researchers mapping territories, Kijijipoll transforms raw geographic data into the strategic location intelligence you need to execute.
-          </p>
-          <div className="flex gap-3 flex-wrap">
-            <Link href="/book-demo"
-              className="bg-[#1a0a00] text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-black transition shadow-xl border border-transparent hover:border-white/20 text-sm sm:text-base">
-              Book a Demo
-            </Link>
-            <Link href="/about"
-              className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-6 sm:px-8 py-3 rounded-full font-bold hover:bg-white/20 transition shadow-xl text-sm sm:text-base">
-              About Us
-            </Link>
-          </div>
-        </div>
-
-        {/* Stat Widgets */}
-        <div className="absolute bottom-4 sm:bottom-10 left-0 right-0 sm:right-10 sm:left-auto z-20 flex justify-center sm:justify-end gap-3 sm:gap-6 px-4 sm:px-0">
-          <StatWidget value="100K+" label="Businesses Registered" bgColor="#d35400" />
-          <StatWidget value="45+" label="Counties" bgColor="#a8e6cf" />
-          <StatWidget value="120+" label="Field Agents" bgColor="#bdc3c7" />
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer style={{
-        background: "linear-gradient(135deg, #1a0a00 0%, #2d1200 50%, #1a0a00 100%)",
-        borderTop: "1px solid rgba(240,97,53,0.2)",
+      {/* ── HERO ────────────────────────────────────────────────── */}
+      <section style={{
+        position: "relative", overflow: "hidden",
+        background: "#f5f0e8", minHeight: "92vh",
+        display: "flex", alignItems: "center",
       }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "3rem 1.25rem 2rem" }}>
-          {/* Footer grid — 1 col mobile, 4 col desktop */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "2rem",
-            marginBottom: "2.5rem",
-          }}
-            className="sm:footer-grid"
-          >
-            {/* Brand column */}
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
-                <img src="/kijijipoll.png" alt="Kijijipoll Logo" style={{ height: "36px", width: "auto", filter: "brightness(0) invert(1)", mixBlendMode: "screen" }} />
-                <span style={{ color: "#fff", fontWeight: 900, fontSize: "1.25rem", letterSpacing: "-0.02em" }}>KIJIJIPOLL</span>
-              </div>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", lineHeight: "1.6", maxWidth: "280px" }}>
-                Africa's leading field intelligence platform. Mapping businesses, empowering decisions, transforming markets across 45+ counties.
-              </p>
-              <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
-                {/* Twitter/X */}
-                <a href="#" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(240,97,53,0.15)", border: "1px solid rgba(240,97,53,0.3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f06135", textDecoration: "none" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.3)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.15)"; }}>
-                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-                </a>
-                {/* LinkedIn */}
-                <a href="#" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(240,97,53,0.15)", border: "1px solid rgba(240,97,53,0.3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f06135", textDecoration: "none" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.3)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.15)"; }}>
-                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
-                </a>
-                {/* Facebook */}
-                <a href="#" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(240,97,53,0.15)", border: "1px solid rgba(240,97,53,0.3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f06135", textDecoration: "none" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.3)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.15)"; }}>
-                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
-                </a>
-              </div>
-            </div>
+        {/* Grain overlay */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
+          pointerEvents: "none", zIndex: 1,
+        }} />
 
-            {/* Product */}
-            <div>
-              <h4 style={{ color: "#f06135", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "1rem" }}>Product</h4>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                {["Field Map", "Agent Management", "Territory Planning", "Reports & Analytics", "CRM Integration"].map(item => (
-                  <li key={item}>
-                    <a href="#" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", textDecoration: "none", transition: "color 0.15s" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#fff"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {/* Floating blobs */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+          <div className="anim-float" style={{
+            position: "absolute", right: "8%", top: "8%",
+            width: "clamp(220px, 28vw, 420px)", height: "clamp(220px, 28vw, 420px)",
+            borderRadius: "50%", background: "rgba(240,97,53,0.18)", filter: "blur(2px)",
+          }} />
+          <div className="anim-float-2" style={{
+            position: "absolute", right: "18%", top: "38%",
+            width: "clamp(130px, 16vw, 250px)", height: "clamp(130px, 16vw, 250px)",
+            borderRadius: "50%", background: "rgba(240,97,53,0.10)", filter: "blur(1px)",
+          }} />
+          <div className="anim-float-3" style={{
+            position: "absolute", right: "3%", top: "4%",
+            width: "clamp(80px, 10vw, 160px)", height: "clamp(80px, 10vw, 160px)",
+            borderRadius: "50%", background: "#c8e63a", opacity: 0.75,
+          }} />
+          <div className="anim-float" style={{
+            position: "absolute", right: "6%", bottom: "12%",
+            width: "clamp(60px, 8vw, 130px)", height: "clamp(60px, 8vw, 130px)",
+            borderRadius: "50%", background: "#f06135", opacity: 0.55,
+          }} />
+          <div className="anim-float-2" style={{
+            position: "absolute", left: "-4%", bottom: "0",
+            width: "clamp(160px, 20vw, 340px)", height: "clamp(160px, 20vw, 340px)",
+            borderRadius: "50%", background: "rgba(240,97,53,0.08)", filter: "blur(3px)",
+          }} />
+        </div>
 
-            {/* Company */}
-            <div>
-              <h4 style={{ color: "#f06135", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "1rem" }}>Company</h4>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                {["About Us", "Blog", "Careers", "Press Kit", "Contact"].map(item => (
-                  <li key={item}>
-                    <a href="#" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", textDecoration: "none", transition: "color 0.15s" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#fff"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h4 style={{ color: "#f06135", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "1rem" }}>Support</h4>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                {["Documentation", "API Reference", "Community", "Status", "Privacy Policy"].map(item => (
-                  <li key={item}>
-                    <a href="#" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem", textDecoration: "none", transition: "color 0.15s" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#fff"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{ height: "1px", background: "rgba(240,97,53,0.15)", margin: "0 0 1.5rem" }} />
-
-          {/* Bottom bar */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem", margin: 0 }}>
-              © {new Date().getFullYear()} Kijijipoll Technologies Ltd. All rights reserved.
+        <div style={{
+          position: "relative", zIndex: 2,
+          maxWidth: "1280px", margin: "0 auto",
+          padding: "5rem 1.5rem 6rem", width: "100%",
+        }}>
+          <div style={{ maxWidth: "680px" }}>
+            <p className="anim-slide-up" style={{
+              fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+              fontSize: "0.75rem", letterSpacing: "0.14em", textTransform: "uppercase",
+              color: "#f06135", marginBottom: "1.25rem",
+            }}>
+              Field Intelligence · Location Data · Africa
             </p>
-            <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
-              {["Terms of Service", "Privacy Policy", "Cookie Policy"].map(item => (
-                <a key={item} href="#" style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem", textDecoration: "none" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.35)"; }}>
-                  {item}
-                </a>
-              ))}
-              <Link
-                href="/field-agent/register"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  background: "rgba(240,97,53,0.15)",
-                  border: "1px solid rgba(240,97,53,0.4)",
-                  color: "#f06135",
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                  padding: "0.4rem 0.9rem",
-                  borderRadius: "9999px",
-                  textDecoration: "none",
-                  transition: "background 0.15s, border-color 0.15s",
-                  letterSpacing: "0.02em",
-                }}
+            <h1 className="anim-slide-up-2" style={{
+              fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
+              fontSize: "clamp(2.6rem, 5.5vw, 4.4rem)", lineHeight: 1.1,
+              letterSpacing: "-0.015em", color: "#1a1a1a", marginBottom: "1.5rem",
+            }}>
+              Mapping every market.<br />
+              <em style={{ color: "#f06135", fontStyle: "italic" }}>Finding every business.</em>
+            </h1>
+            <p className="anim-slide-up-3" style={{
+              fontFamily: "'Manrope', sans-serif", fontWeight: 400,
+              fontSize: "clamp(1rem, 1.6vw, 1.15rem)", lineHeight: 1.7,
+              color: "#5a5248", marginBottom: "2.25rem", maxWidth: "520px",
+            }}>
+              Rieng builds end-to-end field pipelines — from data capture and territory planning
+              through to deployment — across 45+ counties.
+            </p>
+            <div className="anim-slide-up-3" style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap" }}>
+              <Link href="/book-demo" style={{
+                padding: "0.85rem 2rem", background: "#f06135", color: "#fff",
+                borderRadius: "8px", fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                fontSize: "0.95rem", textDecoration: "none",
+                boxShadow: "0 4px 18px rgba(240,97,53,0.35)",
+                transition: "transform 0.2s, box-shadow 0.2s",
+              }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.3)";
-                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(240,97,53,0.7)";
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = "0 8px 28px rgba(240,97,53,0.45)"
                 }}
                 onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.15)";
-                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(240,97,53,0.4)";
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)"
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = "0 4px 18px rgba(240,97,53,0.35)"
                 }}
               >
-                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2h5m6 0v-6m0 0a4 4 0 10-8 0 4 4 0 008 0z" />
-                </svg>
-                Agent App
+                Book a Demo
+              </Link>
+              <Link href="/about" style={{
+                padding: "0.85rem 2rem", background: "transparent",
+                color: "#1a1a1a", border: "1.5px solid #c8c0b4", borderRadius: "8px",
+                fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: "0.95rem",
+                textDecoration: "none", transition: "border-color 0.2s, color 0.2s",
+              }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "#f06135"
+                  ;(e.currentTarget as HTMLElement).style.color = "#f06135"
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "#c8c0b4"
+                  ;(e.currentTarget as HTMLElement).style.color = "#1a1a1a"
+                }}
+              >
+                About Us
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── STATS STRIP ─────────────────────────────────────────── */}
+      <section style={{ background: "#fff", borderBottom: "1px solid #e8e4de", padding: "2rem 1.5rem" }}>
+        <div style={{
+          maxWidth: "1280px", margin: "0 auto",
+          display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "1.5rem",
+        }}>
+          {[
+            { value: "100K+", label: "Businesses Registered" },
+            { value: "45+", label: "Counties Covered" },
+            { value: "120+", label: "Active Field Agents" },
+            { value: "30 days", label: "Avg. Deployment Time" },
+          ].map(({ value, label }) => (
+            <div key={label} style={{ textAlign: "center" }}>
+              <p style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontSize: "clamp(1.8rem, 3vw, 2.5rem)", fontWeight: 400,
+                color: "#f06135", lineHeight: 1, marginBottom: "0.3rem",
+              }}>{value}</p>
+              <p style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontSize: "0.78rem", fontWeight: 600, color: "#8a8178",
+                letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TRUSTED BY ──────────────────────────────────────────── */}
+      <section style={{ background: "#faf8f5", padding: "3.5rem 1.5rem" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <p style={{
+            textAlign: "center", fontFamily: "'Manrope', sans-serif",
+            fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.18em",
+            textTransform: "uppercase", color: "#a09890", marginBottom: "2.5rem",
+          }}>Trusted by</p>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "3rem", flexWrap: "wrap" }}>
+            {TRUSTED.map(name => (
+              <span key={name} style={{
+                fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                fontSize: "clamp(0.9rem, 1.2vw, 1.05rem)", color: "#8a8178",
+                opacity: 0.72, cursor: "default", transition: "opacity 0.2s",
+              }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.72"}
+              >{name}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── OUR WORK ─────────────────────────────────────────────── */}
+      <section style={{ background: "#faf8f5", padding: "4rem 1.5rem" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
+            fontSize: "clamp(1.6rem, 2.5vw, 2rem)", color: "#1a1a1a", marginBottom: "2rem",
+          }}>Our Work</h2>
+
+          {/* Large projects */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "1px", background: "#e0d9d0",
+            border: "1px solid #e0d9d0", borderRadius: "12px 12px 0 0", overflow: "hidden",
+          }}>
+            {PROJECTS.map((p, i) => (
+              <div key={i} style={{ background: "#faf8f5", padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div>
+                  <p style={{
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                    fontSize: "0.68rem", letterSpacing: "0.14em", textTransform: "uppercase",
+                    color: "#a09890", marginBottom: "0.75rem",
+                  }}>{p.tag}</p>
+                  <div style={{ width: "100%", height: "1px", background: "#e0d9d0", marginBottom: "1rem" }} />
+                </div>
+                <div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start" }}>
+                  <p style={{
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 500,
+                    fontSize: "0.95rem", lineHeight: 1.6, color: "#3a3530", flex: 1,
+                  }}>{p.title}</p>
+                  {p.stat1 && (
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p style={{
+                        fontFamily: "'DM Serif Display', Georgia, serif",
+                        fontSize: "clamp(1.6rem, 2.5vw, 2rem)", color: "#1a1a1a", lineHeight: 1, marginBottom: "0.25rem",
+                      }}>{p.stat1.value}</p>
+                      <p style={{ fontSize: "0.72rem", color: "#8a8178", fontWeight: 500 }}>{p.stat1.label}</p>
+                      {p.stat2 && <>
+                        <p style={{
+                          fontFamily: "'DM Serif Display', Georgia, serif",
+                          fontSize: "clamp(1.4rem, 2vw, 1.8rem)", color: "#1a1a1a",
+                          lineHeight: 1, marginTop: "0.75rem", marginBottom: "0.25rem",
+                        }}>{p.stat2.value}</p>
+                        <p style={{ fontSize: "0.72rem", color: "#8a8178", fontWeight: 500 }}>{p.stat2.label}</p>
+                      </>}
+                    </div>
+                  )}
+                </div>
+                <Link href="/case-studies" style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                  fontSize: "0.85rem", color: "#f06135", textDecoration: "none",
+                  display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                  transition: "gap 0.2s",
+                }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.gap = "0.6rem"}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.gap = "0.35rem"}
+                >Read More <span>+</span></Link>
+              </div>
+            ))}
+          </div>
+
+          {/* Small projects */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1px", background: "#e0d9d0",
+            border: "1px solid #e0d9d0", borderTop: "none",
+            borderRadius: "0 0 12px 12px", overflow: "hidden",
+          }}>
+            {SMALL_PROJECTS.map((p, i) => (
+              <div key={i} style={{ background: "#faf8f5", padding: "1.75rem 2rem" }}>
+                <p style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                  fontSize: "0.68rem", letterSpacing: "0.14em", textTransform: "uppercase",
+                  color: "#a09890", marginBottom: "0.65rem",
+                }}>{p.tag}</p>
+                <div style={{ width: "100%", height: "1px", background: "#e0d9d0", marginBottom: "1rem" }} />
+                <p style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 500,
+                  fontSize: "0.9rem", lineHeight: 1.6, color: "#1a4a4a", marginBottom: "1.25rem",
+                }}>{p.title}</p>
+                <Link href="/case-studies" style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                  fontSize: "0.82rem", color: "#f06135", textDecoration: "none",
+                  display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                }}>Read More <span>+</span></Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CAPABILITIES (Karya "data stack" section) ─────────────── */}
+      <section style={{ background: "#fff", padding: "5rem 1.5rem" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
+            fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#1a1a1a",
+            lineHeight: 1.2, marginBottom: "1.25rem", maxWidth: "700px",
+          }}>
+            The Field Data & Intelligence Stack for Africa
+          </h2>
+          <p style={{
+            fontFamily: "'Manrope', sans-serif", fontWeight: 400,
+            fontSize: "clamp(0.95rem, 1.3vw, 1.05rem)", lineHeight: 1.7,
+            color: "#5a5248", marginBottom: "2.5rem", maxWidth: "600px",
+          }}>
+            Verified datasets and field benchmarks built for Africa's geographic, linguistic,
+            and operational complexity — across commerce, agriculture, logistics, and public services.
+          </p>
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "1px", background: "#e0d9d0",
+            border: "1px solid #e0d9d0", borderRadius: "12px", overflow: "hidden",
+          }}>
+            {CAPABILITIES.map((c, i) => (
+              <div key={i} style={{
+                background: "#faf8f5", padding: "2.25rem 2rem",
+                display: "flex", flexDirection: "column", gap: "0.9rem",
+              }}>
+                <h3 style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                  fontSize: "1rem", color: "#1a1a1a",
+                }}>{c.title}</h3>
+                <p style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 400,
+                  fontSize: "0.875rem", lineHeight: 1.65, color: "#6a6460", flex: 1,
+                }}>{c.desc}</p>
+                <Link href={c.cta.href} style={{
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                  fontSize: "0.85rem", color: "#f06135", textDecoration: "none",
+                }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.textDecoration = "underline"}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.textDecoration = "none"}
+                >{c.cta.label}</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── OUR SERVICES ─────────────────────────────────────────── */}
+      <section style={{ background: "#faf8f5", padding: "4.5rem 1.5rem" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
+            fontSize: "clamp(1.6rem, 2.5vw, 2rem)", color: "#1a1a1a", marginBottom: "2.5rem",
+          }}>Our Services</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "3rem", alignItems: "start" }}>
+            {/* Karya-style shape grid */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {[
+                ["circle", "square", "triangle"],
+                ["triangle", "hex", "circle"],
+                ["hex", "circle", "square"],
+              ].map((row, ri) => (
+                <div key={ri} style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                  {row.map((shape, ci) => (
+                    <div key={ci} style={{
+                      width: "52px", height: "52px",
+                      background: ri === 0 && ci === 1
+                        ? "transparent"
+                        : "rgba(240,97,53,0.10)",
+                      border: ri === 0 && ci === 1
+                        ? "1.5px solid rgba(240,97,53,0.3)"
+                        : "none",
+                      borderRadius: shape === "circle" ? "50%"
+                        : shape === "hex" ? "30%"
+                        : shape === "triangle" ? "4px"
+                        : "8px",
+                      transform: shape === "triangle" ? "rotate(45deg)" : "none",
+                      boxShadow: ri === 1 && ci === 1 ? "0 4px 14px rgba(240,97,53,0.18)" : "none",
+                    }} />
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Service list */}
+            <div>
+              {SERVICES.map((s, i) => (
+                <div key={i} style={{ padding: "1.5rem 0", borderBottom: "1px solid #e8e4de" }}>
+                  <h3 style={{
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                    fontSize: "1rem", color: "#1a1a1a", marginBottom: s.desc ? "0.5rem" : 0,
+                  }}>{s.title}</h3>
+                  {s.desc && <p style={{
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 400,
+                    fontSize: "0.875rem", lineHeight: 1.65, color: "#6a6460",
+                    marginBottom: s.link ? "0.75rem" : 0,
+                  }}>{s.desc}</p>}
+                  {s.link && (
+                    <Link href={s.link.href} style={{
+                      fontFamily: "'Manrope', sans-serif", fontWeight: 700,
+                      fontSize: "0.85rem", color: "#f06135", textDecoration: "none",
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.textDecoration = "underline"}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.textDecoration = "none"}
+                    >{s.link.label}</Link>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA BAND (Karya "Let's build together") ─────────────── */}
+      <section style={{
+        background: "linear-gradient(135deg, #e8f4f0 0%, #d4eae4 50%, #e8f4f0 100%)",
+        padding: "6rem 1.5rem",
+        textAlign: "center",
+      }}>
+        <h2 style={{
+          fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
+          fontSize: "clamp(2rem, 4vw, 3.2rem)", color: "#1a3a34",
+          lineHeight: 1.2, marginBottom: "2rem",
+        }}>
+          Let's map the market, together.
+        </h2>
+        <Link href="/contact" style={{
+          display: "inline-block",
+          padding: "0.85rem 2.25rem",
+          border: "1.5px solid #1a3a34",
+          borderRadius: "8px",
+          fontFamily: "'Manrope', sans-serif",
+          fontWeight: 700, fontSize: "0.95rem",
+          color: "#1a3a34", textDecoration: "none",
+          transition: "background 0.2s, color 0.2s",
+        }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = "#1a3a34"
+            ;(e.currentTarget as HTMLElement).style.color = "#fff"
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = "transparent"
+            ;(e.currentTarget as HTMLElement).style.color = "#1a3a34"
+          }}
+        >
+          Connect with us
+        </Link>
+      </section>
+
+      {/* ── FOOTER (Karya-style: logo left, 3-col nav right, bottom bar) */}
+      <footer style={{
+        background: "linear-gradient(160deg, #e8f4f0 0%, #d4eae4 60%, #c8e4dc 100%)",
+        borderTop: "1px solid rgba(26,58,52,0.1)",
+      }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "3.5rem 1.5rem 0" }}>
+          {/* Top area: logo + nav columns */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(160px, 260px) 1fr",
+            gap: "4rem",
+            paddingBottom: "3rem",
+          }}
+            className="footer-top-grid"
+          >
+            {/* Logo block */}
+            <div>
+              <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none", marginBottom: "1rem" }}>
+                <RiengLogoMark size={38} />
+                <span style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  fontWeight: 400, fontSize: "1.4rem",
+                  letterSpacing: "-0.01em", color: "#1a3a34",
+                }}>Rieng</span>
+              </Link>
+            </div>
+
+            {/* 3-column nav */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "2rem",
+            }}>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+                {FOOTER_COL_1.map(({ label, href }) => (
+                  <li key={label}>
+                    <Link href={href} style={{
+                      fontFamily: "'Manrope', sans-serif", fontWeight: 500,
+                      fontSize: "0.875rem", color: "#1a3a34", textDecoration: "none",
+                      opacity: 0.75, transition: "opacity 0.2s",
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.75"}
+                    >{label}</Link>
+                  </li>
+                ))}
+              </ul>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+                {FOOTER_COL_2.map(({ label, href }) => (
+                  <li key={label}>
+                    <Link href={href} style={{
+                      fontFamily: "'Manrope', sans-serif", fontWeight: 500,
+                      fontSize: "0.875rem", color: "#f06135", textDecoration: "none",
+                      opacity: 0.85, transition: "opacity 0.2s",
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.85"}
+                    >{label}</Link>
+                  </li>
+                ))}
+              </ul>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+                {FOOTER_COL_3.map(({ label, href }) => (
+                  <li key={label}>
+                    <a href={href} style={{
+                      fontFamily: "'Manrope', sans-serif", fontWeight: 500,
+                      fontSize: "0.875rem", color: "#1a3a34", textDecoration: "none",
+                      opacity: 0.65, transition: "opacity 0.2s",
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.65"}
+                    >{label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div style={{
+            borderTop: "1px solid rgba(26,58,52,0.12)",
+            padding: "1.25rem 0",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+          }}>
+            <p style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: "0.8rem", color: "#1a3a34", opacity: 0.5,
+            }}>
+              © {new Date().getFullYear() - 4} — {new Date().getFullYear()} &nbsp; Rieng Technologies Ltd. All rights reserved.
+            </p>
+            <p style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: "0.8rem", color: "#1a3a34", opacity: 0.45,
+            }}>
+              Nairobi, Kenya
+            </p>
           </div>
         </div>
       </footer>
 
       <style>{`
+        @media (max-width: 700px) {
+          .footer-top-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2rem !important;
+          }
+          .footer-top-grid > div:last-child {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
         @media (min-width: 640px) {
           .sm\\:footer-grid {
             grid-template-columns: 2fr 1fr 1fr 1fr !important;
@@ -296,4 +854,3 @@ export default function HomePage() {
     </div>
   )
 }
-

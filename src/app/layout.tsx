@@ -6,10 +6,10 @@ const CookieBanner = dynamic(() => import("@/components/CookieBanner"), { ssr: f
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 export const metadata: Metadata = {
-  title: "KijijiPoll — Field Maps & Agent Management",
-  description: "Field sales mapping, agent management, and team coordination platform.",
+  title: "Rieng — Field Maps & Agent Management",
+  description: "Rieng: Africa's leading field intelligence platform for field sales mapping, agent management, and territory planning.",
   icons: {
-    icon: "/kijijipoll.png",
+    icon: "/rieng_logo.jpg",
   },
 };
 
