@@ -287,12 +287,7 @@ export default function HomePage() {
 
         <div style={{ position: "relative", zIndex: 2, maxWidth: "1280px", margin: "0 auto", padding: "5rem 1.5rem 6rem", width: "100%" }}>
           <div style={{ maxWidth: "700px" }}>
-            <p className="anim-slide-up" style={{
-              fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "0.75rem",
-              letterSpacing: "0.14em", textTransform: "uppercase", color: "#f06135", marginBottom: "1.25rem",
-            }}>
-              High-Quality AI Datasets · Local Languages · Ethically Sourced
-            </p>
+
             <h1 className="anim-slide-up-2" style={{
               fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400,
               fontSize: "clamp(2.2rem, 4vw, 3.5rem)", lineHeight: 1.1,
