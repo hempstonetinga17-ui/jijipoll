@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import dynamic from "next/dynamic";
-
-const CookieBanner = dynamic(() => import("@/components/CookieBanner"), { ssr: false });
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 export const metadata: Metadata = {
@@ -28,7 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProviderWrapper>
           {children}
         </SessionProviderWrapper>
-        <CookieBanner />
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0">
         <div className="p-6 border-b border-gray-100">
-          <h1 className="text-2xl font-black text-[#f06135]">KijijiPoll</h1>
+          <h1 className="text-2xl font-black text-[#f06135]">Rieng</h1>
           <p className="text-xs text-gray-400 font-medium mt-0.5">Admin Panel</p>
         </div>
         <nav className="flex-1 p-4 space-y-1">

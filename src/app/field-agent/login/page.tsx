@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { signIn, useSession } from "next-auth/react"
-import { Mic, FileText, Camera, Search, MessageSquare, ChevronRight, Check, ArrowRight, Globe, Zap, Shield } from "lucide-react"
+import { Mic, FileText, Camera, Search, MessageSquare, Check, ArrowRight, Globe, Zap, Shield } from "lucide-react"
 
 const LANGUAGES = [
   { code: "EN", name: "English",  native: "English"   },
@@ -17,9 +17,9 @@ const LANGUAGES = [
 ]
 
 const TASK_SHOWCASES = [
-  { icon: Mic,      color: "#a78bfa", bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.2)", title: "Record speech & sentences", desc: "Earn by speaking in your language" },
-  { icon: FileText, color: "#22d3ee", bg: "rgba(34,211,238,0.1)",  border: "rgba(34,211,238,0.2)",  title: "Type & translate text",      desc: "Earn by writing & translating"    },
-  { icon: Camera,   color: "#34d399", bg: "rgba(52,211,153,0.1)",  border: "rgba(52,211,153,0.2)",  title: "Capture storefronts & places", desc: "Earn by photographing locations" },
+  { icon: Mic,      color: "#f06135", bg: "rgba(240,97,53,0.08)", border: "rgba(240,97,53,0.2)", title: "Record speech & sentences", desc: "Earn by speaking in your language" },
+  { icon: FileText, color: "#c0392b", bg: "rgba(192,57,43,0.08)",  border: "rgba(192,57,43,0.2)",  title: "Type & translate text",      desc: "Earn by writing & translating"    },
+  { icon: Camera,   color: "#e67e22", bg: "rgba(230,126,34,0.08)",  border: "rgba(230,126,34,0.2)",  title: "Capture storefronts & places", desc: "Earn by photographing locations" },
 ]
 
 export default function AgentLogin() {
@@ -69,29 +69,28 @@ export default function AgentLogin() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(160deg, #050d1a 0%, #0a1628 40%, #0f1e35 100%)",
+      background: "linear-gradient(160deg, #faf8f5 0%, #fef3ec 60%, #fde8d8 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "1.5rem 1rem",
-      fontFamily: "'Inter', -apple-system, sans-serif",
+      fontFamily: "'Manrope', 'Inter', -apple-system, sans-serif",
       WebkitFontSmoothing: "antialiased",
       position: "relative", overflow: "hidden",
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap');
         @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
         .fade-up { animation: fadeUp 0.45s ease forwards; }
         .btn-main { transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; border: none; }
-        .btn-main:hover { transform: translateY(-1px); }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,97,53,0.3) !important; }
         .btn-main:active { transform: scale(0.97); }
-        .lang-item { transition: all 0.15s ease; cursor: pointer; border: none; }
-        .lang-item:hover { background: rgba(16,185,129,0.06) !important; }
-        input:focus { outline: none; border-color: rgba(16,185,129,0.5) !important; box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important; }
+        .lang-item { transition: all 0.15s ease; cursor: pointer; border: none; background: none; }
+        .lang-item:hover { background: rgba(240,97,53,0.06) !important; border-color: rgba(240,97,53,0.3) !important; }
+        input:focus { outline: none; border-color: rgba(240,97,53,0.5) !important; box-shadow: 0 0 0 3px rgba(240,97,53,0.12) !important; }
       `}</style>
 
       {/* Decorative orbs */}
-      <div style={{ position: "absolute", top: -80, right: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: -60, left: -60, width: 250, height: 250, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(240,97,53,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -80, left: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(240,97,53,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       {/* WhatsApp Support */}
       <a
@@ -113,18 +112,11 @@ export default function AgentLogin() {
       </a>
 
       {/* Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.75rem" }} className="fade-up">
-        <div style={{
-          width: 40, height: 40, borderRadius: "12px",
-          background: "linear-gradient(135deg, #10b981, #059669)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 0 20px rgba(16,185,129,0.4)",
-        }}>
-          <span style={{ color: "#fff", fontWeight: 900, fontSize: "0.9rem" }}>KP</span>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.75rem" }} className="fade-up">
+        <img src="/rieng_logo.jpg" alt="Rieng" style={{ height: 40, width: 40, borderRadius: "12px", objectFit: "cover" }} />
         <div>
-          <div style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1rem", lineHeight: 1 }}>KijijiPoll</div>
-          <div style={{ color: "#10b981", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase" }}>Agent Portal</div>
+          <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1, fontFamily: "'DM Serif Display', Georgia, serif" }}>Rieng</div>
+          <div style={{ color: "#f06135", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase" }}>Agent Portal</div>
         </div>
       </div>
 
@@ -133,12 +125,11 @@ export default function AgentLogin() {
         className="fade-up"
         style={{
           width: "100%", maxWidth: 420,
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.09)",
+          background: "#ffffff",
+          border: "1px solid rgba(240,97,53,0.12)",
           borderRadius: "24px",
           padding: "1.75rem",
-          backdropFilter: "blur(20px)",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)",
+          boxShadow: "0 24px 60px rgba(240,97,53,0.08), 0 4px 16px rgba(0,0,0,0.06)",
           minHeight: 500,
           display: "flex", flexDirection: "column",
         }}
@@ -149,10 +140,10 @@ export default function AgentLogin() {
             <div key={s} style={{
               width: step === s ? 24 : 8, height: 8, borderRadius: "999px",
               background: step === s
-                ? "linear-gradient(90deg, #10b981, #059669)"
+                ? "linear-gradient(90deg, #f06135, #e05520)"
                 : ["LANGUAGE", "INFO", "LOGIN"].indexOf(step) > i
-                  ? "rgba(16,185,129,0.4)"
-                  : "rgba(255,255,255,0.1)",
+                  ? "rgba(240,97,53,0.4)"
+                  : "rgba(0,0,0,0.08)",
               transition: "all 0.3s ease",
             }} />
           ))}
@@ -164,21 +155,21 @@ export default function AgentLogin() {
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <div style={{
                 width: 60, height: 60, borderRadius: "18px",
-                background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)",
+                background: "rgba(240,97,53,0.08)", border: "1px solid rgba(240,97,53,0.2)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 1rem",
               }}>
-                <Globe size={28} color="#10b981" />
+                <Globe size={28} color="#f06135" />
               </div>
-              <h2 style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1.3rem", margin: 0 }}>Choose Your Language</h2>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.78rem", marginTop: "0.4rem" }}>
-                We support 12+ languages for your work
+              <h2 style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1.3rem", margin: 0, fontFamily: "'DM Serif Display', Georgia, serif" }}>Choose Your Language</h2>
+              <p style={{ color: "#888", fontSize: "0.78rem", marginTop: "0.4rem" }}>
+                We support 8+ languages for your work
               </p>
             </div>
 
             {/* Search */}
             <div style={{ position: "relative", marginBottom: "0.875rem" }}>
-              <Search size={15} color="rgba(255,255,255,0.25)" style={{ position: "absolute", left: "0.875rem", top: "50%", transform: "translateY(-50%)" }} />
+              <Search size={15} color="#bbb" style={{ position: "absolute", left: "0.875rem", top: "50%", transform: "translateY(-50%)" }} />
               <input
                 type="text"
                 placeholder="Search language…"
@@ -187,8 +178,8 @@ export default function AgentLogin() {
                 style={{
                   width: "100%", boxSizing: "border-box",
                   paddingLeft: "2.5rem", paddingRight: "1rem", paddingTop: "0.65rem", paddingBottom: "0.65rem",
-                  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "12px", color: "#e2e8f0", fontSize: "0.85rem",
+                  background: "#faf8f5", border: "1px solid #e8e0d8",
+                  borderRadius: "12px", color: "#1a1a1a", fontSize: "0.85rem",
                   transition: "border-color 0.2s, box-shadow 0.2s",
                 }}
               />
@@ -204,23 +195,23 @@ export default function AgentLogin() {
                   style={{
                     width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
                     padding: "0.75rem 1rem", borderRadius: "12px",
-                    background: selectedLang === lang.code ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${selectedLang === lang.code ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.07)"}`,
+                    background: selectedLang === lang.code ? "rgba(240,97,53,0.06)" : "#faf8f5",
+                    border: `1px solid ${selectedLang === lang.code ? "rgba(240,97,53,0.3)" : "#e8e0d8"}`,
                     textAlign: "left",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                     <span style={{
-                      background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+                      background: "rgba(240,97,53,0.08)", color: "#f06135",
                       fontSize: "0.65rem", fontWeight: 800, padding: "3px 8px", borderRadius: "6px",
                       letterSpacing: "0.05em",
                     }}>{lang.code}</span>
-                    <span style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "0.88rem" }}>{lang.native}</span>
+                    <span style={{ color: "#333", fontWeight: 600, fontSize: "0.88rem" }}>{lang.native}</span>
                   </div>
                   {selectedLang === lang.code && (
                     <div style={{
                       width: 20, height: 20, borderRadius: "50%",
-                      background: "linear-gradient(135deg, #10b981, #059669)",
+                      background: "linear-gradient(135deg, #f06135, #e05520)",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       flexShrink: 0,
                     }}>
@@ -236,11 +227,11 @@ export default function AgentLogin() {
               onClick={() => setStep("INFO")}
               style={{
                 marginTop: "1.25rem", width: "100%",
-                background: "linear-gradient(135deg, #10b981, #059669)",
+                background: "linear-gradient(135deg, #f06135, #e05520)",
                 color: "#fff", fontWeight: 800, fontSize: "0.9rem",
                 padding: "0.875rem", borderRadius: "14px",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-                boxShadow: "0 4px 20px rgba(16,185,129,0.4)",
+                boxShadow: "0 4px 20px rgba(240,97,53,0.35)",
               }}
             >
               Continue in {activeLangObj.name} <ArrowRight size={16} />
@@ -254,14 +245,14 @@ export default function AgentLogin() {
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <div style={{
                 width: 60, height: 60, borderRadius: "18px",
-                background: "rgba(250,204,21,0.1)", border: "1px solid rgba(250,204,21,0.2)",
+                background: "rgba(240,97,53,0.08)", border: "1px solid rgba(240,97,53,0.2)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 1rem",
               }}>
-                <Zap size={28} color="#facc15" />
+                <Zap size={28} color="#f06135" />
               </div>
-              <h2 style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1.25rem", margin: 0 }}>Simple Tasks. Real Earnings.</h2>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.78rem", marginTop: "0.4rem" }}>
+              <h2 style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1.25rem", margin: 0, fontFamily: "'DM Serif Display', Georgia, serif" }}>Simple Tasks. Real Earnings.</h2>
+              <p style={{ color: "#888", fontSize: "0.78rem", marginTop: "0.4rem" }}>
                 Work from your smartphone and get paid
               </p>
             </div>
@@ -283,8 +274,8 @@ export default function AgentLogin() {
                       <Icon size={20} color={task.color} />
                     </div>
                     <div>
-                      <p style={{ color: "#e2e8f0", fontWeight: 800, fontSize: "0.875rem", margin: 0 }}>{task.title}</p>
-                      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", margin: "0.15rem 0 0" }}>{task.desc}</p>
+                      <p style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.875rem", margin: 0 }}>{task.title}</p>
+                      <p style={{ color: "#888", fontSize: "0.72rem", margin: "0.15rem 0 0" }}>{task.desc}</p>
                     </div>
                   </div>
                 )
@@ -297,11 +288,11 @@ export default function AgentLogin() {
                 onClick={() => setStep("LOGIN")}
                 style={{
                   width: "100%",
-                  background: "linear-gradient(135deg, #10b981, #059669)",
+                  background: "linear-gradient(135deg, #f06135, #e05520)",
                   color: "#fff", fontWeight: 800, fontSize: "0.9rem",
                   padding: "0.875rem", borderRadius: "14px",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-                  boxShadow: "0 4px 20px rgba(16,185,129,0.4)",
+                  boxShadow: "0 4px 20px rgba(240,97,53,0.35)",
                 }}
               >
                 Get Started <ArrowRight size={16} />
@@ -310,7 +301,7 @@ export default function AgentLogin() {
                 onClick={() => setStep("LANGUAGE")}
                 style={{
                   background: "none", border: "none", cursor: "pointer",
-                  color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontWeight: 600,
+                  color: "#aaa", fontSize: "0.78rem", fontWeight: 600,
                   padding: "0.5rem",
                 }}
               >
@@ -326,21 +317,21 @@ export default function AgentLogin() {
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <div style={{
                 width: 60, height: 60, borderRadius: "18px",
-                background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
+                background: "rgba(240,97,53,0.08)", border: "1px solid rgba(240,97,53,0.2)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 1rem",
               }}>
-                <Shield size={28} color="#3b82f6" />
+                <Shield size={28} color="#f06135" />
               </div>
-              <h2 style={{ color: "#f1f5f9", fontWeight: 900, fontSize: "1.25rem", margin: 0 }}>Agent Sign In</h2>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.78rem", marginTop: "0.4rem" }}>
+              <h2 style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1.25rem", margin: 0, fontFamily: "'DM Serif Display', Georgia, serif" }}>Agent Sign In</h2>
+              <p style={{ color: "#888", fontSize: "0.78rem", marginTop: "0.4rem" }}>
                 Access your workspace and submissions
               </p>
             </div>
 
             <form onSubmit={handleLoginSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", flex: 1 }}>
               <div>
-                <label style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>
+                <label style={{ display: "block", color: "#888", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>
                   Email Address
                 </label>
                 <input
@@ -352,14 +343,14 @@ export default function AgentLogin() {
                   style={{
                     width: "100%", boxSizing: "border-box",
                     padding: "0.75rem 1rem",
-                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "12px", color: "#e2e8f0", fontSize: "0.9rem",
+                    background: "#faf8f5", border: "1px solid #e8e0d8",
+                    borderRadius: "12px", color: "#1a1a1a", fontSize: "0.9rem",
                     transition: "border-color 0.2s, box-shadow 0.2s",
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>
+                <label style={{ display: "block", color: "#888", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>
                   Password
                 </label>
                 <input
@@ -371,8 +362,8 @@ export default function AgentLogin() {
                   style={{
                     width: "100%", boxSizing: "border-box",
                     padding: "0.75rem 1rem",
-                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "12px", color: "#e2e8f0", fontSize: "0.9rem",
+                    background: "#faf8f5", border: "1px solid #e8e0d8",
+                    borderRadius: "12px", color: "#1a1a1a", fontSize: "0.9rem",
                     transition: "border-color 0.2s, box-shadow 0.2s",
                   }}
                 />
@@ -380,9 +371,9 @@ export default function AgentLogin() {
 
               {error && (
                 <div style={{
-                  background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)",
+                  background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)",
                   borderRadius: "10px", padding: "0.75rem 1rem",
-                  color: "#fca5a5", fontSize: "0.8rem", fontWeight: 600,
+                  color: "#dc2626", fontSize: "0.8rem", fontWeight: 600,
                 }}>
                   {error}
                 </div>
@@ -394,11 +385,11 @@ export default function AgentLogin() {
                 className="btn-main"
                 style={{
                   width: "100%", marginTop: "0.5rem",
-                  background: loading ? "rgba(16,185,129,0.3)" : "linear-gradient(135deg, #10b981, #059669)",
+                  background: loading ? "rgba(240,97,53,0.3)" : "linear-gradient(135deg, #f06135, #e05520)",
                   color: "#fff", fontWeight: 800, fontSize: "0.9rem",
                   padding: "0.875rem", borderRadius: "14px",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-                  boxShadow: loading ? "none" : "0 4px 20px rgba(16,185,129,0.4)",
+                  boxShadow: loading ? "none" : "0 4px 20px rgba(240,97,53,0.35)",
                   cursor: loading ? "not-allowed" : "pointer",
                   opacity: loading ? 0.7 : 1,
                   border: "none",
@@ -415,15 +406,15 @@ export default function AgentLogin() {
               </button>
 
               <div style={{ textAlign: "center" }}>
-                <Link href="/field-agent/register" style={{ color: "#10b981", fontSize: "0.8rem", fontWeight: 700, textDecoration: "none" }}>
+                <Link href="/field-agent/register" style={{ color: "#f06135", fontSize: "0.8rem", fontWeight: 700, textDecoration: "none" }}>
                   Don't have an account? <span style={{ textDecoration: "underline" }}>Create one</span>
                 </Link>
               </div>
             </form>
 
             {/* Google sign in */}
-            <div style={{ marginTop: "1.25rem", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "1.25rem" }}>
-              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: "0.72rem", fontWeight: 600, marginBottom: "0.875rem" }}>
+            <div style={{ marginTop: "1.25rem", borderTop: "1px solid #f0e8e0", paddingTop: "1.25rem" }}>
+              <div style={{ textAlign: "center", color: "#bbb", fontSize: "0.72rem", fontWeight: 600, marginBottom: "0.875rem" }}>
                 Or continue with
               </div>
               <button
@@ -432,8 +423,8 @@ export default function AgentLogin() {
                 className="btn-main"
                 style={{
                   width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem",
-                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                  color: "#e2e8f0", fontWeight: 700, fontSize: "0.875rem",
+                  background: "#faf8f5", border: "1px solid #e8e0d8",
+                  color: "#333", fontWeight: 700, fontSize: "0.875rem",
                   padding: "0.75rem", borderRadius: "12px",
                   cursor: "pointer",
                 }}
@@ -452,7 +443,7 @@ export default function AgentLogin() {
               onClick={() => setStep("INFO")}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                color: "rgba(255,255,255,0.25)", fontSize: "0.75rem", fontWeight: 600,
+                color: "#ccc", fontSize: "0.75rem", fontWeight: 600,
                 marginTop: "1rem", padding: "0.25rem",
               }}
             >
@@ -462,8 +453,8 @@ export default function AgentLogin() {
         )}
       </div>
 
-      <p style={{ color: "rgba(255,255,255,0.15)", fontSize: "0.65rem", fontWeight: 500, marginTop: "1.25rem", textAlign: "center" }}>
-        © 2025 KijijiPoll. All rights reserved.
+      <p style={{ color: "#bbb", fontSize: "0.65rem", fontWeight: 500, marginTop: "1.25rem", textAlign: "center" }}>
+        © 2025 Rieng. All rights reserved.
       </p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>

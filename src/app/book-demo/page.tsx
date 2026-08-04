@@ -77,12 +77,12 @@ export default function BookDemoPage() {
 
           {/* Logo */}
           <div className="flex flex-col items-center mb-6">
-            <img src="/kijijipoll.png" alt="Kijijipoll Logo" className="h-12 w-auto mb-3" style={{ filter: "brightness(0)", mixBlendMode: "multiply" }} />
+            <img src="/rieng_logo.jpg" alt="Rieng Logo" className="h-12 w-auto mb-3 rounded-xl" />
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight text-center">
               Book a meeting
             </h1>
             <p className="text-white/80 text-sm mt-2 text-center max-w-sm leading-relaxed">
-              Grab 15 minutes with <strong>Hempstone</strong>. Pick a time that suits you and we’ll walk you through what Kijijipoll can do for your market — live, with real data.
+              Grab 15 minutes with <strong>Rieng</strong>. Pick a time that suits you and we’ll walk you through what Rieng can do for your market — live, with real data.
             </p>
           </div>
 

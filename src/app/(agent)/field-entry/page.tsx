@@ -55,13 +55,13 @@ export default function FieldEntryPage() {
   }, [activeTab]);
 
   const syncOfflineData = async () => {
-    const queueStr = localStorage.getItem("kijijipoll_offline_sync_queue");
+    const queueStr = localStorage.getItem("rieng_offline_sync_queue");
     if (queueStr) {
       try {
         const queue = JSON.parse(queueStr);
         if (queue.length > 0) {
           alert(`Successfully synced ${queue.length} offline items to the server!`);
-          localStorage.removeItem("kijijipoll_offline_sync_queue");
+          localStorage.removeItem("rieng_offline_sync_queue");
           fetchData();
         }
       } catch (e) { console.error("Sync error", e); }
@@ -73,7 +73,7 @@ export default function FieldEntryPage() {
     try {
       if (activeTab === "route") {
         if (!navigator.onLine) {
-          const cached = localStorage.getItem("kijijipoll_cached_accounts");
+          const cached = localStorage.getItem("rieng_cached_accounts");
           if (cached) setAccounts(JSON.parse(cached));
           setLoading(false);
           return;
@@ -108,7 +108,7 @@ export default function FieldEntryPage() {
         } catch (e) { console.error("Failed to fetch shops-data.json", e); }
         const combined = [...apiAccounts, ...shopAccounts];
         setAccounts(combined);
-        localStorage.setItem("kijijipoll_cached_accounts", JSON.stringify(combined));
+        localStorage.setItem("rieng_cached_accounts", JSON.stringify(combined));
       } else if (activeTab === "timesheet") {
         const res = await fetch("/api/hr/timesheets");
         if (res.ok) { const data = await res.json(); setTimesheets(data.records || []); }
@@ -119,7 +119,7 @@ export default function FieldEntryPage() {
     } catch (err) {
       console.error(err);
       if (activeTab === "route") {
-        const cached = localStorage.getItem("kijijipoll_cached_accounts");
+        const cached = localStorage.getItem("rieng_cached_accounts");
         if (cached) setAccounts(JSON.parse(cached));
       }
     } finally { setLoading(false); }
@@ -267,13 +267,13 @@ export default function FieldEntryPage() {
               if (!prospectForm.name) { alert("Business Name is required"); return; }
               if (prospectForm.lat === 0 || prospectForm.lng === 0) { alert("GPS Coordinates are required."); return; }
               const newAccount = { id: `offline-${Date.now()}`, ...prospectForm, createdAt: new Date().toISOString() };
-              const queueStr = localStorage.getItem("kijijipoll_offline_sync_queue");
+              const queueStr = localStorage.getItem("rieng_offline_sync_queue");
               const queue = queueStr ? JSON.parse(queueStr) : [];
               queue.push(newAccount);
-              localStorage.setItem("kijijipoll_offline_sync_queue", JSON.stringify(queue));
+              localStorage.setItem("rieng_offline_sync_queue", JSON.stringify(queue));
               const newAccounts = [newAccount, ...accounts];
               setAccounts(newAccounts);
-              localStorage.setItem("kijijipoll_cached_accounts", JSON.stringify(newAccounts));
+              localStorage.setItem("rieng_cached_accounts", JSON.stringify(newAccounts));
               alert(isOnline ? "Prospect saved and queued for sync!" : "Offline — saved locally, will sync when online.");
               setShowAddProspect(false);
               setProspectForm({ name: "", natureOfBusiness: "", itemsSold: "", industry: "", estimateVolumePerDay: "", ownerName: "", shopkeeperName: "", ownerPhone: "", shopkeeperPhone: "", ownerEmail: "", shopkeeperEmail: "", additionalInfo: "", address: "", lat: 0, lng: 0 });
@@ -399,7 +399,7 @@ export default function FieldEntryPage() {
         <div style={{ padding: "2rem 1rem", textAlign: "center" }}>
           <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #1e40af)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", fontWeight: "bold", margin: "0 auto 1rem", boxShadow: "0 0 24px rgba(59,130,246,0.4)" }}>A</div>
           <h2 style={{ fontSize: "1.5rem", fontWeight: 800, margin: "0 0 0.5rem", color: "#e2e8f0" }}>Field Agent</h2>
-          <p style={{ color: "#64748b", margin: 0 }}>KijijiPoll Agent App</p>
+          <p style={{ color: "#64748b", margin: 0 }}>Rieng Agent App</p>
           <div style={{ marginTop: "2rem", background: "#111827", borderRadius: "12px", border: "1px solid #1e2d45", overflow: "hidden", textAlign: "left" }}>
             <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", color: "#e2e8f0" }}><User size={18} color="#64748b" /> My Profile</div>
             <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", color: "#ef4444", cursor: "pointer", borderTop: "1px solid #1e2d45" }} onClick={() => router.push("/")}>
