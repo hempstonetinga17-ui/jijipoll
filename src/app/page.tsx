@@ -293,17 +293,15 @@ export default function HomePage() {
               fontSize: "clamp(2.2rem, 4vw, 3.5rem)", lineHeight: 1.1,
               letterSpacing: "-0.015em", color: "#1a1a1a", marginBottom: "1.5rem",
             }}>
-              Providing Kenya language and image datasets<br />
-              <em style={{ color: "#f06135", fontStyle: "italic" }}>for AI training and solutions.</em>
+              Powering Inclusive AI with<br />
+              <em style={{ color: "#f06135", fontStyle: "italic" }}>High-Quality Kenyan Datasets.</em>
             </h1>
             <p className="anim-slide-up-3" style={{
               fontFamily: "'Manrope', sans-serif", fontWeight: 400,
               fontSize: "clamp(1rem, 1.6vw, 1.15rem)", lineHeight: 1.75,
               color: "#5a5248", marginBottom: "2.25rem", maxWidth: "560px",
             }}>
-              Rieng provides AI developers with rich, accurately annotated datasets — from 
-              multilingual audio to geo-tagged, captioned images. Sourced ethically across Kenya by 
-              our mobile workforce of young professionals, fueling more inclusive AI.
+              Rich, accurately annotated speech, text, and geo-tagged image datasets — ethically sourced across Kenya to train culturally aware AI models.
             </p>
             <div className="anim-slide-up-3" style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap" }}>
               <Link href="/datasets" style={{
