@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const { data, error } = await resend.emails.send({
       from: 'Rieng Demo <onboarding@resend.dev>', // Should be a verified domain in production
-      to: ['hempstonetinga17@gmail.com'],
+      to: ['data@rieng.co.ke'],
       subject: `New Demo Booking from ${name} (${organisation})`,
       html: `
         <h2>New Demo Booking Request</h2>
