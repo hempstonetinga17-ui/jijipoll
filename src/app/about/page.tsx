@@ -9,17 +9,30 @@ export const metadata = {
 }
 
 const FOUNDERS = [
-  { name: "Hempstone Tinga", role: "Co-Founder, CEO", image: "/team_photo.jpg", position: "10% 40%" },
-  { name: "Wanjiku Njoroge", role: "Co-founder / Chief Impact Officer", image: "/team_photo.jpg", position: "25% 45%" },
-  { name: "David Ochieng", role: "Co-founder and CTO", image: "/team_photo.jpg", position: "65% 30%" },
+  { name: "Hempstone Tinga", role: "Co-Founder, CEO" },
+  { name: "Wanjiku Njoroge", role: "Co-founder / Chief Impact Officer" },
+  { name: "David Ochieng", role: "Co-founder and CTO" },
 ]
 
 const LEADERS = [
-  { name: "Akinyi Odhiambo", role: "Director - People Success", image: "/team_photo.jpg", position: "40% 35%" },
-  { name: "Faith Mutuku", role: "Head - Monitoring & Evaluation", image: "/team_photo.jpg", position: "73% 35%" },
-  { name: "Kevin Kiprop", role: "Head of Engineering", image: "/team_photo.jpg", position: "50% 30%" },
-  { name: "Fatuma Ali", role: "Head - Language Technology", image: "/team_photo.jpg", position: "95% 30%" },
+  { name: "Akinyi Odhiambo", role: "Director - People Success" },
+  { name: "Faith Mutuku", role: "Head - Monitoring & Evaluation" },
+  { name: "Kevin Kiprop", role: "Head of Engineering" },
+  { name: "Fatuma Ali", role: "Head - Language Technology" },
 ]
+
+function getInitials(name: string) {
+  return name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+}
+
+function Avatar({ name }: { name: string }) {
+  const initials = getInitials(name);
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-[#1a3848] text-white font-['DM_Serif_Display'] text-6xl opacity-90">
+      {initials}
+    </div>
+  )
+}
 
 export default function AboutPage() {
   return (
@@ -88,12 +101,7 @@ export default function AboutPage() {
             {FOUNDERS.map((founder, i) => (
               <div key={i} className="bg-white flex flex-col h-full border border-[#e8e4de] rounded-xl hover:shadow-lg transition-shadow overflow-hidden">
                 <div className="aspect-[4/5] bg-neutral-100 relative overflow-hidden">
-                  <img
-                    src={founder.image}
-                    alt={founder.name}
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: founder.position, transform: "scale(2.5)", transformOrigin: founder.position }}
-                  />
+                  <Avatar name={founder.name} />
                 </div>
                 <div className="p-6 flex items-start justify-between">
                   <div>
@@ -114,12 +122,7 @@ export default function AboutPage() {
             {LEADERS.map((leader, i) => (
               <div key={i} className="bg-white flex flex-col h-full border border-[#e8e4de] rounded-xl hover:shadow-lg transition-shadow overflow-hidden">
                 <div className="aspect-[4/5] bg-neutral-100 relative overflow-hidden">
-                  <img
-                    src={leader.image}
-                    alt={leader.name}
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: leader.position, transform: "scale(2.5)", transformOrigin: leader.position }}
-                  />
+                  <Avatar name={leader.name} />
                 </div>
                 <div className="p-5 flex items-start justify-between">
                   <div>
