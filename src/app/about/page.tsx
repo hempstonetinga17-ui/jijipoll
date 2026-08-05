@@ -9,16 +9,16 @@ export const metadata = {
 }
 
 const FOUNDERS = [
-  { name: "Hempstone Tinga", role: "Co-Founder, CEO", image: "/member_1.jpg" },
-  { name: "Wanjiku Njoroge", role: "Co-founder / Chief Impact Officer", image: "/member_2.jpg" },
-  { name: "David Ochieng", role: "Co-founder and CTO", image: "/member_3.jpg" },
+  { name: "Hempstone Tinga", role: "Co-Founder, CEO", image: "/team_photo.jpg", position: "10% 40%" },
+  { name: "Wanjiku Njoroge", role: "Co-founder / Chief Impact Officer", image: "/team_photo.jpg", position: "25% 45%" },
+  { name: "David Ochieng", role: "Co-founder and CTO", image: "/team_photo.jpg", position: "65% 30%" },
 ]
 
 const LEADERS = [
-  { name: "Akinyi Odhiambo", role: "Director - People Success", image: "/member_4.jpg" },
-  { name: "Faith Mutuku", role: "Head - Monitoring & Evaluation", image: "/member_5.jpg" },
-  { name: "Kevin Kiprop", role: "Head of Engineering", image: "/member_6.jpg" },
-  { name: "Fatuma Ali", role: "Head - Language Technology", image: "/member_1.jpg" },
+  { name: "Akinyi Odhiambo", role: "Director - People Success", image: "/team_photo.jpg", position: "40% 35%" },
+  { name: "Faith Mutuku", role: "Head - Monitoring & Evaluation", image: "/team_photo.jpg", position: "73% 35%" },
+  { name: "Kevin Kiprop", role: "Head of Engineering", image: "/team_photo.jpg", position: "50% 30%" },
+  { name: "Fatuma Ali", role: "Head - Language Technology", image: "/team_photo.jpg", position: "95% 30%" },
 ]
 
 export default function AboutPage() {
@@ -91,7 +91,8 @@ export default function AboutPage() {
                   <img
                     src={founder.image}
                     alt={founder.name}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: founder.position, transform: "scale(2.5)", transformOrigin: founder.position }}
                   />
                 </div>
                 <div className="p-6 flex items-start justify-between">
@@ -116,7 +117,8 @@ export default function AboutPage() {
                   <img
                     src={leader.image}
                     alt={leader.name}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: leader.position, transform: "scale(2.5)", transformOrigin: leader.position }}
                   />
                 </div>
                 <div className="p-5 flex items-start justify-between">
