@@ -1,6 +1,8 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { MarketingHeader } from "@/components/layout/MarketingHeader"
+import { MarketingFooter } from "@/components/layout/MarketingFooter"
 
 /* ─── Nav ───────────────────────────────────────────────────────── */
 const NAV_LINKS = [
@@ -166,105 +168,7 @@ export default function HomePage() {
     <div style={{ fontFamily: "'Manrope', sans-serif", background: "#faf8f5", color: "#1a1a1a" }}>
 
       {/* ── HEADER ──────────────────────────────────────────────── */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 50,
-        background: "rgba(255,255,255,0.97)",
-        borderBottom: "1px solid #e8e4de",
-        backdropFilter: "blur(10px)",
-        boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.06)" : "none",
-        transition: "box-shadow 0.3s",
-      }}>
-        <div style={{
-          maxWidth: "1280px", margin: "0 auto", padding: "0 1.5rem",
-          display: "flex", alignItems: "center", justifyContent: "space-between", height: "64px",
-        }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none" }}>
-            <RiengLogoMark size={34} />
-            <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "1.25rem", letterSpacing: "-0.01em", color: "#1a1a1a" }}>
-              Rieng
-            </span>
-          </Link>
-
-          <nav style={{ alignItems: "center", gap: "0.1rem" }} className="hidden md:flex">
-            {NAV_LINKS.map(({ label, href }) => (
-              <Link key={label} href={href} style={{
-                padding: "0.45rem 0.8rem", borderRadius: "6px",
-                fontSize: "0.875rem", fontWeight: 600,
-                color: label === "Home" ? "#f06135" : "#3a3530",
-                textDecoration: "none", transition: "color 0.2s, background 0.2s",
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#f06135"; (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.06)" }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = label === "Home" ? "#f06135" : "#3a3530"; (e.currentTarget as HTMLElement).style.background = "transparent" }}
-              >{label}</Link>
-            ))}
-            <div style={{ position: "relative" }}
-              onMouseEnter={() => setImpactOpen(true)}
-              onMouseLeave={() => setImpactOpen(false)}
-            >
-              <button style={{
-                display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.45rem 0.8rem",
-                borderRadius: "6px", fontSize: "0.875rem", fontWeight: 600, color: "#3a3530",
-                background: "none", border: "none", cursor: "pointer",
-              }}>
-                Impact
-                <svg style={{ width: "13px", height: "13px", transition: "transform 0.2s", transform: impactOpen ? "rotate(180deg)" : "rotate(0deg)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {impactOpen && (
-                <div style={{
-                  position: "absolute", top: "calc(100% + 4px)", left: 0,
-                  background: "#fff", border: "1px solid #e8e4de", borderRadius: "12px",
-                  boxShadow: "0 12px 40px rgba(0,0,0,0.1)", minWidth: "200px", overflow: "hidden", zIndex: 100,
-                }}>
-                  {IMPACT_LINKS.map(({ label, href }) => (
-                    <Link key={label} href={href} style={{
-                      display: "block", padding: "0.7rem 1.1rem", fontSize: "0.875rem",
-                      fontWeight: 500, color: "#3a3530", textDecoration: "none",
-                    }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.06)"; (e.currentTarget as HTMLElement).style.color = "#f06135" }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3a3530" }}
-                    >{label}</Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </nav>
-
-          <div className="hidden md:flex">
-            <Link href="/contact" style={{
-              padding: "0.5rem 1.25rem", border: "1.5px solid #1a1a1a", borderRadius: "8px",
-              fontSize: "0.875rem", fontWeight: 700, color: "#1a1a1a", textDecoration: "none",
-              transition: "background 0.2s, color 0.2s, border-color 0.2s",
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f06135"; (e.currentTarget as HTMLElement).style.borderColor = "#f06135"; (e.currentTarget as HTMLElement).style.color = "#fff" }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "#1a1a1a"; (e.currentTarget as HTMLElement).style.color = "#1a1a1a" }}
-            >Contact Us</Link>
-          </div>
-
-          <button className="md:hidden" onClick={() => setMobileNavOpen(!mobileNavOpen)}
-            style={{ background: "none", border: "1.5px solid #d6cfc4", borderRadius: "8px", padding: "0.45rem", cursor: "pointer", color: "#3a3530" }}>
-            {mobileNavOpen
-              ? <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              : <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-            }
-          </button>
-        </div>
-
-        {mobileNavOpen && (
-          <div style={{ background: "#fff", borderTop: "1px solid #e8e4de", padding: "1rem 1.5rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-            {[...NAV_LINKS, { label: "Impact", href: "#" }].map(({ label, href }) => (
-              <Link key={label} href={href} onClick={() => setMobileNavOpen(false)}
-                style={{ padding: "0.7rem 0", borderBottom: "1px solid #f0ece5", fontSize: "0.95rem", fontWeight: 600, color: "#3a3530", textDecoration: "none" }}
-              >{label}</Link>
-            ))}
-            <Link href="/contact" onClick={() => setMobileNavOpen(false)}
-              style={{ marginTop: "0.75rem", padding: "0.8rem 1.5rem", background: "#f06135", borderRadius: "8px", textAlign: "center", fontSize: "0.95rem", fontWeight: 700, color: "#fff", textDecoration: "none" }}>
-              Contact Us
-            </Link>
-          </div>
-        )}
-      </header>
+      <MarketingHeader />
 
       {/* ── HERO ────────────────────────────────────────────────── */}
       <section style={{
@@ -517,61 +421,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────────────── */}
-      <footer style={{ background: "linear-gradient(160deg, #e8f4f0 0%, #d4eae4 60%, #c8e4dc 100%)", borderTop: "1px solid rgba(26,58,52,0.1)" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "3.5rem 1.5rem 0" }}>
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(160px,260px)_1fr] gap-8 md:gap-16 pb-12">
-            {/* Logo */}
-            <div>
-              <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none", marginBottom: "1rem" }}>
-                <RiengLogoMark size={38} />
-                <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 400, fontSize: "1.4rem", letterSpacing: "-0.01em", color: "#1a3a34" }}>Rieng</span>
-              </Link>
-            </div>
-            {/* 3 nav columns */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-4 md:gap-8">
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                {FOOTER_COL_1.map(({ label, href }) => (
-                  <li key={label}>
-                    <Link href={href} style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: "0.875rem", color: "#1a3a34", textDecoration: "none", opacity: 0.75, transition: "opacity 0.2s" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.75"}
-                    >{label}</Link>
-                  </li>
-                ))}
-              </ul>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                {FOOTER_COL_2.map(({ label, href }) => (
-                  <li key={label}>
-                    <Link href={href} style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: "0.875rem", color: "#f06135", textDecoration: "none", opacity: 0.85, transition: "opacity 0.2s" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.85"}
-                    >{label}</Link>
-                  </li>
-                ))}
-              </ul>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                {FOOTER_COL_3.map(({ label, href }) => (
-                  <li key={label}>
-                    <a href={href} style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: "0.875rem", color: "#1a3a34", textDecoration: "none", opacity: 0.65, transition: "opacity 0.2s" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "0.65"}
-                    >{label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {/* Bottom bar */}
-          <div style={{ borderTop: "1px solid rgba(26,58,52,0.12)", padding: "1.25rem 0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
-            <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "0.8rem", color: "#1a3a34", opacity: 0.5 }}>
-              © {new Date().getFullYear() - 4} — {new Date().getFullYear()}&nbsp; Rieng Technologies Ltd. All rights reserved.
-            </p>
-            <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "0.8rem", color: "#1a3a34", opacity: 0.45 }}>
-              Nairobi, Kenya
-            </p>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
 
 
     </div>

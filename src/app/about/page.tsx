@@ -1,4 +1,6 @@
 import Link from "next/link"
+import { MarketingHeader } from "@/components/layout/MarketingHeader"
+import { MarketingFooter } from "@/components/layout/MarketingFooter"
 import { Linkedin, ArrowUpRight } from "lucide-react"
 
 export const metadata = {
@@ -26,22 +28,7 @@ export default function AboutPage() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap');
       `}</style>
 
-      {/* ── HEADER ── */}
-      <header className="bg-white border-b border-[#f0e8e0] sticky top-0 z-50 px-6">
-        <div className="max-w-[1200px] mx-auto h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 text-decoration-none">
-            <img src="/rieng_logo.jpg" alt="Rieng" className="h-9 w-9 rounded-lg object-cover" />
-            <span className="font-['DM_Serif_Display'] text-xl text-[#1a1a1a]">Rieng</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-8 font-semibold text-sm">
-            <Link href="/" className="text-neutral-500 hover:text-neutral-900 transition-colors">Platform</Link>
-            <Link href="/about" className="text-[#f06135] transition-colors">About Us</Link>
-            <Link href="/datasets" className="text-neutral-500 hover:text-neutral-900 transition-colors">Data Catalogue</Link>
-            <Link href="/contact" className="text-neutral-500 hover:text-neutral-900 transition-colors">Contact</Link>
-          </nav>
-        </div>
-      </header>
-
+      <MarketingHeader />
       {/* ── PAGE TITLE ── */}
       <div className="border-b border-[#cdd2ce] bg-[#faf8f5] px-6">
         <div className="max-w-[1200px] mx-auto py-10">

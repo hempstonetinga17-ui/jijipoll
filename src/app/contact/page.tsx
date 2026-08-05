@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
+import { MarketingHeader } from "@/components/layout/MarketingHeader"
+import { MarketingFooter } from "@/components/layout/MarketingFooter"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" })
@@ -15,8 +17,8 @@ export default function ContactPage() {
   }
 
   const CONTACTS = [
-    { icon: "✉️", label: "Email", value: "hello@rieng.co", href: "mailto:hello@rieng.co" },
-    { icon: "📱", label: "WhatsApp", value: "+254 700 000 000", href: "https://wa.me/254700000000" },
+    { icon: "✉️", label: "Email", value: "data@rieng.co.ke", href: "mailto:data@rieng.co.ke" },
+    { icon: "📱", label: "WhatsApp", value: "0710588758", href: "https://wa.me/254710588758" },
     { icon: "📍", label: "Location", value: "Nairobi, Kenya", href: "https://maps.google.com/?q=Nairobi+Kenya" },
   ]
 
@@ -27,23 +29,7 @@ export default function ContactPage() {
         input:focus, textarea:focus, select:focus { outline: none; border-color: rgba(240,97,53,0.5) !important; box-shadow: 0 0 0 3px rgba(240,97,53,0.1) !important; }
       `}</style>
 
-      {/* ── HEADER ── */}
-      <header style={{ background: "#ffffff", borderBottom: "1px solid #f0e8e0", padding: "0 1.5rem", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.625rem", textDecoration: "none" }}>
-            <img src="/rieng_logo.jpg" alt="Rieng" style={{ height: 36, width: 36, borderRadius: "10px", objectFit: "cover" }} />
-            <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: "1.25rem", color: "#1a1a1a", fontWeight: 400 }}>Rieng</span>
-          </Link>
-          <nav style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-            <Link href="/about" style={{ color: "#555", fontWeight: 600, fontSize: "0.875rem", textDecoration: "none" }}>About</Link>
-            <Link href="/contact" style={{ color: "#f06135", fontWeight: 700, fontSize: "0.875rem", textDecoration: "none" }}>Contact</Link>
-            <Link href="/login" style={{
-              background: "#f06135", color: "#fff", fontWeight: 700,
-              fontSize: "0.875rem", padding: "0.5rem 1.25rem", borderRadius: "999px", textDecoration: "none",
-            }}>Sign in</Link>
-          </nav>
-        </div>
-      </header>
+      <MarketingHeader />
 
       {/* ── HERO ── */}
       <section style={{
@@ -246,19 +232,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer style={{ background: "#1a1a1a", padding: "2.5rem 1.5rem", textAlign: "center" }}>
-        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "0.625rem", textDecoration: "none", marginBottom: "1.5rem" }}>
-          <img src="/rieng_logo.jpg" alt="Rieng" style={{ height: 32, width: 32, borderRadius: "8px", objectFit: "cover" }} />
-          <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: "1.1rem", color: "#fff" }}>Rieng</span>
-        </Link>
-        <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-          {[["About", "/about"], ["Contact", "/contact"], ["Privacy Policy", "/privacy-policy"], ["Terms", "/terms"]].map(([label, href]) => (
-            <Link key={label} href={href} style={{ color: "#888", fontSize: "0.8rem", fontWeight: 500, textDecoration: "none" }}>{label}</Link>
-          ))}
-        </div>
-        <p style={{ color: "#555", fontSize: "0.75rem", margin: 0 }}>© {new Date().getFullYear()} Rieng. All rights reserved.</p>
-      </footer>
+      <MarketingFooter />
     </div>
   )
 }
