@@ -11,9 +11,25 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus("submitting")
-    // Simulate submission — can hook into a real endpoint later
-    await new Promise(r => setTimeout(r, 1200))
-    setStatus("success")
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      setStatus("success")
+    } catch (error) {
+      console.error(error);
+      setStatus("error")
+    }
   }
 
   const CONTACTS = [
@@ -113,6 +129,11 @@ export default function ContactPage() {
             <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: "1.75rem", color: "#1a1a1a", fontWeight: 400, margin: "0 0 1.75rem" }}>
               Send a Message
             </h2>
+            {status === "error" && (
+              <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", border: "1px solid #f87171" }}>
+                Oops! Something went wrong while sending your message. Please try again.
+              </div>
+            )}
             {status === "success" ? (
               <div style={{
                 background: "#ffffff", borderRadius: "20px", padding: "3rem 2rem",
