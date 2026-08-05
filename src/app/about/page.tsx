@@ -9,16 +9,16 @@ export const metadata = {
 }
 
 const FOUNDERS = [
-  { name: "Hempstone Tinga", role: "Co-Founder, CEO", image: "HT" },
-  { name: "Wanjiku Njoroge", role: "Co-founder / Chief Impact Officer", image: "WN" },
-  { name: "David Ochieng", role: "Co-founder and CTO", image: "DO" },
+  { name: "Hempstone Tinga", role: "Co-Founder, CEO", image: "/member_1.jpg" },
+  { name: "Wanjiku Njoroge", role: "Co-founder / Chief Impact Officer", image: "/member_2.jpg" },
+  { name: "David Ochieng", role: "Co-founder and CTO", image: "/member_3.jpg" },
 ]
 
 const LEADERS = [
-  { name: "Akinyi Odhiambo", role: "Director - People Success", image: "AO" },
-  { name: "Faith Mutuku", role: "Head - Monitoring & Evaluation", image: "FM" },
-  { name: "Kevin Kiprop", role: "Head of Engineering", image: "KK" },
-  { name: "Fatuma Ali", role: "Head - Language Technology", image: "FA" },
+  { name: "Akinyi Odhiambo", role: "Director - People Success", image: "/member_4.jpg" },
+  { name: "Faith Mutuku", role: "Head - Monitoring & Evaluation", image: "/member_5.jpg" },
+  { name: "Kevin Kiprop", role: "Head of Engineering", image: "/member_6.jpg" },
+  { name: "Fatuma Ali", role: "Head - Language Technology", image: "/member_1.jpg" },
 ]
 
 export default function AboutPage() {
@@ -29,6 +29,7 @@ export default function AboutPage() {
       `}</style>
 
       <MarketingHeader />
+
       {/* ── PAGE TITLE ── */}
       <div className="border-b border-[#cdd2ce] bg-[#faf8f5] px-6">
         <div className="max-w-[1200px] mx-auto py-10">
@@ -41,18 +42,18 @@ export default function AboutPage() {
         <section className="py-16 max-w-4xl">
           <div className="space-y-8 text-[17px] leading-[1.8] text-[#455c68]">
             <p>Rieng is a team building a different foundation for AI in Africa.</p>
-            
+
             <p>
-              We build with the people who create and use it, across languages and real-world contexts. 
-              Our focus is expanding who participates in the AI economy, creating meaningful digital work 
+              We build with the people who create and use it, across languages and real-world contexts.
+              Our focus is expanding who participates in the AI economy, creating meaningful digital work
               while delivering high-quality outcomes.
             </p>
-            
+
             <p>
-              Every project reflects a shared commitment to rigour, care, and the belief that better AI 
+              Every project reflects a shared commitment to rigour, care, and the belief that better AI
               comes from broader participation.
             </p>
-            
+
             <p>
               Explore the Rieng Annual Report 2025 for a deeper look at our work, impact, and progress over the past year.
             </p>
@@ -68,31 +69,37 @@ export default function AboutPage() {
 
         {/* ── OUR TEAM ── */}
         <section className="py-16 border-t border-[#cdd2ce]">
-          <h2 className="text-[28px] text-[#1a3848] mb-10">Our Team</h2>
-          <div className="w-full aspect-[21/9] bg-neutral-200 overflow-hidden">
-            <img 
-              src="/team_photo.jpg" 
-              alt="The Rieng Team" 
+          <h2 className="font-['DM_Serif_Display'] text-[28px] text-[#1a3848] mb-10">Our Team</h2>
+          <div className="w-full rounded-2xl overflow-hidden" style={{ aspectRatio: "16/7" }}>
+            <img
+              src="/team_photo.jpg"
+              alt="The Rieng Team — out in the field across Kenya"
               className="w-full h-full object-cover"
+              style={{ objectPosition: "center top" }}
             />
           </div>
+          <p className="text-sm text-[#738a94] mt-3 italic">The Rieng team — out in the field across Kenya.</p>
         </section>
 
         {/* ── FOUNDERS ── */}
         <section className="py-16 border-t border-[#cdd2ce]">
-          <h2 className="text-[28px] text-[#1a3848] mb-10">Founders</h2>
+          <h2 className="font-['DM_Serif_Display'] text-[28px] text-[#1a3848] mb-10">Founders</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {FOUNDERS.map((founder, i) => (
-              <div key={i} className="bg-white flex flex-col h-full border border-transparent hover:shadow-lg transition-shadow">
-                <div className="aspect-[4/5] bg-neutral-100 flex items-center justify-center relative overflow-hidden">
-                  <span className="text-4xl font-bold text-neutral-300 tracking-widest">{founder.image}</span>
+              <div key={i} className="bg-white flex flex-col h-full border border-[#e8e4de] rounded-xl hover:shadow-lg transition-shadow overflow-hidden">
+                <div className="aspect-[4/5] bg-neutral-100 relative overflow-hidden">
+                  <img
+                    src={founder.image}
+                    alt={founder.name}
+                    className="w-full h-full object-cover object-top"
+                  />
                 </div>
-                <div className="p-6 flex items-start justify-between bg-white border-t-0 border-[#cdd2ce] border">
+                <div className="p-6 flex items-start justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-[#1a3848] mb-1">{founder.name}</h3>
                     <p className="text-sm text-[#738a94]">{founder.role}</p>
                   </div>
-                  <Linkedin className="w-6 h-6 text-[#1a3848] shrink-0" />
+                  <Linkedin className="w-5 h-5 text-[#1a3848] shrink-0 mt-1 opacity-60" />
                 </div>
               </div>
             ))}
@@ -101,25 +108,46 @@ export default function AboutPage() {
 
         {/* ── LEADERS ── */}
         <section className="py-16 border-t border-[#cdd2ce]">
-          <h2 className="text-[28px] text-[#1a3848] mb-10">Leaders</h2>
+          <h2 className="font-['DM_Serif_Display'] text-[28px] text-[#1a3848] mb-10">Leaders</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {LEADERS.map((leader, i) => (
-              <div key={i} className="bg-white flex flex-col h-full border border-transparent hover:shadow-lg transition-shadow">
-                <div className="aspect-[4/5] bg-neutral-100 flex items-center justify-center relative overflow-hidden">
-                  <span className="text-4xl font-bold text-neutral-300 tracking-widest">{leader.image}</span>
+              <div key={i} className="bg-white flex flex-col h-full border border-[#e8e4de] rounded-xl hover:shadow-lg transition-shadow overflow-hidden">
+                <div className="aspect-[4/5] bg-neutral-100 relative overflow-hidden">
+                  <img
+                    src={leader.image}
+                    alt={leader.name}
+                    className="w-full h-full object-cover object-top"
+                  />
                 </div>
-                <div className="p-5 flex items-start justify-between bg-white border-t-0 border-[#cdd2ce] border">
+                <div className="p-5 flex items-start justify-between">
                   <div>
                     <h3 className="text-[17px] font-semibold text-[#1a3848] mb-1">{leader.name}</h3>
                     <p className="text-xs text-[#738a94] leading-relaxed pr-2">{leader.role}</p>
                   </div>
-                  <Linkedin className="w-6 h-6 text-[#1a3848] shrink-0" />
+                  <Linkedin className="w-5 h-5 text-[#1a3848] shrink-0 mt-1 opacity-60" />
                 </div>
               </div>
             ))}
           </div>
         </section>
+
+        {/* ── CTA ── */}
+        <section className="py-16 border-t border-[#cdd2ce]">
+          <div className="bg-[linear-gradient(135deg,#fef3ec,#fde8d8)] rounded-2xl p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h2 className="font-['DM_Serif_Display'] text-[28px] text-[#1a1a1a] mb-2">Want to work with us?</h2>
+              <p className="text-[#6a6460] text-sm">We're always looking for talented people passionate about ethical AI.</p>
+            </div>
+            <Link href="/contact" style={{
+              padding: "0.85rem 2rem", background: "#f06135", color: "#fff", borderRadius: "8px",
+              fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "0.95rem",
+              textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0
+            }}>Get in Touch</Link>
+          </div>
+        </section>
       </div>
+
+      <MarketingFooter />
     </div>
   )
 }
