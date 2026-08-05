@@ -21,15 +21,12 @@ const LEADERS = [
   { name: "Fatuma Ali", role: "Head - Language Technology" },
 ]
 
-function getInitials(name: string) {
-  return name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
-}
+import { User } from "lucide-react"
 
-function Avatar({ name }: { name: string }) {
-  const initials = getInitials(name);
+function Avatar() {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#1a3848] text-white font-['DM_Serif_Display'] text-6xl opacity-90">
-      {initials}
+    <div className="w-full h-full flex items-center justify-center bg-[#1a3848] text-white opacity-90">
+      <User size={64} strokeWidth={1.5} />
     </div>
   )
 }
@@ -85,7 +82,7 @@ export default function AboutPage() {
           <h2 className="font-['DM_Serif_Display'] text-[28px] text-[#1a3848] mb-10">Our Team</h2>
           <div className="w-full rounded-2xl overflow-hidden" style={{ aspectRatio: "16/7" }}>
             <img
-              src="/team_photo.jpg"
+              src="/team_photo.jpg?v=2"
               alt="The Rieng Team — out in the field across Kenya"
               className="w-full h-full object-cover"
               style={{ objectPosition: "center top" }}
@@ -101,7 +98,7 @@ export default function AboutPage() {
             {FOUNDERS.map((founder, i) => (
               <div key={i} className="bg-white flex flex-col h-full border border-[#e8e4de] rounded-xl hover:shadow-lg transition-shadow overflow-hidden">
                 <div className="aspect-[4/5] bg-neutral-100 relative overflow-hidden">
-                  <Avatar name={founder.name} />
+                  <Avatar />
                 </div>
                 <div className="p-6 flex items-start justify-between">
                   <div>
@@ -122,7 +119,7 @@ export default function AboutPage() {
             {LEADERS.map((leader, i) => (
               <div key={i} className="bg-white flex flex-col h-full border border-[#e8e4de] rounded-xl hover:shadow-lg transition-shadow overflow-hidden">
                 <div className="aspect-[4/5] bg-neutral-100 relative overflow-hidden">
-                  <Avatar name={leader.name} />
+                  <Avatar />
                 </div>
                 <div className="p-5 flex items-start justify-between">
                   <div>
