@@ -64,7 +64,7 @@ export function MarketingHeader() {
           </span>
         </Link>
 
-        <nav style={{ alignItems: "center", gap: "0.1rem", display: "none" }} className="md:flex">
+        <nav style={{ alignItems: "center", gap: "0.1rem" }} className="hidden md:flex">
           {NAV_LINKS.map(({ label, href }) => (
             <Link key={label} href={href} style={{
               padding: "0.45rem 0.8rem", borderRadius: "6px",
