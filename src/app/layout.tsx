@@ -3,7 +3,7 @@ import "./globals.css";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 export const metadata: Metadata = {
-  title: "Rieng — Field Maps & Agent Management",
+  title: "Rieng — We Solve Data Gaps",
   description: "Rieng: Africa's leading field intelligence platform for field sales mapping, agent management, and territory planning.",
   icons: {
     icon: "/rieng_logo.jpg",
