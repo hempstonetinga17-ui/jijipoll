@@ -6,7 +6,7 @@ const FOOTER_COL_1 = [
   { label: "About Us", href: "/about" },
   { label: "Data Catalogue", href: "/datasets" },
   { label: "Contact Us", href: "/contact" },
-  { label: "Careers", href: "#" },
+  { label: "Careers", href: "/careers" },
 ]
 const FOOTER_COL_2 = [
   { label: "Impact", href: "/impact" },
@@ -14,10 +14,10 @@ const FOOTER_COL_2 = [
   { label: "Case Studies", href: "/case-studies" },
 ]
 const FOOTER_COL_3 = [
-  { label: "Terms & Conditions", href: "#" },
-  { label: "Privacy Policy", href: "#" },
-  { label: "Cookie Policy", href: "#" },
-  { label: "Refund & Cancellation", href: "#" },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Cookie Policy", href: "/cookies" },
+  { label: "Refund & Cancellation", href: "/refund" },
 ]
 
 function RiengLogoMark({ size = 36, dark = false }: { size?: number; dark?: boolean }) {
