@@ -7,13 +7,8 @@ const NAV_LINKS = [
   { label: "Case Studies", href: "/case-studies" },
   { label: "Data Catalogue", href: "/datasets" },
   { label: "About Us", href: "/about" },
-  { label: "Platform", href: "/solutions/location-intelligence" },
-]
-const IMPACT_LINKS = [
-  { label: "Ethical Sourcing", href: "/about" },
-  { label: "Language Datasets", href: "/datasets" },
-  { label: "Audio Collection", href: "/datasets" },
-  { label: "Image Captioning", href: "/datasets" },
+  { label: "Platform", href: "/book-demo" },
+  { label: "Impact", href: "/impact" },
 ]
 
 function RiengLogoMark({ size = 36, dark = false }: { size?: number; dark?: boolean }) {
@@ -35,7 +30,6 @@ function RiengLogoMark({ size = 36, dark = false }: { size?: number; dark?: bool
 
 export function MarketingHeader() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [impactOpen, setImpactOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -76,38 +70,6 @@ export function MarketingHeader() {
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = label === "Home" ? "#f06135" : "#3a3530"; (e.currentTarget as HTMLElement).style.background = "transparent" }}
             >{label}</Link>
           ))}
-          <div style={{ position: "relative" }}
-            onMouseEnter={() => setImpactOpen(true)}
-            onMouseLeave={() => setImpactOpen(false)}
-          >
-            <button style={{
-              display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.45rem 0.8rem",
-              borderRadius: "6px", fontSize: "0.875rem", fontWeight: 600, color: "#3a3530",
-              background: "none", border: "none", cursor: "pointer",
-            }}>
-              Impact
-              <svg style={{ width: "13px", height: "13px", transition: "transform 0.2s", transform: impactOpen ? "rotate(180deg)" : "rotate(0deg)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {impactOpen && (
-              <div style={{
-                position: "absolute", top: "calc(100% + 4px)", left: 0,
-                background: "#fff", border: "1px solid #e8e4de", borderRadius: "12px",
-                boxShadow: "0 12px 40px rgba(0,0,0,0.1)", minWidth: "200px", overflow: "hidden", zIndex: 100,
-              }}>
-                {IMPACT_LINKS.map(({ label, href }) => (
-                  <Link key={label} href={href} style={{
-                    display: "block", padding: "0.7rem 1.1rem", fontSize: "0.875rem",
-                    fontWeight: 500, color: "#3a3530", textDecoration: "none",
-                  }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(240,97,53,0.06)"; (e.currentTarget as HTMLElement).style.color = "#f06135" }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3a3530" }}
-                  >{label}</Link>
-                ))}
-              </div>
-            )}
-          </div>
         </nav>
 
         <div className="hidden md:flex">
@@ -132,7 +94,7 @@ export function MarketingHeader() {
 
       {mobileNavOpen && (
         <div style={{ background: "#fff", borderTop: "1px solid #e8e4de", padding: "1rem 1.5rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-          {[...NAV_LINKS, { label: "Impact", href: "#" }].map(({ label, href }) => (
+          {NAV_LINKS.map(({ label, href }) => (
             <Link key={label} href={href} onClick={() => setMobileNavOpen(false)}
               style={{ padding: "0.7rem 0", borderBottom: "1px solid #f0ece5", fontSize: "0.95rem", fontWeight: 600, color: "#3a3530", textDecoration: "none" }}
             >{label}</Link>

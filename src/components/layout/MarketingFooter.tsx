@@ -9,8 +9,8 @@ const FOOTER_COL_1 = [
   { label: "Careers", href: "#" },
 ]
 const FOOTER_COL_2 = [
-  { label: "Impact", href: "#" },
-  { label: "Platform", href: "/solutions/location-intelligence" },
+  { label: "Impact", href: "/impact" },
+  { label: "Platform", href: "/book-demo" },
   { label: "Case Studies", href: "/case-studies" },
 ]
 const FOOTER_COL_3 = [
